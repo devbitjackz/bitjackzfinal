@@ -1,0 +1,146 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: hsl(0, 0%, 100%);
+  --foreground: hsl(20, 14.3%, 4.1%);
+  --muted: hsl(60, 4.8%, 95.9%);
+  --muted-foreground: hsl(25, 5.3%, 44.7%);
+  --popover: hsl(0, 0%, 100%);
+  --popover-foreground: hsl(20, 14.3%, 4.1%);
+  --card: hsl(0, 0%, 100%);
+  --card-foreground: hsl(20, 14.3%, 4.1%);
+  --border: hsl(20, 5.9%, 90%);
+  --input: hsl(20, 5.9%, 90%);
+  --primary: hsl(207, 90%, 54%);
+  --primary-foreground: hsl(211, 100%, 99%);
+  --secondary: hsl(60, 4.8%, 95.9%);
+  --secondary-foreground: hsl(24, 9.8%, 10%);
+  --accent: hsl(60, 4.8%, 95.9%);
+  --accent-foreground: hsl(24, 9.8%, 10%);
+  --destructive: hsl(0, 84.2%, 60.2%);
+  --destructive-foreground: hsl(60, 9.1%, 97.8%);
+  --ring: hsl(20, 14.3%, 4.1%);
+  --radius: 0.5rem;
+  
+  /* Casino-specific colors */
+  --casino-navy: hsl(240, 35%, 13%);
+  --casino-blue: hsl(218, 56%, 18%);
+  --casino-gold: hsl(51, 100%, 50%);
+  --casino-purple: hsl(292, 76%, 43%);
+  --casino-cyan: hsl(187, 100%, 42%);
+}
+
+.dark {
+  --background: hsl(240, 35%, 13%);
+  --foreground: hsl(0, 0%, 98%);
+  --muted: hsl(240, 3.7%, 15.9%);
+  --muted-foreground: hsl(240, 5%, 64.9%);
+  --popover: hsl(218, 56%, 18%);
+  --popover-foreground: hsl(0, 0%, 98%);
+  --card: hsl(218, 56%, 18%);
+  --card-foreground: hsl(0, 0%, 98%);
+  --border: hsl(240, 3.7%, 15.9%);
+  --input: hsl(240, 3.7%, 15.9%);
+  --primary: hsl(51, 100%, 50%);
+  --primary-foreground: hsl(240, 35%, 13%);
+  --secondary: hsl(240, 3.7%, 15.9%);
+  --secondary-foreground: hsl(0, 0%, 98%);
+  --accent: hsl(240, 3.7%, 15.9%);
+  --accent-foreground: hsl(0, 0%, 98%);
+  --destructive: hsl(0, 62.8%, 30.6%);
+  --destructive-foreground: hsl(0, 0%, 98%);
+  --ring: hsl(240, 4.9%, 83.9%);
+  --radius: 0.5rem;
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply font-sans antialiased;
+    background: var(--casino-navy);
+    color: hsl(0, 0%, 98%);
+    min-height: 100vh;
+  }
+
+  html {
+    @apply dark;
+  }
+}
+
+@layer utilities {
+  .casino-bg {
+    background: var(--casino-navy);
+  }
+  
+  .casino-bg-blue {
+    background: var(--casino-blue);
+  }
+  
+  .casino-gold {
+    color: var(--casino-gold);
+  }
+  
+  .casino-purple {
+    color: var(--casino-purple);
+  }
+  
+  .casino-cyan {
+    color: var(--casino-cyan);
+  }
+  
+  .bg-casino-gold {
+    background-color: var(--casino-gold);
+  }
+  
+  .bg-casino-blue {
+    background-color: var(--casino-blue);
+  }
+  
+  .bg-casino-purple {
+    background-color: var(--casino-purple);
+  }
+  
+  .bg-casino-cyan {
+    background-color: var(--casino-cyan);
+  }
+  
+  .game-tile {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  
+  .game-tile:hover {
+    transform: scale(1.05);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+  }
+  
+  .balance-glow {
+    box-shadow: 0 0 20px rgba(255, 215, 0, 0.3);
+  }
+  
+  .neon-glow {
+    text-shadow: 0 0 10px currentColor;
+  }
+  
+  .crash-rocket {
+    animation: rocket-fly 3s ease-in-out infinite;
+  }
+  
+  @keyframes rocket-fly {
+    0%, 100% { transform: translateY(0px) rotate(0deg); }
+    50% { transform: translateY(-20px) rotate(5deg); }
+  }
+  
+  @keyframes float {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-10px); }
+  }
+  
+  .animate-float {
+    animation: float 3s ease-in-out infinite;
+  }
+}

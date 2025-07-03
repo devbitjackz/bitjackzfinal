@@ -1,0 +1,259 @@
+import { useState } from "react";
+import { useMutation, useQuery } from "@tanstack/react-query";
+import { useLocation } from "wouter";
+import { ArrowLeft, Bomb, Gem } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Card, CardContent } from "@/components/ui/card";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { apiRequest, queryClient } from "@/lib/queryClient";
+import { useToast } from "@/hooks/use-toast";
+
+interface MinesResult {
+  result: string;
+  minePositions: number[];
+  multiplier: number;
+  payout: number;
+  newBalance: number;
+}
+
+export default function MinesGame() {
+  const [, setLocation] = useLocation();
+  const { toast } = useToast();
+  const [betAmount, setBetAmount] = useState("10.00");
+  const [minesCount, setMinesCount] = useState("3");
+  const [selectedTiles, setSelectedTiles] = useState<number[]>([]);
+  const [gameActive, setGameActive] = useState(false);
+  const [revealedMines, setRevealedMines] = useState<number[]>([]);
+
+  const { data: balance } = useQuery<{ balance: number }>({
+    queryKey: ["/api/balance"],
+  });
+
+  const playGameMutation = useMutation({
+    mutationFn: async (gameData: { betAmount: number; minesCount: number; selectedTiles: number[] }) => {
+      const response = await apiRequest("POST", "/api/games/mines", gameData);
+      return response.json() as Promise<MinesResult>;
+    },
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({ queryKey: ["/api/balance"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/games/recent"] });
+      
+      setRevealedMines(data.minePositions);
+      setGameActive(false);
+      
+      if (data.result === "win") {
+        toast({
+          title: "Winner!",
+          description: `You avoided all mines! Won $${data.payout.toFixed(2)} with ${data.multiplier.toFixed(2)}x!`,
+        });
+      } else {
+        toast({
+          title: "BOOM!",
+          description: "You hit a mine! Better luck next time.",
+          variant: "destructive",
+        });
+      }
+    },
+    onError: () => {
+      setGameActive(false);
+      toast({
+        title: "Error",
+        description: "Failed to process game",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const handleTileClick = (tileIndex: number) => {
+    if (!gameActive || selectedTiles.includes(tileIndex)) return;
+    
+    const newSelectedTiles = [...selectedTiles, tileIndex];
+    setSelectedTiles(newSelectedTiles);
+  };
+
+  const handleStartGame = () => {
+    const bet = parseFloat(betAmount);
+    const mines = parseInt(minesCount);
+    
+    if (bet <= 0 || mines < 1 || mines > 24) {
+      toast({
+        title: "Invalid Input",
+        description: "Please enter valid bet amount and mines count (1-24)",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setGameActive(true);
+    setSelectedTiles([]);
+    setRevealedMines([]);
+  };
+
+  const handleCashOut = () => {
+    if (selectedTiles.length === 0) {
+      toast({
+        title: "No tiles selected",
+        description: "Select at least one tile before cashing out",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    const bet = parseFloat(betAmount);
+    const mines = parseInt(minesCount);
+    
+    playGameMutation.mutate({ betAmount: bet, minesCount: mines, selectedTiles });
+  };
+
+  const currentMultiplier = selectedTiles.length > 0 ? 
+    Math.pow((25 - parseInt(minesCount)) / (25 - parseInt(minesCount) - selectedTiles.length + 1), selectedTiles.length) : 1;
+
+  return (
+    <div className="pt-24 pb-8 px-4 sm:px-6 lg:px-8 min-h-screen">
+      <div className="max-w-4xl mx-auto">
+        <div className="flex items-center justify-between mb-6">
+          <Button
+            variant="ghost"
+            onClick={() => setLocation("/")}
+            className="casino-gold hover:text-white"
+          >
+            <ArrowLeft className="mr-2" size={16} />
+            Back to Games
+          </Button>
+          <h2 className="text-3xl font-bold casino-gold">MINES</h2>
+          <div className="text-sm text-gray-400">123 players online</div>
+        </div>
+
+        {/* Game Display */}
+        <Card className="casino-bg-blue border-casino-gold/20 mb-6">
+          <CardContent className="p-8">
+            <div className="text-center mb-8">
+              <div className="text-2xl font-bold casino-gold mb-2">
+                {gameActive ? `${currentMultiplier.toFixed(2)}x` : "Start Game"}
+              </div>
+              <div className="text-gray-300">
+                {gameActive ? "Click tiles to reveal gems - avoid mines!" : "Select tiles carefully"}
+              </div>
+            </div>
+            
+            {/* Mines Grid */}
+            <div className="grid grid-cols-5 gap-2 mb-6">
+              {Array.from({ length: 25 }, (_, i) => (
+                <button
+                  key={i}
+                  onClick={() => handleTileClick(i)}
+                  disabled={!gameActive || selectedTiles.includes(i)}
+                  className={`aspect-square rounded-lg border-2 transition-all duration-200 flex items-center justify-center text-2xl ${
+                    selectedTiles.includes(i)
+                      ? revealedMines.includes(i)
+                        ? "bg-red-500 border-red-400"
+                        : "bg-green-500 border-green-400"
+                      : revealedMines.includes(i)
+                      ? "bg-red-500 border-red-400"
+                      : "bg-casino-navy border-casino-gold/20 hover:border-casino-gold/50"
+                  }`}
+                >
+                  {selectedTiles.includes(i) ? (
+                    revealedMines.includes(i) ? (
+                      <Bomb className="text-white" size={24} />
+                    ) : (
+                      <Gem className="text-white" size={24} />
+                    )
+                  ) : revealedMines.includes(i) ? (
+                    <Bomb className="text-white" size={24} />
+                  ) : null}
+                </button>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Betting Controls */}
+        <Card className="casino-bg-blue/50 border-casino-gold/20 mb-6">
+          <CardContent className="p-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <Label className="text-sm font-medium mb-2 block">Bet Amount</Label>
+                <div className="relative">
+                  <span className="absolute left-3 top-1/2 transform -translate-y-1/2 casino-gold">$</span>
+                  <Input
+                    type="number"
+                    value={betAmount}
+                    onChange={(e) => setBetAmount(e.target.value)}
+                    disabled={gameActive}
+                    className="pl-8 casino-bg border-casino-gold/20 text-white"
+                    placeholder="0.00"
+                  />
+                </div>
+                <div className="flex space-x-2 mt-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    disabled={gameActive}
+                    onClick={() => setBetAmount((parseFloat(betAmount) / 2).toFixed(2))}
+                    className="flex-1 bg-casino-gold/20 border-casino-gold/20 casino-gold hover:bg-casino-gold/30"
+                  >
+                    1/2
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    disabled={gameActive}
+                    onClick={() => setBetAmount((parseFloat(betAmount) * 2).toFixed(2))}
+                    className="flex-1 bg-casino-gold/20 border-casino-gold/20 casino-gold hover:bg-casino-gold/30"
+                  >
+                    2x
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    disabled={gameActive}
+                    onClick={() => setBetAmount((balance?.balance || 0).toFixed(2))}
+                    className="flex-1 bg-casino-gold/20 border-casino-gold/20 casino-gold hover:bg-casino-gold/30"
+                  >
+                    Max
+                  </Button>
+                </div>
+              </div>
+              <div>
+                <Label className="text-sm font-medium mb-2 block">Number of Mines</Label>
+                <Select value={minesCount} onValueChange={setMinesCount} disabled={gameActive}>
+                  <SelectTrigger className="casino-bg border-casino-gold/20 text-white">
+                    <SelectValue placeholder="Select mines count" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {Array.from({ length: 24 }, (_, i) => (
+                      <SelectItem key={i + 1} value={(i + 1).toString()}>
+                        {i + 1} mines
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Action Buttons */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <Button
+            onClick={handleStartGame}
+            disabled={gameActive || playGameMutation.isPending}
+            className="bg-casino-gold hover:bg-casino-gold/90 text-casino-navy py-6 text-lg font-bold"
+          >
+            {gameActive ? "Game Active" : "Start Game"}
+          </Button>
+          <Button
+            onClick={handleCashOut}
+            disabled={!gameActive || playGameMutation.isPending}
+            className="bg-red-500 hover:bg-red-600 text-white py-6 text-lg font-bold"
+          >
+            {playGameMutation.isPending ? "Processing..." : `Cash Out ${currentMultiplier.toFixed(2)}x`}
+          </Button>
+        </div>
+      </div>
+    </div>
+  );
+}
