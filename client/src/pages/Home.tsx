@@ -2,7 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import GameTile from "@/components/GameTile";
 import { Card, CardContent } from "@/components/ui/card";
 import { Trophy, User } from "lucide-react";
-import bitjackzLogo from "@assets/bitjackz logo_1751569851580.png";
+import bitjackzBanner from "@assets/banner_1751570113317.jpg";
 
 interface GameResult {
   id: number;
@@ -86,22 +86,14 @@ export default function Home() {
     <div className="pt-24 pb-8 px-4 sm:px-6 lg:px-8 min-h-screen">
       <div className="max-w-7xl mx-auto">
         {/* Hero Section */}
-        <div className="text-center mb-12">
-          <div className="flex justify-center mb-6">
+        <div className="mb-12">
+          <div className="relative overflow-hidden rounded-2xl">
             <img 
-              src={bitjackzLogo} 
-              alt="BitJackz Casino" 
-              className="w-48 h-48 object-contain"
+              src={bitjackzBanner} 
+              alt="BitJackz Casino - Win Up To 500x In Crash!" 
+              className="w-full h-auto object-cover"
             />
           </div>
-          <h1 className="text-5xl md:text-7xl font-bold mb-6">
-            <span className="casino-gold neon-glow">BitJackz</span>
-            <span className="text-white"> Casino</span>
-          </h1>
-          <p className="text-xl text-gray-300 mb-8">
-            Experience the thrill of high-stakes crypto casino gaming
-          </p>
-
         </div>
 
         {/* Game Grid */}
