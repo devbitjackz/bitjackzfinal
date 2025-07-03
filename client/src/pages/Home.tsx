@@ -8,7 +8,7 @@ import crashBanner from "@assets/crash_1751570711855.png";
 import cointossBanner from "@assets/cointoss_1751570242550.png";
 import diceBanner from "@assets/dice_1751570260412.png";
 import limboBanner from "@assets/limbo_1751570260414.png";
-import minesBanner from "@assets/mines_1751570716434.png";
+import minesBanner from "@assets/mines_1751571003286.png";
 import rouletteBanner from "@assets/roulette_1751570260414.png";
 
 interface GameResult {
