@@ -1,8 +1,15 @@
 import { useQuery } from "@tanstack/react-query";
+import { useLocation } from "wouter";
 import GameTile from "@/components/GameTile";
 import { Card, CardContent } from "@/components/ui/card";
 import { Trophy, User } from "lucide-react";
 import bitjackzBanner from "@assets/banner_1751570113317.jpg";
+import crashBanner from "@assets/crash_1751570260412.png";
+import cointossBanner from "@assets/cointoss_1751570242550.png";
+import diceBanner from "@assets/dice_1751570260412.png";
+import limboBanner from "@assets/limbo_1751570260414.png";
+import minesBanner from "@assets/mines_1751570260414.png";
+import rouletteBanner from "@assets/roulette_1751570260414.png";
 
 interface GameResult {
   id: number;
@@ -15,6 +22,7 @@ interface GameResult {
 }
 
 export default function Home() {
+  const [, setLocation] = useLocation();
   const { data: recentGames, isLoading } = useQuery<GameResult[]>({
     queryKey: ["/api/games/recent"],
   });
@@ -93,6 +101,59 @@ export default function Home() {
               alt="BitJackz Casino - Win Up To 500x In Crash!" 
               className="w-full h-auto object-cover"
             />
+          </div>
+        </div>
+
+        {/* Game Banners */}
+        <div className="mb-12">
+          {/* First Row - 4 Banners */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
+            <div className="relative overflow-hidden rounded-lg cursor-pointer hover:scale-105 transition-transform duration-300" onClick={() => setLocation('/crash')}>
+              <img 
+                src={crashBanner} 
+                alt="BitJackz Crash Game" 
+                className="w-full h-auto object-cover"
+              />
+            </div>
+            <div className="relative overflow-hidden rounded-lg cursor-pointer hover:scale-105 transition-transform duration-300" onClick={() => setLocation('/coinflip')}>
+              <img 
+                src={cointossBanner} 
+                alt="BitJackz Coin Toss Game" 
+                className="w-full h-auto object-cover"
+              />
+            </div>
+            <div className="relative overflow-hidden rounded-lg cursor-pointer hover:scale-105 transition-transform duration-300" onClick={() => setLocation('/dice')}>
+              <img 
+                src={diceBanner} 
+                alt="BitJackz Dice Game" 
+                className="w-full h-auto object-cover"
+              />
+            </div>
+            <div className="relative overflow-hidden rounded-lg cursor-pointer hover:scale-105 transition-transform duration-300" onClick={() => setLocation('/limbo')}>
+              <img 
+                src={limboBanner} 
+                alt="BitJackz Limbo Game" 
+                className="w-full h-auto object-cover"
+              />
+            </div>
+          </div>
+          
+          {/* Second Row - 2 Banners Centered */}
+          <div className="grid grid-cols-2 gap-4 max-w-2xl mx-auto">
+            <div className="relative overflow-hidden rounded-lg cursor-pointer hover:scale-105 transition-transform duration-300" onClick={() => setLocation('/mines')}>
+              <img 
+                src={minesBanner} 
+                alt="BitJackz Mines Game" 
+                className="w-full h-auto object-cover"
+              />
+            </div>
+            <div className="relative overflow-hidden rounded-lg cursor-pointer hover:scale-105 transition-transform duration-300" onClick={() => setLocation('/roulette')}>
+              <img 
+                src={rouletteBanner} 
+                alt="BitJackz Roulette Game" 
+                className="w-full h-auto object-cover"
+              />
+            </div>
           </div>
         </div>
 
