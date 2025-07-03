@@ -18,6 +18,14 @@ export default function Home() {
     queryKey: ["/api/games/recent"],
   });
 
+  const { data: stats } = useQuery<{
+    totalWonToday: number;
+    activePlayers: number;
+    gameStats: any;
+  }>({
+    queryKey: ["/api/stats"],
+  });
+
   const games = [
     {
       id: "crash",
@@ -27,8 +35,8 @@ export default function Home() {
       path: "/crash",
       color: "casino-gold",
       status: "🔥 Hot",
-      players: 156,
-      lastValue: "2.65x",
+      players: stats?.gameStats?.crash?.players || 156,
+      lastValue: `${(stats?.gameStats?.crash?.lastMultiplier || 2.65).toFixed(2)}x`,
       valueLabel: "Last Multiplier",
     },
     {
@@ -39,8 +47,8 @@ export default function Home() {
       path: "/coinflip",
       color: "casino-cyan",
       status: "⚡ Fast",
-      players: 89,
-      lastValue: "50%",
+      players: stats?.gameStats?.coinflip?.players || 89,
+      lastValue: `${(stats?.gameStats?.coinflip?.winRate || 50).toFixed(0)}%`,
       valueLabel: "Win Rate",
     },
     {
@@ -51,9 +59,9 @@ export default function Home() {
       path: "/limbo",
       color: "casino-purple",
       status: "💎 Premium",
-      players: 67,
-      lastValue: "3.45x",
-      valueLabel: "Target Multiplier",
+      players: stats?.gameStats?.limbo?.players || 67,
+      lastValue: `${(stats?.gameStats?.limbo?.avgMultiplier || 3.45).toFixed(2)}x`,
+      valueLabel: "Avg Multiplier",
     },
     {
       id: "dice",
@@ -63,8 +71,8 @@ export default function Home() {
       path: "/dice",
       color: "emerald-400",
       status: "🎯 Classic",
-      players: 234,
-      lastValue: "85.5",
+      players: stats?.gameStats?.dice?.players || 234,
+      lastValue: (stats?.gameStats?.dice?.avgWinChance || 85.5).toFixed(1),
       valueLabel: "Win Chance",
     },
     {
@@ -75,9 +83,9 @@ export default function Home() {
       path: "/mines",
       color: "red-400",
       status: "💥 Explosive",
-      players: 123,
-      lastValue: "5.2x",
-      valueLabel: "Current Multiplier",
+      players: stats?.gameStats?.mines?.players || 123,
+      lastValue: `${(stats?.gameStats?.mines?.avgMultiplier || 5.2).toFixed(1)}x`,
+      valueLabel: "Avg Multiplier",
     },
     {
       id: "roulette",
@@ -87,8 +95,8 @@ export default function Home() {
       path: "/roulette",
       color: "casino-gold",
       status: "👑 Royal",
-      players: 78,
-      lastValue: "17",
+      players: stats?.gameStats?.roulette?.players || 78,
+      lastValue: (stats?.gameStats?.roulette?.lastNumber || 17).toString(),
       valueLabel: "Last Number",
     },
   ];
@@ -114,11 +122,13 @@ export default function Home() {
           <div className="flex justify-center space-x-4">
             <div className="bg-casino-gold/20 px-6 py-3 rounded-lg">
               <div className="casino-gold font-semibold">Total Won Today</div>
-              <div className="text-2xl font-bold">$24,567.89</div>
+              <div className="text-2xl font-bold">
+                ${(stats?.totalWonToday || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+              </div>
             </div>
             <div className="bg-casino-purple/20 px-6 py-3 rounded-lg">
               <div className="casino-purple font-semibold">Active Players</div>
-              <div className="text-2xl font-bold">1,234</div>
+              <div className="text-2xl font-bold">{(stats?.activePlayers || 1234).toLocaleString()}</div>
             </div>
           </div>
         </div>

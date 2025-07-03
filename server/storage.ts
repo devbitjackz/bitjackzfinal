@@ -25,10 +25,42 @@ export class MemStorage implements IStorage {
     // Create a default user for demo purposes
     this.users.set(1, {
       id: 1,
-      username: "player1",
+      username: "player1", 
       password: "password",
       balance: 1247.50,
       createdAt: new Date(),
+    });
+
+    // Add some sample game results for demonstration
+    this.addSampleGameResults();
+  }
+
+  private addSampleGameResults() {
+    const sampleResults = [
+      { gameType: "crash", betAmount: 50, multiplier: 2.84, payout: 142, result: "win" },
+      { gameType: "crash", betAmount: 25, multiplier: 1.32, payout: 0, result: "loss" },
+      { gameType: "coinflip", betAmount: 100, multiplier: 2, payout: 200, result: "win" },
+      { gameType: "limbo", betAmount: 75, multiplier: 3.2, payout: 240, result: "win" },
+      { gameType: "dice", betAmount: 30, multiplier: 1.85, payout: 55.5, result: "win" },
+      { gameType: "mines", betAmount: 40, multiplier: 4.5, payout: 180, result: "win" },
+      { gameType: "roulette", betAmount: 20, multiplier: 2, payout: 40, result: "win" },
+      { gameType: "crash", betAmount: 60, multiplier: 5.67, payout: 340.2, result: "win" },
+      { gameType: "coinflip", betAmount: 15, multiplier: 0, payout: 0, result: "loss" },
+      { gameType: "limbo", betAmount: 80, multiplier: 0, payout: 0, result: "loss" },
+    ];
+
+    sampleResults.forEach((result, index) => {
+      const gameResult: GameResult = {
+        id: this.currentGameResultId++,
+        userId: 1,
+        gameType: result.gameType,
+        betAmount: result.betAmount,
+        multiplier: result.multiplier,
+        payout: result.payout,
+        result: result.result,
+        timestamp: new Date(Date.now() - Math.random() * 24 * 60 * 60 * 1000), // Random time in last 24h
+      };
+      this.gameResults.set(gameResult.id, gameResult);
     });
   }
 
