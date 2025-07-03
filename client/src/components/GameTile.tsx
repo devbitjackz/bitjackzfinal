@@ -10,9 +10,6 @@ interface GameTileProps {
     path: string;
     color: string;
     status: string;
-    players: number;
-    lastValue: string;
-    valueLabel: string;
   };
 }
 
@@ -26,21 +23,18 @@ export default function GameTile({ game }: GameTileProps) {
     >
       <CardContent className="p-6">
         <div className="flex items-center justify-between mb-4">
-          <div className="text-casino-gold text-3xl">
+          <div className="text-casino-gold text-5xl">
             <span className={game.id === "crash" ? "crash-rocket" : game.id === "dice" ? "animate-float" : ""}>
               {game.icon}
             </span>
           </div>
           <div className="text-right">
-            <div className="casino-gold font-semibold">{game.name}</div>
+            <div className="casino-gold font-semibold text-xl">{game.name}</div>
             <div className="text-sm text-gray-400">{game.description}</div>
           </div>
         </div>
-        <div className="text-4xl font-bold mb-2">{game.lastValue}</div>
-        <div className="text-sm text-gray-400">{game.valueLabel}</div>
-        <div className="mt-4 flex items-center justify-between">
-          <span className={`text-${game.color}`}>{game.status}</span>
-          <span className="text-sm">{game.players} playing</span>
+        <div className="mt-6 text-center">
+          <span className={`text-${game.color} font-medium text-lg`}>{game.status}</span>
         </div>
       </CardContent>
     </Card>
