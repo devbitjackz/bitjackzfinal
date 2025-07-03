@@ -4,11 +4,11 @@ import GameTile from "@/components/GameTile";
 import { Card, CardContent } from "@/components/ui/card";
 import { Trophy, User } from "lucide-react";
 import bitjackzBanner from "@assets/banner_1751570113317.jpg";
-import crashBanner from "@assets/crash_1751570260412.png";
+import crashBanner from "@assets/crash_1751570711855.png";
 import cointossBanner from "@assets/cointoss_1751570242550.png";
 import diceBanner from "@assets/dice_1751570260412.png";
 import limboBanner from "@assets/limbo_1751570260414.png";
-import minesBanner from "@assets/mines_1751570260414.png";
+import minesBanner from "@assets/mines_1751570716434.png";
 import rouletteBanner from "@assets/roulette_1751570260414.png";
 
 interface GameResult {
@@ -138,9 +138,9 @@ export default function Home() {
             </div>
           </div>
           
-          {/* Second Row - 2 Banners Same Size */}
+          {/* Second Row - 2 Banners Shifted Left */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <div className="md:col-start-2 relative overflow-hidden rounded-lg cursor-pointer hover:scale-105 transition-transform duration-300" onClick={() => setLocation('/mines')}>
+            <div className="relative overflow-hidden rounded-lg cursor-pointer hover:scale-105 transition-transform duration-300" onClick={() => setLocation('/mines')}>
               <img 
                 src={minesBanner} 
                 alt="BitJackz Mines Game" 
