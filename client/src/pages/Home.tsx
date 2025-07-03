@@ -138,9 +138,9 @@ export default function Home() {
             </div>
           </div>
           
-          {/* Second Row - 2 Banners Centered */}
-          <div className="grid grid-cols-2 gap-4 max-w-2xl mx-auto">
-            <div className="relative overflow-hidden rounded-lg cursor-pointer hover:scale-105 transition-transform duration-300" onClick={() => setLocation('/mines')}>
+          {/* Second Row - 2 Banners Same Size */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div className="md:col-start-2 relative overflow-hidden rounded-lg cursor-pointer hover:scale-105 transition-transform duration-300" onClick={() => setLocation('/mines')}>
               <img 
                 src={minesBanner} 
                 alt="BitJackz Mines Game" 
@@ -155,13 +155,6 @@ export default function Home() {
               />
             </div>
           </div>
-        </div>
-
-        {/* Game Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
-          {games.map((game) => (
-            <GameTile key={game.id} game={game} />
-          ))}
         </div>
 
         {/* Recent Winners */}
