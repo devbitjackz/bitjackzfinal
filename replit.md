@@ -1,8 +1,8 @@
-# Crypto Casino Web App
+# BitJackz Crypto Casino Web App
 
 ## Overview
 
-This is a full-stack crypto casino web application built to run seamlessly on both desktop and mobile devices, with Telegram WebApp integration in mind. The application features a modern, dark-themed UI inspired by platforms like Jeton, Rubet, and Stake, with six casino games implemented in the first phase.
+This is a full-stack crypto casino web application built to run seamlessly on both desktop and mobile devices, with Telegram WebApp integration in mind. The application features a modern, dark-themed UI inspired by platforms like Jeton, Rubet, and Stake, with six casino games implemented in the first phase. The app is branded as "BitJackz" and includes the official BitJackz logo throughout the interface.
 
 ## System Architecture
 
@@ -98,8 +98,13 @@ Six casino games are fully implemented:
 3. `npm run db:push` - Applies database schema changes
 
 ## Changelog
-- July 03, 2025. Initial setup
+- July 03, 2025. Initial setup with 6 casino games and dark theme
+- July 03, 2025. Removed statistics display per user request
+- July 03, 2025. Added BitJackz branding and logo integration
+- July 03, 2025. Started database integration (PostgreSQL setup)
 
 ## User Preferences
 
 Preferred communication style: Simple, everyday language.
+Branding: BitJackz logo and name throughout the app.
+Statistics: No statistics display wanted on homepage.

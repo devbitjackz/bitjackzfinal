@@ -3,6 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { Diamond, Wallet, Plus, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import WalletModal from "./WalletModal";
+import bitjackzLogo from "@assets/bitjackz logo_1751569851580.png";
 
 export default function TopNavbar() {
   const [showWallet, setShowWallet] = useState(false);
@@ -17,9 +18,15 @@ export default function TopNavbar() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center space-x-4">
-              <div className="text-2xl font-bold casino-gold">
-                <Diamond className="inline mr-2" size={24} />
-                CasinoX
+              <div className="flex items-center space-x-2">
+                <img 
+                  src={bitjackzLogo} 
+                  alt="BitJackz" 
+                  className="w-8 h-8 object-contain"
+                />
+                <div className="text-2xl font-bold casino-gold">
+                  BitJackz
+                </div>
               </div>
             </div>
             
