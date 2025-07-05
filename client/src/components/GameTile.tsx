@@ -18,7 +18,7 @@ export default function GameTile({ game }: GameTileProps) {
 
   return (
     <Card
-      className="game-tile casino-bg-blue border-casino-gold/20 hover:border-casino-gold/50 cursor-pointer"
+      className="game-tile casino-bg-blue border-casino-gold/20 hover:border-casino-gold/50 cursor-pointer !rounded-xl overflow-hidden"
       onClick={() => setLocation(game.path)}
     >
       <CardContent className="p-6">
