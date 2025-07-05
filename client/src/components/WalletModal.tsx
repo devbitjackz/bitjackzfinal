@@ -2,6 +2,7 @@ import { X, Plus, Minus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { useLocation } from "wouter";
 
 interface WalletModalProps {
   isOpen: boolean;
@@ -10,11 +11,18 @@ interface WalletModalProps {
 }
 
 export default function WalletModal({ isOpen, onClose, currentBalance }: WalletModalProps) {
+  const [, setLocation] = useLocation();
+  
   const recentTransactions = [
     { type: "win", description: "Crash Win", amount: 156.78 },
     { type: "deposit", description: "Deposit", amount: 500.00 },
     { type: "loss", description: "Roulette Loss", amount: -25.00 },
   ];
+
+  const handleWalletPage = () => {
+    onClose();
+    setLocation("/wallet");
+  };
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -29,14 +37,13 @@ export default function WalletModal({ isOpen, onClose, currentBalance }: WalletM
             <div className="text-2xl font-bold casino-gold">${currentBalance.toFixed(2)}</div>
           </div>
           
-          <div className="grid grid-cols-2 gap-4">
-            <Button className="bg-casino-gold hover:bg-casino-gold/90 text-casino-navy font-semibold">
+          <div className="grid grid-cols-1 gap-4">
+            <Button 
+              onClick={handleWalletPage}
+              className="bg-casino-gold hover:bg-casino-gold/90 text-casino-navy font-semibold"
+            >
               <Plus className="mr-2" size={16} />
-              Deposit
-            </Button>
-            <Button className="bg-casino-purple hover:bg-casino-purple/90 text-white font-semibold">
-              <Minus className="mr-2" size={16} />
-              Withdraw
+              Manage Wallet
             </Button>
           </div>
           

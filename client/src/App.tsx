@@ -10,6 +10,7 @@ import LimboGame from "@/pages/LimboGame";
 import DiceGame from "@/pages/DiceGame";
 import MinesGame from "@/pages/MinesGame";
 import RouletteGame from "@/pages/RouletteGame";
+import WalletPage from "@/pages/WalletPage";
 import TopNavbar from "@/components/TopNavbar";
 import NotFound from "@/pages/not-found";
 
@@ -25,6 +26,7 @@ function Router() {
         <Route path="/dice" component={DiceGame} />
         <Route path="/mines" component={MinesGame} />
         <Route path="/roulette" component={RouletteGame} />
+        <Route path="/wallet" component={WalletPage} />
         <Route component={NotFound} />
       </Switch>
     </div>

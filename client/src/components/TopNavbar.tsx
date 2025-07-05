@@ -42,7 +42,7 @@ export default function TopNavbar() {
                 className="bg-casino-gold hover:bg-casino-gold/90 text-casino-navy font-semibold text-sm sm:text-base px-2 sm:px-4"
               >
                 <Plus className="mr-1 sm:mr-2" size={16} />
-                <span className="hidden sm:inline">Deposit</span>
+                <span className="hidden sm:inline">Wallet</span>
                 <span className="sm:hidden">+</span>
               </Button>
             </div>

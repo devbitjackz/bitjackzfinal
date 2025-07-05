@@ -47,10 +47,11 @@ Six casino games are fully implemented:
 
 ### UI Components
 - **Game Tiles**: Interactive cards with hover effects and animations
-- **Top Navigation**: Balance display, deposit functionality, user profile
+- **Top Navigation**: Balance display, wallet functionality, mobile-optimized
+- **Wallet Page**: Full deposit/withdraw functionality with transaction history
 - **Responsive Design**: Mobile-first approach with Telegram WebApp compatibility
-- **Toast Notifications**: Real-time feedback for game results
-- **Modal System**: Wallet and deposit/withdrawal interfaces
+- **Toast Notifications**: Real-time feedback for game results and transactions
+- **Modal System**: Simplified wallet modal that redirects to full wallet page
 
 ## Data Flow
 
@@ -104,6 +105,8 @@ Six casino games are fully implemented:
 - July 03, 2025. Started database integration (PostgreSQL setup)
 - July 05, 2025. Enhanced mobile compatibility and removed user button
 - July 05, 2025. Added Telegram WebApp optimizations and touch interactions
+- July 05, 2025. Added wallet page with deposit/withdraw functions and set initial balance to $0
+- July 05, 2025. Implemented Telegram user verification system and wallet transaction management
 
 ## User Preferences
 

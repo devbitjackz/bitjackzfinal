@@ -392,6 +392,75 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Wallet endpoints
+  app.post("/api/wallet/deposit", async (req, res) => {
+    try {
+      const userId = 1; // For demo, using fixed user ID
+      const { amount } = req.body;
+      
+      if (!amount || amount <= 0) {
+        return res.status(400).json({ error: "Invalid deposit amount" });
+      }
+      
+      const user = await storage.getUser(userId);
+      if (!user) {
+        return res.status(404).json({ error: "User not found" });
+      }
+      
+      const newBalance = user.balance + amount;
+      await storage.updateUserBalance(userId, newBalance);
+      
+      res.json({ 
+        success: true, 
+        newBalance,
+        message: "Deposit successful" 
+      });
+    } catch (error) {
+      res.status(500).json({ error: "Failed to process deposit" });
+    }
+  });
+
+  app.post("/api/wallet/withdraw", async (req, res) => {
+    try {
+      const userId = 1; // For demo, using fixed user ID
+      const { amount, address } = req.body;
+      
+      if (!amount || amount <= 0) {
+        return res.status(400).json({ error: "Invalid withdrawal amount" });
+      }
+      
+      const user = await storage.getUser(userId);
+      if (!user) {
+        return res.status(404).json({ error: "User not found" });
+      }
+      
+      if (user.balance < amount) {
+        return res.status(400).json({ error: "Insufficient balance" });
+      }
+      
+      const newBalance = user.balance - amount;
+      await storage.updateUserBalance(userId, newBalance);
+      
+      res.json({ 
+        success: true, 
+        newBalance,
+        message: "Withdrawal successful" 
+      });
+    } catch (error) {
+      res.status(500).json({ error: "Failed to process withdrawal" });
+    }
+  });
+
+  app.get("/api/transactions", async (req, res) => {
+    try {
+      const userId = 1; // For demo, using fixed user ID
+      // For now, return empty array - will implement with database
+      res.json([]);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch transactions" });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }
