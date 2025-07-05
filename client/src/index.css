@@ -143,4 +143,46 @@
   .animate-float {
     animation: float 3s ease-in-out infinite;
   }
+  
+  /* Mobile-specific optimizations */
+  @media (max-width: 768px) {
+    .game-tile:hover {
+      transform: none;
+      box-shadow: none;
+    }
+    
+    .game-tile:active {
+      transform: scale(0.95);
+      transition: transform 0.1s ease;
+    }
+  }
+  
+  /* Telegram WebApp compatibility */
+  body {
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+  }
+  
+  input, textarea {
+    -webkit-user-select: text;
+    -khtml-user-select: text;
+    -moz-user-select: text;
+    -ms-user-select: text;
+    user-select: text;
+  }
+  
+  /* Improve touch targets */
+  button, .cursor-pointer {
+    min-height: 44px;
+    min-width: 44px;
+  }
+  
+  /* Prevent zooming on inputs */
+  input[type="number"] {
+    font-size: 16px;
+  }
 }

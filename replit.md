@@ -102,6 +102,8 @@ Six casino games are fully implemented:
 - July 03, 2025. Removed statistics display per user request
 - July 03, 2025. Added BitJackz branding and logo integration
 - July 03, 2025. Started database integration (PostgreSQL setup)
+- July 05, 2025. Enhanced mobile compatibility and removed user button
+- July 05, 2025. Added Telegram WebApp optimizations and touch interactions
 
 ## User Preferences
 

@@ -18,9 +18,9 @@ export default function WalletModal({ isOpen, onClose, currentBalance }: WalletM
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="casino-bg-blue border-casino-gold/20 text-white">
+      <DialogContent className="casino-bg-blue border-casino-gold/20 text-white max-w-[90vw] sm:max-w-md">
         <DialogHeader>
-          <DialogTitle className="casino-gold">Wallet</DialogTitle>
+          <DialogTitle className="casino-gold text-lg sm:text-xl">Wallet</DialogTitle>
         </DialogHeader>
         
         <div className="space-y-4">

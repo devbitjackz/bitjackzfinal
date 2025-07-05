@@ -112,27 +112,28 @@ export default function CrashGame() {
   return (
     <div className="pt-24 pb-8 px-4 sm:px-6 lg:px-8 min-h-screen">
       <div className="max-w-4xl mx-auto">
-        <div className="flex items-center justify-between mb-6">
+        <div className="flex flex-col sm:flex-row items-center justify-between mb-6 gap-2">
           <Button
             variant="ghost"
             onClick={() => setLocation("/")}
-            className="casino-gold hover:text-white"
+            className="casino-gold hover:text-white self-start"
           >
             <ArrowLeft className="mr-2" size={16} />
-            Back to Games
+            <span className="hidden sm:inline">Back to Games</span>
+            <span className="sm:hidden">Back</span>
           </Button>
-          <h2 className="text-3xl font-bold casino-gold">CRASH</h2>
-          <div className="text-sm text-gray-400">156 players online</div>
+          <h2 className="text-2xl sm:text-3xl font-bold casino-gold">CRASH</h2>
+          <div className="text-sm text-gray-400 hidden sm:block">156 players online</div>
         </div>
 
         {/* Game Display */}
         <Card className="casino-bg-blue border-casino-gold/20 mb-6">
-          <CardContent className="p-8">
+          <CardContent className="p-4 sm:p-6 md:p-8">
             <div className="text-center mb-8">
-              <div className="text-8xl font-bold casino-gold mb-4 neon-glow">
+              <div className="text-4xl sm:text-6xl md:text-8xl font-bold casino-gold mb-4 neon-glow">
                 {gameActive ? `${currentMultiplier.toFixed(2)}x` : "2.65x"}
               </div>
-              <div className="text-xl text-gray-300">Current Multiplier</div>
+              <div className="text-sm sm:text-lg md:text-xl text-gray-300">Current Multiplier</div>
             </div>
             
             {/* Crash Chart Visualization */}
@@ -214,7 +215,7 @@ export default function CrashGame() {
                   <Checkbox
                     id="auto-mode"
                     checked={autoMode}
-                    onCheckedChange={setAutoMode}
+                    onCheckedChange={(checked) => setAutoMode(checked === true)}
                   />
                   <Label htmlFor="auto-mode" className="text-sm">Enable Auto Cash Out</Label>
                 </div>
