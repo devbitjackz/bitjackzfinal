@@ -1,6 +1,7 @@
 import { Switch, Route } from "wouter";
 import { queryClient } from "./lib/queryClient";
 import { QueryClientProvider } from "@tanstack/react-query";
+import { useState } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import Home from "@/pages/Home";
@@ -13,9 +14,22 @@ import RouletteGame from "@/pages/RouletteGame";
 import WalletPage from "@/pages/WalletPage";
 import TopNavbar from "@/components/TopNavbar";
 import BottomNavbar from "@/components/BottomNavbar";
+import TelegramAuth from "@/components/TelegramAuth";
 import NotFound from "@/pages/not-found";
 
 function Router() {
+  const [telegramUser, setTelegramUser] = useState(null);
+  const [isAuthenticating, setIsAuthenticating] = useState(true);
+
+  const handleAuthSuccess = (user: any) => {
+    setTelegramUser(user);
+    setIsAuthenticating(false);
+  };
+
+  if (isAuthenticating) {
+    return <TelegramAuth onAuthSuccess={handleAuthSuccess} />;
+  }
+
   return (
     <div className="min-h-screen casino-bg pb-16">
       <TopNavbar />

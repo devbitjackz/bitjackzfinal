@@ -76,8 +76,10 @@ export default function TelegramAuth({ onAuthSuccess }: TelegramAuthProps) {
         const user = webApp.initDataUnsafe.user;
         
         if (user) {
+          console.log("Telegram user found:", user);
           authMutation.mutate(user);
         } else {
+          console.log("No Telegram user, using demo");
           // Fallback for demo purposes
           authMutation.mutate({
             id: 1,
@@ -89,6 +91,7 @@ export default function TelegramAuth({ onAuthSuccess }: TelegramAuthProps) {
         
         setIsInitialized(true);
       } else {
+        console.log("Not in Telegram WebApp, using demo user");
         // Not in Telegram WebApp, use demo user
         authMutation.mutate({
           id: 1,
@@ -101,7 +104,7 @@ export default function TelegramAuth({ onAuthSuccess }: TelegramAuthProps) {
     };
 
     // Initialize after a short delay to ensure Telegram WebApp is loaded
-    const timer = setTimeout(initTelegramAuth, 100);
+    const timer = setTimeout(initTelegramAuth, 500);
     
     return () => clearTimeout(timer);
   }, []);
