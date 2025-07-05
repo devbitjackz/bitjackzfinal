@@ -6,7 +6,10 @@ export const users = pgTable("users", {
   id: serial("id").primaryKey(),
   username: text("username").notNull().unique(),
   password: text("password").notNull(),
-  balance: real("balance").notNull().default(1000.00),
+  telegramId: text("telegram_id").unique(),
+  firstName: text("first_name"),
+  lastName: text("last_name"),
+  balance: real("balance").notNull().default(0.00),
   createdAt: timestamp("created_at").defaultNow(),
 });
 
@@ -24,6 +27,9 @@ export const gameResults = pgTable("game_results", {
 export const insertUserSchema = createInsertSchema(users).pick({
   username: true,
   password: true,
+  telegramId: true,
+  firstName: true,
+  lastName: true,
 });
 
 export const insertGameResultSchema = createInsertSchema(gameResults).omit({

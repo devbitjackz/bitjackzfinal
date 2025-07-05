@@ -5,6 +5,7 @@ import { eq, desc } from "drizzle-orm";
 export interface IStorage {
   getUser(id: number): Promise<User | undefined>;
   getUserByUsername(username: string): Promise<User | undefined>;
+  getUserByTelegramId(telegramId: string): Promise<User | undefined>;
   createUser(user: InsertUser): Promise<User>;
   updateUserBalance(userId: number, newBalance: number): Promise<void>;
   createGameResult(gameResult: InsertGameResult): Promise<GameResult>;
@@ -29,6 +30,9 @@ export class MemStorage implements IStorage {
       id: 1,
       username: "player1", 
       password: "password",
+      telegramId: "1",
+      firstName: "Demo",
+      lastName: "User",
       balance: 0.00,
       createdAt: new Date(),
     });
@@ -76,11 +80,20 @@ export class MemStorage implements IStorage {
     );
   }
 
+  async getUserByTelegramId(telegramId: string): Promise<User | undefined> {
+    return Array.from(this.users.values()).find(
+      (user) => user.telegramId === telegramId,
+    );
+  }
+
   async createUser(insertUser: InsertUser): Promise<User> {
     const id = this.currentUserId++;
     const user: User = { 
       ...insertUser, 
       id, 
+      telegramId: insertUser.telegramId || null,
+      firstName: insertUser.firstName || null,
+      lastName: insertUser.lastName || null,
       balance: 0.00, // Set initial balance to 0
       createdAt: new Date(),
     };

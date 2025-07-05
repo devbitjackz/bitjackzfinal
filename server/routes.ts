@@ -10,11 +10,18 @@ import {
   rouletteGameSchema 
 } from "@shared/schema";
 
+// Simple session store for demo purposes
+const userSessions = new Map<string, number>(); // sessionId -> userId
+
 export async function registerRoutes(app: Express): Promise<Server> {
   // Get user balance
   app.get("/api/balance", async (req, res) => {
     try {
-      const userId = 1; // For demo, using fixed user ID
+      // In production, you'd get user ID from authentication token/session
+      // For now, using the last authenticated user or default demo user
+      const sessionId = req.headers['x-session-id'] as string || 'demo';
+      const userId = userSessions.get(sessionId) || 1;
+      
       const user = await storage.getUser(userId);
       
       if (!user) {
@@ -30,7 +37,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Crash game
   app.post("/api/games/crash", async (req, res) => {
     try {
-      const userId = 1;
+      const sessionId = req.headers['x-session-id'] as string || 'demo';
+      const userId = userSessions.get(sessionId) || 1;
       const gameData = crashGameSchema.parse(req.body);
       
       const user = await storage.getUser(userId);
@@ -76,7 +84,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Coin flip game
   app.post("/api/games/coinflip", async (req, res) => {
     try {
-      const userId = 1;
+      const sessionId = req.headers['x-session-id'] as string || 'demo';
+      const userId = userSessions.get(sessionId) || 1;
       const gameData = coinFlipGameSchema.parse(req.body);
       
       const user = await storage.getUser(userId);
@@ -114,7 +123,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Limbo game
   app.post("/api/games/limbo", async (req, res) => {
     try {
-      const userId = 1;
+      const sessionId = req.headers['x-session-id'] as string || 'demo';
+      const userId = userSessions.get(sessionId) || 1;
       const gameData = limboGameSchema.parse(req.body);
       
       const user = await storage.getUser(userId);
@@ -153,7 +163,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Dice game
   app.post("/api/games/dice", async (req, res) => {
     try {
-      const userId = 1;
+      const sessionId = req.headers['x-session-id'] as string || 'demo';
+      const userId = userSessions.get(sessionId) || 1;
       const gameData = diceGameSchema.parse(req.body);
       
       const user = await storage.getUser(userId);
@@ -196,7 +207,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Mines game
   app.post("/api/games/mines", async (req, res) => {
     try {
-      const userId = 1;
+      const sessionId = req.headers['x-session-id'] as string || 'demo';
+      const userId = userSessions.get(sessionId) || 1;
       const gameData = minesGameSchema.parse(req.body);
       
       const user = await storage.getUser(userId);
@@ -258,7 +270,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Roulette game
   app.post("/api/games/roulette", async (req, res) => {
     try {
-      const userId = 1;
+      const sessionId = req.headers['x-session-id'] as string || 'demo';
+      const userId = userSessions.get(sessionId) || 1;
       const gameData = rouletteGameSchema.parse(req.body);
       
       const user = await storage.getUser(userId);
@@ -395,7 +408,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Wallet endpoints
   app.post("/api/wallet/deposit", async (req, res) => {
     try {
-      const userId = 1; // For demo, using fixed user ID
+      const sessionId = req.headers['x-session-id'] as string || 'demo';
+      const userId = userSessions.get(sessionId) || 1;
       const { amount } = req.body;
       
       if (!amount || amount <= 0) {
@@ -422,7 +436,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post("/api/wallet/withdraw", async (req, res) => {
     try {
-      const userId = 1; // For demo, using fixed user ID
+      const sessionId = req.headers['x-session-id'] as string || 'demo';
+      const userId = userSessions.get(sessionId) || 1;
       const { amount, address } = req.body;
       
       if (!amount || amount <= 0) {
@@ -453,11 +468,60 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.get("/api/transactions", async (req, res) => {
     try {
-      const userId = 1; // For demo, using fixed user ID
+      const sessionId = req.headers['x-session-id'] as string || 'demo';
+      const userId = userSessions.get(sessionId) || 1;
       // For now, return empty array - will implement with database
       res.json([]);
     } catch (error) {
       res.status(500).json({ error: "Failed to fetch transactions" });
+    }
+  });
+
+  // Telegram user authentication and session management
+  app.post("/api/auth/telegram", async (req, res) => {
+    try {
+      const { telegramData } = req.body;
+      
+      const telegramUser = {
+        id: String(telegramData.id || 1),
+        username: telegramData.username || "demo_user",
+        firstName: telegramData.first_name || "Demo",
+        lastName: telegramData.last_name || "User"
+      };
+      
+      // Check if user exists by Telegram ID
+      let user = await storage.getUserByTelegramId(telegramUser.id);
+      
+      if (!user) {
+        // Create new user with initial balance of 0
+        user = await storage.createUser({
+          username: telegramUser.username,
+          password: "telegram_auth", // Not used for Telegram users
+          telegramId: telegramUser.id,
+          firstName: telegramUser.firstName,
+          lastName: telegramUser.lastName,
+        });
+      }
+      
+      // Create/update session
+      const sessionId = `tg_${telegramUser.id}`;
+      userSessions.set(sessionId, user.id);
+      
+      res.json({ 
+        success: true, 
+        sessionId,
+        user: {
+          id: user.id,
+          username: user.username,
+          telegramId: user.telegramId,
+          firstName: user.firstName,
+          lastName: user.lastName,
+          balance: user.balance
+        }
+      });
+    } catch (error) {
+      console.error("Telegram auth error:", error);
+      res.status(500).json({ error: "Failed to authenticate user" });
     }
   });
 

@@ -47,11 +47,15 @@ export default function TelegramAuth({ onAuthSuccess }: TelegramAuthProps) {
     },
     onSuccess: (data) => {
       if (data.success) {
+        // Store session ID for future API requests
+        if (data.sessionId) {
+          localStorage.setItem('sessionId', data.sessionId);
+        }
         onAuthSuccess(data.user);
         queryClient.invalidateQueries({ queryKey: ["/api/balance"] });
         toast({
           title: "Welcome to BitJackz!",
-          description: `Hello ${data.user.username}! Ready to play?`,
+          description: `Hello ${data.user.firstName || data.user.username}! Your balance: $${data.user.balance.toFixed(2)}`,
         });
       }
     },

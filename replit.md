@@ -55,9 +55,9 @@ Six casino games are fully implemented:
 
 ## Data Flow
 
-1. **User Authentication**: Fixed user ID (1) for demo purposes
+1. **User Authentication**: Individual Telegram user verification with session management
 2. **Game Play**: Frontend sends bet data to backend, backend processes game logic and returns results
-3. **Balance Updates**: Real-time balance updates after each game
+3. **Balance Updates**: Real-time balance updates after each game for specific user
 4. **Game History**: Recent games displayed on homepage with live statistics
 
 ## External Dependencies
@@ -107,6 +107,7 @@ Six casino games are fully implemented:
 - July 05, 2025. Added Telegram WebApp optimizations and touch interactions
 - July 05, 2025. Added wallet page with deposit/withdraw functions and set initial balance to $0
 - July 05, 2025. Implemented Telegram user verification system and wallet transaction management
+- July 05, 2025. Added individual user account system with session-based authentication across all endpoints
 
 ## User Preferences
 
