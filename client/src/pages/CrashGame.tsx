@@ -110,7 +110,7 @@ export default function CrashGame() {
   };
 
   return (
-    <div className="pt-24 pb-8 px-4 sm:px-6 lg:px-8 min-h-screen">
+    <div className="pt-24 pb-20 px-4 sm:px-6 lg:px-8 min-h-screen">
       <div className="max-w-4xl mx-auto">
         <div className="flex flex-col sm:flex-row items-center justify-between mb-6 gap-2">
           <Button

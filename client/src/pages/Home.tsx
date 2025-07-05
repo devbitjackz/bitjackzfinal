@@ -91,7 +91,7 @@ export default function Home() {
   ];
 
   return (
-    <div className="pt-24 pb-8 px-4 sm:px-6 lg:px-8 min-h-screen">
+    <div className="pt-24 pb-20 px-4 sm:px-6 lg:px-8 min-h-screen">
       <div className="max-w-7xl mx-auto">
         {/* Hero Section */}
         <div className="mb-12">

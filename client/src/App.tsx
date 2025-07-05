@@ -12,11 +12,12 @@ import MinesGame from "@/pages/MinesGame";
 import RouletteGame from "@/pages/RouletteGame";
 import WalletPage from "@/pages/WalletPage";
 import TopNavbar from "@/components/TopNavbar";
+import BottomNavbar from "@/components/BottomNavbar";
 import NotFound from "@/pages/not-found";
 
 function Router() {
   return (
-    <div className="min-h-screen casino-bg">
+    <div className="min-h-screen casino-bg pb-16">
       <TopNavbar />
       <Switch>
         <Route path="/" component={Home} />
@@ -29,6 +30,7 @@ function Router() {
         <Route path="/wallet" component={WalletPage} />
         <Route component={NotFound} />
       </Switch>
+      <BottomNavbar />
     </div>
   );
 }
