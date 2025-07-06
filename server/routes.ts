@@ -36,11 +36,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // Generate initial crash point using the new fair formula
   function generateCrashPoint() {
-    // Generate crash points with average around 1.9x, max 5.86x
+    // Generate crash points with average around 1.9x, max 3.48x
     // Using exponential distribution that averages to 1.9
     const random = Math.random();
     const lambda = 1 / 0.9; // This gives us an average of 1.9 when we add 1.0
-    const crashPoint = Math.max(1.01, Math.min(5.86, 1.0 + (-Math.log(random) / lambda)));
+    const crashPoint = Math.max(1.01, Math.min(3.48, 1.0 + (-Math.log(random) / lambda)));
     return Math.round(crashPoint * 100) / 100;
   }
 
