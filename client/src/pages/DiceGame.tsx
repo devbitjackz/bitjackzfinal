@@ -67,9 +67,9 @@ export default function DiceGame() {
 
   const handlePlay = () => {
     const bet = parseFloat(betAmount);
-    const target = rollTarget[0];
+    const targetValue = rollTarget[0];
     
-    if (bet <= 0 || target < 2 || target > 98) {
+    if (bet <= 0 || targetValue < 2 || targetValue > 98) {
       toast({
         title: "Invalid Input",
         description: "Please enter valid bet amount and target (2-98)",
@@ -78,13 +78,15 @@ export default function DiceGame() {
       return;
     }
 
-    // Roll over if target < 50, under if target >= 50
-    const isOver = target < 50;
-    playGameMutation.mutate({ betAmount: bet, target, isOver });
+    // Determine if betting on green (over) or red (under) based on target position
+    const isOver = targetValue >= 50;
+    playGameMutation.mutate({ betAmount: bet, target: targetValue, isOver });
   };
 
   const target = rollTarget[0];
-  const isOver = target < 50;
+  // Red area (left side) = roll under target (winning if roll < target)
+  // Green area (right side) = roll over target (winning if roll > target)  
+  const isOver = target >= 50; // If target >= 50, we're betting on green (over)
   const winChance = isOver ? (99 - target) : target;
   const multiplier = (99 / winChance);
   const calculatedProfit = parseFloat(betAmount) * (multiplier - 1);
@@ -149,32 +151,7 @@ export default function DiceGame() {
                 className="bg-gray-700 border-gray-600 text-white flex-1"
                 placeholder="0.00000000"
               />
-              <div className="flex ml-2">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => {
-                    const newAmount = (parseFloat(betAmount || "0") / 2).toFixed(8);
-                    setBetAmount(newAmount);
-                    updateProfit();
-                  }}
-                  className="bg-yellow-500 hover:bg-yellow-600 text-black border-0 px-3 py-1 text-xs"
-                >
-                  ½
-                </Button>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => {
-                    const newAmount = (parseFloat(betAmount || "0") * 2).toFixed(8);
-                    setBetAmount(newAmount);
-                    updateProfit();
-                  }}
-                  className="bg-yellow-500 hover:bg-yellow-600 text-black border-0 px-3 py-1 text-xs ml-1"
-                >
-                  2×
-                </Button>
-              </div>
+
             </div>
             <div className="text-xs text-gray-500 mt-1">$0.00</div>
           </div>
@@ -189,9 +166,6 @@ export default function DiceGame() {
                 className="bg-gray-700 border-gray-600 text-white flex-1"
                 placeholder="0.00000000"
               />
-              <div className="w-6 h-6 bg-yellow-500 rounded ml-2 flex items-center justify-center">
-                <span className="text-black text-xs font-bold">₿</span>
-              </div>
             </div>
             <div className="text-xs text-gray-500 mt-1">$0.00</div>
           </div>
@@ -221,28 +195,29 @@ export default function DiceGame() {
 
             {/* Slider Container */}
             <div className="relative mb-12">
-              <div className="h-8 bg-gray-700 rounded-full overflow-hidden">
-                {/* Red section (under) */}
+              {/* Outer container with rounded corners and border */}
+              <div className="h-12 bg-gray-700 rounded-full border-2 border-gray-600 overflow-hidden relative">
+                {/* Red section (roll under - winner area) */}
                 <div 
-                  className="h-full bg-red-500 float-left"
+                  className="h-full bg-red-500 absolute left-0 top-0"
                   style={{ width: `${target}%` }}
                 />
-                {/* Green section (over) */}
+                {/* Green section (roll over - winner area) */}
                 <div 
-                  className="h-full bg-green-500"
+                  className="h-full bg-green-500 absolute right-0 top-0"
                   style={{ width: `${100 - target}%` }}
                 />
               </div>
               
-              {/* Slider thumb */}
+              {/* Slider thumb - blue square with target number */}
               <div 
-                className="absolute top-1/2 transform -translate-y-1/2 w-12 h-10 bg-blue-500 rounded cursor-pointer flex items-center justify-center text-white font-bold"
-                style={{ left: `calc(${target}% - 24px)` }}
+                className="absolute top-1/2 transform -translate-y-1/2 w-14 h-10 bg-blue-500 rounded cursor-pointer flex items-center justify-center text-white font-bold text-sm shadow-lg border-2 border-blue-400"
+                style={{ left: `calc(${target}% - 28px)` }}
               >
                 {target}
               </div>
               
-              {/* Slider Input */}
+              {/* Invisible slider input */}
               <input
                 type="range"
                 min="2"
@@ -260,7 +235,10 @@ export default function DiceGame() {
             <div className="grid grid-cols-3 gap-8 text-center">
               <div className="bg-gray-800 rounded-lg p-4">
                 <div className="text-white text-2xl font-bold">{multiplier.toFixed(4)}</div>
-                <div className="text-gray-400 text-sm">Multiplier</div>
+                <div className="text-gray-400 text-sm flex items-center justify-center">
+                  <span className="mr-1">Multiplier</span>
+                  <span className="text-xs">×</span>
+                </div>
               </div>
               <div className="bg-gray-800 rounded-lg p-4">
                 <div className="text-white text-2xl font-bold">{target}.50</div>
@@ -268,7 +246,10 @@ export default function DiceGame() {
               </div>
               <div className="bg-gray-800 rounded-lg p-4">
                 <div className="text-white text-2xl font-bold">{winChance.toFixed(4)}</div>
-                <div className="text-gray-400 text-sm">Win Chance</div>
+                <div className="text-gray-400 text-sm flex items-center justify-center">
+                  <span className="mr-1">Win Chance</span>
+                  <span className="text-xs">%</span>
+                </div>
               </div>
             </div>
 
