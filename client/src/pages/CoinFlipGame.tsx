@@ -21,6 +21,8 @@ export default function CoinFlipGame() {
   const { toast } = useToast();
   const [betAmount, setBetAmount] = useState("10.00");
   const [selectedSide, setSelectedSide] = useState<"heads" | "tails" | null>(null);
+  const [isFlipping, setIsFlipping] = useState(false);
+  const [lastFlipResult, setLastFlipResult] = useState<"heads" | "tails" | null>(null);
 
   const { data: balance } = useQuery<{ balance: number }>({
     queryKey: ["/api/balance"],
@@ -32,10 +34,19 @@ export default function CoinFlipGame() {
 
   const playGameMutation = useMutation({
     mutationFn: async (gameData: { betAmount: number; choice: "heads" | "tails" }) => {
+      setIsFlipping(true);
+      setLastFlipResult(null);
+      
+      // Simulate flip animation delay
+      await new Promise(resolve => setTimeout(resolve, 2000));
+      
       const response = await apiRequest("POST", "/api/games/coinflip", gameData);
       return response.json() as Promise<CoinFlipResult>;
     },
     onSuccess: (data) => {
+      setIsFlipping(false);
+      setLastFlipResult(data.flipResult as "heads" | "tails");
+      
       queryClient.invalidateQueries({ queryKey: ["/api/balance"] });
       queryClient.invalidateQueries({ queryKey: ["/api/games/recent"] });
       
@@ -53,6 +64,7 @@ export default function CoinFlipGame() {
       }
     },
     onError: () => {
+      setIsFlipping(false);
       toast({
         title: "Error",
         description: "Failed to process game",
@@ -97,11 +109,36 @@ export default function CoinFlipGame() {
         <Card className="casino-bg-blue border-casino-gold/20 mb-6">
           <CardContent className="p-8">
             <div className="text-center mb-8">
-              <div className="w-32 h-32 mx-auto mb-6 bg-casino-gold rounded-full flex items-center justify-center text-6xl text-casino-navy animate-pulse">
-                🪙
+              <div className="w-32 h-32 mx-auto mb-6 relative">
+                <div className={`
+                  w-full h-full rounded-full flex items-center justify-center text-4xl
+                  ${isFlipping ? 'animate-spin' : ''}
+                  ${lastFlipResult === 'heads' ? 'bg-casino-gold text-casino-navy' : 
+                    lastFlipResult === 'tails' ? 'bg-casino-gold text-casino-navy' : 
+                    'bg-casino-gold/70 text-casino-navy'}
+                  transition-all duration-500
+                  shadow-2xl border-4 border-casino-gold/50
+                `}>
+                  {isFlipping ? (
+                    <div className="animate-bounce">?</div>
+                  ) : lastFlipResult === 'heads' ? (
+                    <Circle className="w-12 h-12" />
+                  ) : lastFlipResult === 'tails' ? (
+                    <Star className="w-12 h-12" />
+                  ) : (
+                    <div className="text-2xl font-bold">?</div>
+                  )}
+                </div>
+                {isFlipping && (
+                  <div className="absolute inset-0 rounded-full bg-casino-gold/30 animate-ping"></div>
+                )}
               </div>
-              <div className="text-2xl font-bold casino-gold mb-2">Choose Your Side</div>
-              <div className="text-gray-300">50% chance to double your bet</div>
+              <div className="text-2xl font-bold casino-gold mb-2">
+                {isFlipping ? 'Flipping...' : 'Choose Your Side'}
+              </div>
+              <div className="text-gray-300">
+                {isFlipping ? 'The coin is spinning!' : '50% chance to double your bet'}
+              </div>
             </div>
           </CardContent>
         </Card>
@@ -152,19 +189,33 @@ export default function CoinFlipGame() {
             <div className="grid grid-cols-2 gap-4">
               <Button
                 onClick={() => handlePlay("heads")}
-                disabled={playGameMutation.isPending}
-                className="bg-casino-gold hover:bg-casino-gold/90 text-casino-navy py-8 text-xl font-bold"
+                disabled={playGameMutation.isPending || isFlipping}
+                className={`
+                  py-8 text-xl font-bold transition-all duration-300
+                  ${selectedSide === 'heads' || lastFlipResult === 'heads' ? 
+                    'bg-casino-gold hover:bg-casino-gold/90 text-casino-navy' : 
+                    'bg-casino-gold/20 hover:bg-casino-gold/30 text-casino-gold border border-casino-gold/50'}
+                  ${(playGameMutation.isPending || isFlipping) ? 'opacity-50 cursor-not-allowed' : ''}
+                  flex flex-col items-center
+                `}
               >
-                <Circle className="block text-3xl mb-2" size={48} />
-                HEADS
+                <Circle className="mb-2" size={32} />
+                HEADS (Circle)
               </Button>
               <Button
                 onClick={() => handlePlay("tails")}
-                disabled={playGameMutation.isPending}
-                className="bg-casino-purple hover:bg-casino-purple/90 text-white py-8 text-xl font-bold"
+                disabled={playGameMutation.isPending || isFlipping}
+                className={`
+                  py-8 text-xl font-bold transition-all duration-300
+                  ${selectedSide === 'tails' || lastFlipResult === 'tails' ? 
+                    'bg-casino-gold hover:bg-casino-gold/90 text-casino-navy' : 
+                    'bg-casino-gold/20 hover:bg-casino-gold/30 text-casino-gold border border-casino-gold/50'}
+                  ${(playGameMutation.isPending || isFlipping) ? 'opacity-50 cursor-not-allowed' : ''}
+                  flex flex-col items-center
+                `}
               >
-                <Star className="block text-3xl mb-2" size={48} />
-                TAILS
+                <Star className="mb-2" size={32} />
+                TAILS (Star)
               </Button>
             </div>
           </CardContent>
