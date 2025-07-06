@@ -38,12 +38,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
   let globalCrashGame = {
     gameId: `crash_global_1`,
     crashPoint: Math.max(1.0, Math.round((-Math.log(Math.random()) / 0.5) * 100) / 100),
-    gameStartTime: Date.now(),
+    gameStartTime: Date.now() + 5000, // Start in 5 seconds
     currentMultiplier: 1.0,
     isCrashed: false,
-    status: 'active',
-    playerBets: new Map() // userId -> {betAmount, cashedOut, cashedOutAt}
+    status: 'countdown' as 'countdown' | 'active' | 'crashed',
+    playerBets: new Map<number, {betAmount: number, cashedOut: boolean, cashedOutAt: number | null}>()
   };
+
+  // Start the first game
+  setTimeout(() => {
+    globalCrashGame.status = 'active';
+    globalCrashGame.gameStartTime = Date.now();
+  }, 5000);
 
   let gameCounter = 1;
 
@@ -61,8 +67,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         gameStartTime: Date.now() + 5000, // 5 second countdown
         currentMultiplier: 1.0,
         isCrashed: false,
-        status: 'countdown',
-        playerBets: new Map()
+        status: 'countdown' as 'countdown' | 'active' | 'crashed',
+        playerBets: new Map<number, {betAmount: number, cashedOut: boolean, cashedOutAt: number | null}>()
       };
       
       setTimeout(() => {
@@ -157,7 +163,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         // Still in countdown
         status = 'countdown';
         currentMultiplier = 1.0;
-      } else if (!game.isCrashed && !game.cashedOut) {
+      } else if (!game.isCrashed) {
         // Game is active
         status = 'active';
         const elapsed = now - game.gameStartTime;
@@ -171,21 +177,25 @@ export async function registerRoutes(app: Express): Promise<Server> {
           currentMultiplier = game.crashPoint;
         }
       } else {
-        // Game is finished
-        currentMultiplier = game.cashedOutAt || game.crashPoint;
+        // Game is finished/crashed
+        currentMultiplier = game.crashPoint;
       }
 
       game.currentMultiplier = currentMultiplier;
 
+      const sessionId = req.headers['x-session-id'] as string || 'demo';
+      const userId = userSessions.get(sessionId) || 1;
+      const playerBet = game.playerBets.get(userId);
+
       res.json({
-        gameId,
+        gameId: game.gameId,
         status,
         currentMultiplier: Math.round(currentMultiplier * 100) / 100,
         crashPoint: game.crashPoint,
         isCrashed: game.isCrashed,
-        cashedOut: game.cashedOut,
-        cashedOutAt: game.cashedOutAt,
-        countdownStartTime: game.countdownStartTime,
+        cashedOut: playerBet?.cashedOut || false,
+        cashedOutAt: playerBet?.cashedOutAt || null,
+        countdownStartTime: game.gameStartTime - 5000,
         gameStartTime: game.gameStartTime
       });
     } catch (error) {
