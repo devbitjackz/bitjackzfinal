@@ -154,13 +154,10 @@ export default function CrashGame() {
             }
           }
 
-          if (status.status === 'crashed' || status.status === 'finished') {
-            clearInterval(statusInterval);
-            setTimeout(() => {
-              // Game will restart automatically, keep watching
-              setGameStatus(null);
-            }, 3000);
-          }
+          // Don't stop polling when game crashes - keep watching for next game
+          // if (status.status === 'crashed' || status.status === 'finished') {
+          //   clearInterval(statusInterval);
+          // }
         } catch (error) {
           console.error('Failed to fetch game status:', error);
           // Continue polling even on error to maintain game state
@@ -187,13 +184,13 @@ export default function CrashGame() {
 
   // Auto-start watching global game
   useEffect(() => {
-    if (isWatching && currentGameId) {
+    if (isWatching) {
       startGameTracking(currentGameId, Date.now());
     }
     return () => {
       stopGameTracking();
     };
-  }, [isWatching, currentGameId]);
+  }, [isWatching]);
 
   const handlePlay = () => {
     const bet = parseFloat(betAmount);

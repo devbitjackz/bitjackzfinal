@@ -54,8 +54,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
   let gameCounter = 1;
 
   function generateCrashPoint() {
-    // Using exponential decay for realistic crash points (average ~2x)
-    return Math.max(1.0, Math.round((-Math.log(Math.random()) / 0.5) * 100) / 100);
+    // Generate crash points between 1.0x and 5.86x with exponential distribution
+    const random = Math.random();
+    const crashPoint = Math.max(1.0, Math.min(5.86, Math.round((-Math.log(random) / 0.5) * 100) / 100));
+    return crashPoint;
   }
 
   // Restart global game when it crashes
@@ -84,7 +86,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
   setInterval(() => {
     if (globalCrashGame.status === 'active' && !globalCrashGame.isCrashed) {
       const elapsed = Date.now() - globalCrashGame.gameStartTime;
-      globalCrashGame.currentMultiplier = Math.min(1.0 + (elapsed / 50) * 0.01, globalCrashGame.crashPoint);
+      // Limit multiplier to maximum 5.86x
+      globalCrashGame.currentMultiplier = Math.min(
+        Math.min(1.0 + (elapsed / 50) * 0.01, globalCrashGame.crashPoint),
+        5.86
+      );
       
       // Check if crashed
       if (globalCrashGame.currentMultiplier >= globalCrashGame.crashPoint) {
