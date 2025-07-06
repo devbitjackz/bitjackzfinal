@@ -9,7 +9,7 @@ import cointossBanner from "@assets/cointoss_1751570242550.png";
 import diceBanner from "@assets/image_1751790109419.png";
 import limboBanner from "@assets/limbo_1751570260414.png";
 import minesBanner from "@assets/image_1751790163377.png";
-import rouletteBanner from "@assets/image_1751791991506.png";
+import rouletteBanner from "@assets/image_1751792353406.png";
 
 interface GameResult {
   id: number;
