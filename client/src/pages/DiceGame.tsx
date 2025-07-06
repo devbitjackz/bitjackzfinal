@@ -69,7 +69,7 @@ export default function DiceGame() {
     const bet = parseFloat(betAmount);
     const targetValue = rollTarget[0];
     
-    if (bet <= 0 || targetValue < 2 || targetValue > 98) {
+    if (bet < 0 || targetValue < 2 || targetValue > 98) {
       toast({
         title: "Invalid Input",
         description: "Please enter valid bet amount and target (2-98)",
