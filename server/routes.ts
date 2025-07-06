@@ -44,106 +44,124 @@ export async function registerRoutes(app: Express): Promise<Server> {
     return Math.round(crashPoint * 100) / 100;
   }
 
-  // Global crash game state management - always running
-  let globalCrashGame = {
-    gameId: `crash_global_1`,
-    crashPoint: generateCrashPoint(),
-    gameStartTime: Date.now() + 5000, // Start in 5 seconds
-    currentMultiplier: 1.0,
-    isCrashed: false,
-    status: 'countdown' as 'countdown' | 'active' | 'crashed',
-    playerBets: new Map<number, {betAmount: number, cashedOut: boolean, cashedOutAt: number | null}>()
-  };
+  // Enhanced crash game engine - completely rebuilt for smooth performance
+  class CrashGameEngine {
+    private gameId = 1;
+    private currentGame: any = null;
+    private gameTimer: NodeJS.Timeout | null = null;
+    private updateInterval: NodeJS.Timeout | null = null;
 
-  // Start the first game
-  setTimeout(() => {
-    if (globalCrashGame.status === 'countdown') {
-      globalCrashGame.status = 'active';
-      globalCrashGame.gameStartTime = Date.now();
-      console.log(`First game ${globalCrashGame.gameId} now active, crash point: ${globalCrashGame.crashPoint}x`);
+    constructor() {
+      this.initializeNewGame();
+      this.startUpdateLoop();
     }
-  }, 5000);
 
-  let gameCounter = 1;
-
-  // Restart global game when it crashes
-  function restartGlobalGame() {
-    setTimeout(() => {
-      globalCrashGame = {
-        gameId: `crash_global_${++gameCounter}`,
+    private initializeNewGame() {
+      this.currentGame = {
+        gameId: `crash_global_${this.gameId++}`,
+        status: 'countdown',
         crashPoint: generateCrashPoint(),
-        gameStartTime: Date.now() + 5000, // 5 second countdown
-        currentMultiplier: 1.0,
+        currentMultiplier: 1.00,
+        gameStartTime: Date.now() + 5000,
         isCrashed: false,
-        status: 'countdown' as 'countdown' | 'active' | 'crashed',
-        playerBets: new Map<number, {betAmount: number, cashedOut: boolean, cashedOutAt: number | null}>()
+        playerBets: new Map()
       };
       
-      setTimeout(() => {
-        if (globalCrashGame.status === 'countdown') {
-          globalCrashGame.status = 'active';
-          globalCrashGame.gameStartTime = Date.now();
+      console.log(`New game: ${this.currentGame.gameId}, crash point: ${this.currentGame.crashPoint}x`);
+      
+      // Schedule game activation
+      this.gameTimer = setTimeout(() => {
+        if (this.currentGame?.status === 'countdown') {
+          this.currentGame.status = 'active';
+          this.currentGame.gameStartTime = Date.now();
+          console.log(`Game ${this.currentGame.gameId} now active`);
         }
       }, 5000);
-    }, 3000); // 3 second break between games
+    }
+
+    private startUpdateLoop() {
+      this.updateInterval = setInterval(() => {
+        if (this.currentGame?.status === 'active' && !this.currentGame.isCrashed) {
+          const elapsed = Date.now() - this.currentGame.gameStartTime;
+          const newMultiplier = 1.0 + (elapsed / 120) * 0.01; // Slower, smoother growth
+          
+          if (newMultiplier >= this.currentGame.crashPoint) {
+            this.handleCrash();
+          } else {
+            this.currentGame.currentMultiplier = Math.round(newMultiplier * 100) / 100;
+          }
+        }
+      }, 16); // 60 FPS for ultra-smooth animation
+    }
+
+    private handleCrash() {
+      this.currentGame.isCrashed = true;
+      this.currentGame.status = 'crashed';
+      this.currentGame.currentMultiplier = this.currentGame.crashPoint;
+      
+      console.log(`Game crashed at ${this.currentGame.crashPoint}x, restarting in 3 seconds...`);
+      
+      // Process losing bets
+      this.currentGame.playerBets.forEach((bet: any, userId: number) => {
+        if (!bet.cashedOut) {
+          storage.createGameResult({
+            userId,
+            gameType: "crash",
+            betAmount: bet.betAmount,
+            multiplier: this.currentGame.crashPoint,
+            payout: 0,
+            result: "loss",
+          });
+        }
+      });
+      
+      // Clean restart after 3 seconds
+      setTimeout(() => {
+        this.initializeNewGame();
+      }, 3000);
+    }
+
+    getGameState() {
+      return this.currentGame;
+    }
+
+    placeBet(userId: number, betAmount: number): boolean {
+      if (this.currentGame?.status !== 'countdown') return false;
+      
+      this.currentGame.playerBets.set(userId, {
+        betAmount,
+        cashedOut: false,
+        cashedOutAt: null
+      });
+      
+      return true;
+    }
+
+    cashOut(userId: number) {
+      const bet = this.currentGame?.playerBets.get(userId);
+      if (!bet || bet.cashedOut || this.currentGame?.isCrashed || this.currentGame?.status !== 'active') {
+        return null;
+      }
+      
+      bet.cashedOut = true;
+      bet.cashedOutAt = this.currentGame.currentMultiplier;
+      
+      return {
+        multiplier: this.currentGame.currentMultiplier,
+        payout: bet.betAmount * this.currentGame.currentMultiplier
+      };
+    }
+
+    cleanup() {
+      if (this.gameTimer) clearTimeout(this.gameTimer);
+      if (this.updateInterval) clearInterval(this.updateInterval);
+    }
   }
 
-  // Update global game state continuously
-  setInterval(() => {
-    if (globalCrashGame.status === 'active' && !globalCrashGame.isCrashed) {
-      const elapsed = Date.now() - globalCrashGame.gameStartTime;
-      // Limit multiplier to maximum 5.86x
-      globalCrashGame.currentMultiplier = Math.min(
-        Math.min(1.0 + (elapsed / 50) * 0.01, globalCrashGame.crashPoint),
-        5.86
-      );
-      
-      // Check if crashed
-      if (globalCrashGame.currentMultiplier >= globalCrashGame.crashPoint && !globalCrashGame.isCrashed) {
-        globalCrashGame.isCrashed = true;
-        globalCrashGame.status = 'crashed';
-        
-        // Handle all player bets that didn't cash out
-        globalCrashGame.playerBets.forEach((playerBet, userId) => {
-          if (!playerBet.cashedOut) {
-            storage.createGameResult({
-              userId,
-              gameType: "crash",
-              betAmount: playerBet.betAmount,
-              multiplier: 0,
-              payout: 0,
-              result: "loss",
-            });
-          }
-        });
-        
-        console.log(`Game crashed at ${globalCrashGame.crashPoint}x, restarting in 3 seconds...`);
-        
-        // Immediate restart instead of function call
-        setTimeout(() => {
-          globalCrashGame = {
-            gameId: `crash_global_${++gameCounter}`,
-            crashPoint: generateCrashPoint(),
-            gameStartTime: Date.now() + 5000, // 5 second countdown
-            currentMultiplier: 1.0,
-            isCrashed: false,
-            status: 'countdown' as 'countdown' | 'active' | 'crashed',
-            playerBets: new Map<number, {betAmount: number, cashedOut: boolean, cashedOutAt: number | null}>()
-          };
-          
-          console.log(`New game started: ${globalCrashGame.gameId}, crash point: ${globalCrashGame.crashPoint}x`);
-          
-          setTimeout(() => {
-            if (globalCrashGame.status === 'countdown') {
-              globalCrashGame.status = 'active';
-              globalCrashGame.gameStartTime = Date.now();
-              console.log(`Game ${globalCrashGame.gameId} now active`);
-            }
-          }, 5000);
-        }, 3000); // 3 second break between games
-      }
-    }
-  }, 50); // Update every 50ms
+  // Initialize the new crash game engine
+  const crashGameEngine = new CrashGameEngine();
+
+  // Old crash game code removed - now using CrashGameEngine
 
   // Join the global crash game with a bet
   app.post("/api/games/crash/bet", async (req, res) => {
@@ -161,33 +179,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ error: "Insufficient balance" });
       }
 
-      // Only allow betting during countdown phase
-      if (globalCrashGame.status !== 'countdown') {
+      // Try to place bet using new engine
+      if (!crashGameEngine.placeBet(userId, amount)) {
         return res.status(400).json({ error: "Betting is only allowed during countdown phase" });
-      }
-
-      // Check if user already has a bet in current game
-      if (globalCrashGame.playerBets.has(userId)) {
-        return res.status(400).json({ error: "You already have a bet in this game" });
       }
 
       // Deduct bet amount from balance
       await storage.updateUserBalance(userId, user.balance - amount);
 
-      // Add player bet to global game
-      globalCrashGame.playerBets.set(userId, {
-        betAmount: amount,
-        cashedOut: false,
-        cashedOutAt: null
-      });
-
-      console.log(`Bet placed by user ${userId}: $${amount}, Game: ${globalCrashGame.gameId}, Crash Point: ${globalCrashGame.crashPoint}x, Status: ${globalCrashGame.status}`);
+      const game = crashGameEngine.getGameState();
+      console.log(`Bet placed by user ${userId}: $${amount}, Game: ${game.gameId}`);
       
       res.json({
-        gameId: globalCrashGame.gameId,
+        gameId: game.gameId,
         message: "Bet placed! Watch the rocket fly!",
-        currentStatus: globalCrashGame.status,
-        crashPoint: globalCrashGame.crashPoint // Debug info
+        currentStatus: game.status
       });
     } catch (error) {
       res.status(500).json({ error: "Failed to place bet" });
@@ -197,43 +203,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Get global crash game status
   app.get("/api/games/crash/status/:gameId", async (req, res) => {
     try {
-      const game = globalCrashGame;
-      const now = Date.now();
-      let status = game.status;
-      let currentMultiplier = game.currentMultiplier;
-
-      if (now < game.gameStartTime) {
-        // Still in countdown
-        status = 'countdown';
-        currentMultiplier = 1.0;
-      } else if (!game.isCrashed) {
-        // Game is active
-        status = 'active';
-        const elapsed = now - game.gameStartTime;
-        currentMultiplier = Math.min(1.0 + (elapsed / 50) * 0.01, game.crashPoint);
-        
-        // Check if we should crash
-        if (currentMultiplier >= game.crashPoint) {
-          game.isCrashed = true;
-          game.status = 'crashed';
-          status = 'crashed';
-          currentMultiplier = game.crashPoint;
-        }
-      } else {
-        // Game is finished/crashed
-        currentMultiplier = game.crashPoint;
-      }
-
-      game.currentMultiplier = currentMultiplier;
-
+      const game = crashGameEngine.getGameState();
       const sessionId = req.headers['x-session-id'] as string || 'demo';
       const userId = userSessions.get(sessionId) || 1;
       const playerBet = game.playerBets.get(userId);
 
       res.json({
         gameId: game.gameId,
-        status,
-        currentMultiplier: Math.round(currentMultiplier * 100) / 100,
+        status: game.status,
+        currentMultiplier: game.currentMultiplier,
         crashPoint: game.crashPoint,
         isCrashed: game.isCrashed,
         cashedOut: playerBet?.cashedOut || false,
@@ -251,56 +229,35 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const sessionId = req.headers['x-session-id'] as string || 'demo';
       const userId = userSessions.get(sessionId) || 1;
-      const game = globalCrashGame;
-
-      const playerBet = game.playerBets.get(userId);
-      if (!playerBet) {
-        return res.status(404).json({ error: "No bet found for this game" });
+      
+      const cashoutResult = crashGameEngine.cashOut(userId);
+      if (!cashoutResult) {
+        return res.status(400).json({ error: "Cannot cash out - no active bet or game crashed" });
       }
 
-      if (playerBet.cashedOut || game.isCrashed) {
-        return res.status(400).json({ error: "Already cashed out or game crashed" });
-      }
-
-      if (game.status !== 'active') {
-        return res.status(400).json({ error: "Game not active" });
-      }
-
-      // Check if crashed before cash out
-      if (game.currentMultiplier >= game.crashPoint) {
-        return res.json({
-          result: "lose",
-          message: "Crashed before cash out!",
-          crashPoint: game.crashPoint,
-          payoutAmount: 0
-        });
-      }
-
-      // Successfully cashed out
-      playerBet.cashedOut = true;
-      playerBet.cashedOutAt = game.currentMultiplier;
-
-      const payoutAmount = playerBet.betAmount * game.currentMultiplier;
       const user = await storage.getUser(userId);
       if (user) {
-        await storage.updateUserBalance(userId, user.balance + payoutAmount);
+        await storage.updateUserBalance(userId, user.balance + cashoutResult.payout);
       }
+
+      const game = crashGameEngine.getGameState();
+      const playerBet = game.playerBets.get(userId);
 
       // Record win
       await storage.createGameResult({
         userId,
         gameType: "crash",
         betAmount: playerBet.betAmount,
-        multiplier: game.currentMultiplier,
-        payout: payoutAmount,
+        multiplier: cashoutResult.multiplier,
+        payout: cashoutResult.payout,
         result: "win",
       });
 
       res.json({
         result: "win",
-        message: `Cashed out at ${game.currentMultiplier.toFixed(2)}x!`,
-        payoutAmount: Math.round(payoutAmount * 100) / 100,
-        multiplier: Math.round(game.currentMultiplier * 100) / 100
+        message: `Cashed out at ${cashoutResult.multiplier.toFixed(2)}x!`,
+        payoutAmount: Math.round(cashoutResult.payout * 100) / 100,
+        multiplier: Math.round(cashoutResult.multiplier * 100) / 100
       });
     } catch (error) {
       res.status(500).json({ error: "Failed to cash out" });

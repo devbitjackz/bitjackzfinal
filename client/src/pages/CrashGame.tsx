@@ -162,7 +162,7 @@ export default function CrashGame() {
           console.error('Failed to fetch game status:', error);
           // Continue polling even on error to maintain game state
         }
-      }, 100); // Update every 100ms to reduce lag
+      }, 50); // Update every 50ms for ultra-smooth movement
 
       statusIntervalRef.current = statusInterval;
     };
@@ -283,8 +283,8 @@ export default function CrashGame() {
               </div>
             </div>
             
-            {/* Crash Chart Visualization */}
-            <div className="relative h-64 mb-8 bg-gradient-to-b from-blue-900 to-blue-950 rounded-lg overflow-hidden border border-casino-gold/20">
+            {/* Crash Chart Visualization - Much Bigger Canvas */}
+            <div className="relative h-96 sm:h-[500px] lg:h-[600px] mb-8 bg-gradient-to-b from-blue-900 to-blue-950 rounded-lg overflow-hidden border border-casino-gold/20">
               {/* Background Grid */}
               <div className="absolute inset-0 opacity-20">
                 {[...Array(6)].map((_, i) => (
@@ -334,16 +334,18 @@ export default function CrashGame() {
                       />
                     </svg>
                     
-                    {/* Rocket */}
+                    {/* Rocket - Bigger and more prominent */}
                     <div 
-                      className="absolute z-10 transition-all duration-100 ease-out"
+                      className="absolute z-10 transition-all duration-75 ease-out"
                       style={{
                         left: `${Math.min(85, 5 + (gameStatus.currentMultiplier - 1) * 15)}%`,
                         bottom: `${Math.min(80, 10 + (gameStatus.currentMultiplier - 1) * 17)}%`,
-                        transform: `rotate(${Math.min(35, (gameStatus.currentMultiplier - 1) * 4)}deg)`
+                        transform: `rotate(${Math.min(35, (gameStatus.currentMultiplier - 1) * 4)}deg) scale(${1 + (gameStatus.currentMultiplier - 1) * 0.1})`
                       }}
                     >
-                      <div className="text-7xl filter drop-shadow-lg">🚀</div>
+                      <div className="text-8xl sm:text-9xl filter drop-shadow-lg">🚀</div>
+                      {/* Rocket trail effect */}
+                      <div className="absolute inset-0 text-8xl sm:text-9xl filter blur-sm opacity-40">🚀</div>
                     </div>
                   </>
                 )}
