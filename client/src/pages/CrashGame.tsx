@@ -317,9 +317,9 @@ export default function CrashGame() {
                         </linearGradient>
                       </defs>
                       
-                      {/* Rocket exhaust trail - flowing behind the rocket */}
+                      {/* Rocket exhaust trail - ending at rocket position */}
                       <path
-                        d={`M 30 190 Q ${Math.min(400, 30 + (gameStatus.currentMultiplier - 1) * 120)} ${Math.max(30, 190 - (gameStatus.currentMultiplier - 1) * 50)} ${Math.min(500, 30 + (gameStatus.currentMultiplier - 1) * 150)} ${Math.max(10, 190 - (gameStatus.currentMultiplier - 1) * 70)}`}
+                        d={`M 30 190 Q ${Math.min(300, 30 + (gameStatus.currentMultiplier - 1) * 80)} ${Math.max(50, 190 - (gameStatus.currentMultiplier - 1) * 40)} ${Math.min(360, 30 + (gameStatus.currentMultiplier - 1) * 100)} ${Math.max(20, 190 - (gameStatus.currentMultiplier - 1) * 50)}`}
                         stroke="url(#graphGradient)"
                         strokeWidth="4"
                         fill="none"
