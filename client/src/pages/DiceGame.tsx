@@ -28,6 +28,7 @@ export default function DiceGame() {
   const [rollTarget, setRollTarget] = useState([50]);
 
   const [lastRoll, setLastRoll] = useState<number | null>(null);
+  const [betType, setBetType] = useState<"over" | "under">("over");
 
   const { data: balance } = useQuery<{ balance: number }>({
     queryKey: ["/api/balance"],
@@ -78,14 +79,14 @@ export default function DiceGame() {
       return;
     }
 
-    // Always roll over - only betting on green area (roll > target)
-    const isOver = true;
+    // Use the selected bet type (over or under)
+    const isOver = betType === "over";
     playGameMutation.mutate({ betAmount: bet, target: targetValue, isOver });
   };
 
   const target = rollTarget[0];
-  // Only roll over - green area represents winning condition (roll > target)
-  const winChance = 100 - target; // Win chance is 100 - target for roll over
+  // Calculate win chance based on bet type
+  const winChance = betType === "over" ? 100 - target : target - 1;
   const multiplier = (100 / winChance);
   const calculatedProfit = parseFloat(betAmount) * (multiplier - 1);
 
@@ -110,9 +111,36 @@ export default function DiceGame() {
         <div className="text-sm text-gray-400">Roll Over/Under</div>
       </div>
 
-      <div className="flex h-[calc(100vh-80px)]">
+      <div className="flex flex-col lg:flex-row h-[calc(100vh-80px)]">
         {/* Left Panel - Controls */}
-        <div className="w-80 bg-gray-800/90 p-6 border-r border-gray-700">
+        <div className="w-full lg:w-80 bg-gray-800/90 p-4 lg:p-6 border-b lg:border-b-0 lg:border-r border-gray-700">
+          
+          {/* Over/Under Toggle */}
+          <div className="mb-6">
+            <Label className="text-gray-300 text-sm mb-3 block">Bet Type</Label>
+            <div className="flex bg-gray-700 rounded-lg p-1">
+              <button
+                onClick={() => setBetType("over")}
+                className={`flex-1 py-2 px-4 rounded-lg text-sm font-medium transition-colors ${
+                  betType === "over" 
+                    ? "bg-blue-500 text-white" 
+                    : "text-gray-400 hover:text-white"
+                }`}
+              >
+                Roll Over
+              </button>
+              <button
+                onClick={() => setBetType("under")}
+                className={`flex-1 py-2 px-4 rounded-lg text-sm font-medium transition-colors ${
+                  betType === "under" 
+                    ? "bg-blue-500 text-white" 
+                    : "text-gray-400 hover:text-white"
+                }`}
+              >
+                Roll Under
+              </button>
+            </div>
+          </div>
 
 
           {/* Bet Amount */}
@@ -140,10 +168,26 @@ export default function DiceGame() {
           >
             {playGameMutation.isPending ? "Rolling..." : "Bet"}
           </Button>
+          
+          {/* Game Stats - Mobile friendly */}
+          <div className="grid grid-cols-3 gap-4 text-center">
+            <div className="bg-gray-700 rounded-lg p-3">
+              <div className="text-white text-xl font-bold">{multiplier.toFixed(2)}</div>
+              <div className="text-gray-400 text-xs">Multiplier</div>
+            </div>
+            <div className="bg-gray-700 rounded-lg p-3">
+              <div className="text-white text-xl font-bold">{target}</div>
+              <div className="text-gray-400 text-xs">Roll {betType === "over" ? "Over" : "Under"}</div>
+            </div>
+            <div className="bg-gray-700 rounded-lg p-3">
+              <div className="text-white text-xl font-bold">{winChance.toFixed(1)}%</div>
+              <div className="text-gray-400 text-xs">Win Chance</div>
+            </div>
+          </div>
         </div>
 
         {/* Right Panel - Game Area */}
-        <div className="flex-1 p-6">
+        <div className="flex-1 p-4 lg:p-6">
           {/* Roll Slider */}
           <div className="max-w-4xl mx-auto">
             {/* Numbers */}
@@ -168,7 +212,7 @@ export default function DiceGame() {
                 >
                   {/* Animated Dice Shape */}
                   <div className={`border-2 rounded-lg w-14 h-12 flex items-center justify-center shadow-lg transform transition-all duration-500 ease-out scale-110 ${
-                    lastRoll > target 
+                    (betType === "over" && lastRoll > target) || (betType === "under" && lastRoll < target)
                       ? 'bg-green-500 border-green-400 text-white' 
                       : 'bg-red-500 border-red-400 text-white'
                   }`}>
@@ -182,16 +226,33 @@ export default function DiceGame() {
             <div className="relative mb-12">
               {/* Outer container with rounded corners and border */}
               <div className="h-8 bg-gray-700 rounded-full border-2 border-gray-600 overflow-hidden relative">
-                {/* Red section (no win zone) */}
-                <div 
-                  className="h-full bg-red-500 absolute left-0 top-0"
-                  style={{ width: `${target}%` }}
-                />
-                {/* Green section (roll over - winner area only) */}
-                <div 
-                  className="h-full bg-green-500 absolute right-0 top-0"
-                  style={{ width: `${100 - target}%` }}
-                />
+                {betType === "over" ? (
+                  <>
+                    {/* Red section (lose zone) for roll over */}
+                    <div 
+                      className="h-full bg-red-500 absolute left-0 top-0"
+                      style={{ width: `${target}%` }}
+                    />
+                    {/* Green section (win zone) for roll over */}
+                    <div 
+                      className="h-full bg-green-500 absolute right-0 top-0"
+                      style={{ width: `${100 - target}%` }}
+                    />
+                  </>
+                ) : (
+                  <>
+                    {/* Green section (win zone) for roll under */}
+                    <div 
+                      className="h-full bg-green-500 absolute left-0 top-0"
+                      style={{ width: `${target}%` }}
+                    />
+                    {/* Red section (lose zone) for roll under */}
+                    <div 
+                      className="h-full bg-red-500 absolute right-0 top-0"
+                      style={{ width: `${100 - target}%` }}
+                    />
+                  </>
+                )}
               </div>
               
               {/* Slider thumb - blue square with target number */}
