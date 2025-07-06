@@ -1,8 +1,8 @@
 import { useQuery } from "@tanstack/react-query";
 import { useLocation } from "wouter";
 import GameTile from "@/components/GameTile";
-import { Card, CardContent } from "@/components/ui/card";
-import { Trophy, User } from "lucide-react";
+
+
 import bitjackzBanner from "@assets/banner_1751570113317.jpg";
 import crashBanner from "@assets/crash_1751570711855.png";
 import cointossBanner from "@assets/cointoss_1751570242550.png";
@@ -84,11 +84,7 @@ export default function Home() {
     },
   ];
 
-  const bigWins = [
-    { player: "Player***123", game: "Crash - 15.6x", amount: 1567.89 },
-    { player: "Player***456", game: "Roulette - Straight", amount: 3200.00 },
-    { player: "Player***789", game: "Mines - 8 tiles", amount: 987.50 },
-  ];
+
 
   return (
     <div className="pt-24 pb-20 px-4 sm:px-6 lg:px-8 min-h-screen">
@@ -157,31 +153,7 @@ export default function Home() {
           </div>
         </div>
 
-        {/* Recent Winners */}
-        <Card className="casino-bg-blue border-casino-gold/20">
-          <CardContent className="p-6">
-            <h3 className="text-xl font-semibold mb-4 flex items-center casino-gold">
-              <Trophy className="mr-2" size={20} />
-              Recent Big Wins
-            </h3>
-            <div className="space-y-3">
-              {bigWins.map((win, index) => (
-                <div key={index} className="flex items-center justify-between">
-                  <div className="flex items-center space-x-3">
-                    <div className="w-8 h-8 bg-casino-gold/20 rounded-full flex items-center justify-center">
-                      <User className="casino-gold" size={16} />
-                    </div>
-                    <div>
-                      <div className="font-semibold">{win.player}</div>
-                      <div className="text-sm text-gray-400">{win.game}</div>
-                    </div>
-                  </div>
-                  <div className="casino-gold font-bold">${win.amount.toLocaleString()}</div>
-                </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
+
       </div>
     </div>
   );
