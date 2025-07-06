@@ -157,24 +157,22 @@ export default function DiceGame() {
 
             {/* Roll Result Display */}
             {lastRoll !== null && (
-              <div className="relative mb-2 h-16">
+              <div className="relative mb-2 h-14">
                 <div 
-                  className="absolute"
+                  className="absolute transition-all duration-1000 ease-out"
                   style={{ 
                     left: `${lastRoll}%`,
                     transform: 'translateX(-50%)',
                     top: '0'
                   }}
                 >
-                  {/* Dice Shape */}
-                  <div className="bg-white border-2 border-gray-300 rounded-lg w-12 h-12 flex items-center justify-center shadow-lg">
-                    <span className="font-bold text-black text-sm">{lastRoll.toFixed(2)}</span>
-                  </div>
-                  {/* Win/Loss Text */}
-                  <div className={`text-center mt-1 font-bold text-xs ${
-                    lastRoll > target ? 'text-green-400' : 'text-red-400'
+                  {/* Animated Dice Shape */}
+                  <div className={`border-2 rounded-lg w-14 h-12 flex items-center justify-center shadow-lg transform transition-all duration-500 ease-out scale-110 ${
+                    lastRoll > target 
+                      ? 'bg-green-500 border-green-400 text-white' 
+                      : 'bg-red-500 border-red-400 text-white'
                   }`}>
-                    {lastRoll > target ? 'WIN' : 'LOSE'}
+                    <span className="font-bold text-sm animate-pulse">{lastRoll.toFixed(2)}</span>
                   </div>
                 </div>
               </div>
