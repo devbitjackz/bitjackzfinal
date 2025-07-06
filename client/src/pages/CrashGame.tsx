@@ -36,6 +36,7 @@ export default function CrashGame() {
   const [currentGameId, setCurrentGameId] = useState<string>('crash_global_1');
   const [gameStatus, setGameStatus] = useState<GameStatus | null>(null);
   const [isWatching, setIsWatching] = useState<boolean>(true);
+  const [isInitialized, setIsInitialized] = useState<boolean>(false);
   const [countdown, setCountdown] = useState<number>(0);
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
   const statusIntervalRef = useRef<NodeJS.Timeout | null>(null);
@@ -48,21 +49,26 @@ export default function CrashGame() {
     queryKey: ["/api/games/recent", "crash"],
   });
 
-  // Start game mutation
-  const startGameMutation = useMutation({
+  // Bet on global game mutation
+  const betMutation = useMutation({
     mutationFn: async (amount: number) => {
-      const response = await apiRequest("POST", "/api/games/crash/bet", { amount });
+      const response = await apiRequest("POST", "/api/games/crash/bet", { 
+        amount: amount 
+      });
       return response.json();
     },
     onSuccess: (data) => {
-      setCurrentGameId(data.gameId);
-      startGameTracking(data.gameId, data.countdownStartTime);
       queryClient.invalidateQueries({ queryKey: ["/api/balance"] });
+      toast({
+        title: "Bet Placed!",
+        description: `$${betAmount} bet placed on global game`,
+        variant: "default",
+      });
     },
     onError: () => {
       toast({
         title: "Error",
-        description: "Failed to start game",
+        description: "Failed to place bet",
         variant: "destructive",
       });
     },
@@ -131,6 +137,11 @@ export default function CrashGame() {
           });
           const status: GameStatus = await response.json();
           
+          // Mark as initialized after first successful fetch
+          if (!isInitialized) {
+            setIsInitialized(true);
+          }
+          
           // Only update if something actually changed to prevent excessive re-renders
           if (status.currentMultiplier !== lastMultiplier || status.status !== lastStatus || status.gameId !== currentGameId) {
             setGameStatus(status);
@@ -196,16 +207,25 @@ export default function CrashGame() {
       return;
     }
 
-    if (currentGameId) {
+    if (!currentGameId) {
       toast({
-        title: "Game in Progress",
-        description: "Please wait for current game to finish",
+        title: "Game Loading",
+        description: "Please wait for the game to load",
         variant: "destructive",
       });
       return;
     }
 
-    startGameMutation.mutate(bet);
+    if (gameStatus?.status === 'active' || gameStatus?.status === 'crashed') {
+      toast({
+        title: "Game Running",
+        description: "Cannot bet on game in progress",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    betMutation.mutate(bet);
   };
 
   const handleCashOut = () => {
@@ -220,12 +240,13 @@ export default function CrashGame() {
   };
 
   const getGameStatusText = () => {
-    if (!currentGameId) return "Place Your Bet";
+    if (!isInitialized) return "Connecting...";
     if (countdown > 0) return `Starting in ${countdown}s...`;
+    if (gameStatus?.status === 'countdown') return "Place Your Bet";
     if (gameStatus?.status === 'active') return "🚀 FLYING - Cash Out Now!";
     if (gameStatus?.status === 'crashed') return "💥 CRASHED!";
     if (gameStatus?.status === 'finished') return "✅ Cashed Out!";
-    return "Loading...";
+    return "Waiting for next game...";
   };
 
   const canCashOut = () => {
@@ -233,7 +254,7 @@ export default function CrashGame() {
   };
 
   const canPlaceBet = () => {
-    return !currentGameId && !startGameMutation.isPending;
+    return currentGameId && gameStatus?.status === 'countdown' && !betMutation.isPending;
   };
 
   return (
@@ -337,10 +358,7 @@ export default function CrashGame() {
                       <div className="text-8xl animate-ping" style={{animationDuration: '1s', animationIterationCount: '1'}}>💥</div>
                     </div>
                     
-                    {/* Crashed Rocket */}
-                    <div className="absolute bottom-10 right-20 opacity-30">
-                      <div className="text-5xl">🚀</div>
-                    </div>
+                    {/* Remove crashed rocket - no rocket after crash */}
                   </>
                 )}
                 
@@ -432,7 +450,7 @@ export default function CrashGame() {
             className="bg-casino-gold hover:bg-casino-gold/90 text-casino-navy py-6 text-lg font-bold"
           >
             <Play className="mr-2" size={20} />
-            {startGameMutation.isPending ? "Placing Bet..." : "Place Bet"}
+            {betMutation.isPending ? "Placing Bet..." : "Place Bet"}
           </Button>
           <Button
             onClick={handleCashOut}
