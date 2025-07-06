@@ -400,7 +400,7 @@ export default function CrashGame() {
                     type="number"
                     value={betAmount}
                     onChange={(e) => setBetAmount(e.target.value)}
-                    disabled={!!currentGameId}
+                    disabled={gameStatus?.status === 'active'}
                     className="pl-8 casino-bg border-casino-gold/20 text-white"
                     placeholder="0.00"
                   />
@@ -409,7 +409,7 @@ export default function CrashGame() {
                   <Button
                     variant="outline"
                     size="sm"
-                    disabled={!!currentGameId}
+                    disabled={gameStatus?.status === 'active'}
                     onClick={() => setBetAmount((parseFloat(betAmount) / 2).toFixed(2))}
                     className="flex-1 bg-casino-gold/20 border-casino-gold/20 casino-gold hover:bg-casino-gold/30"
                   >
@@ -418,7 +418,7 @@ export default function CrashGame() {
                   <Button
                     variant="outline"
                     size="sm"
-                    disabled={!!currentGameId}
+                    disabled={gameStatus?.status === 'active'}
                     onClick={() => setBetAmount((parseFloat(betAmount) * 2).toFixed(2))}
                     className="flex-1 bg-casino-gold/20 border-casino-gold/20 casino-gold hover:bg-casino-gold/30"
                   >
@@ -427,7 +427,7 @@ export default function CrashGame() {
                   <Button
                     variant="outline"
                     size="sm"
-                    disabled={!!currentGameId}
+                    disabled={gameStatus?.status === 'active'}
                     onClick={() => setBetAmount((balance?.balance || 0).toFixed(2))}
                     className="flex-1 bg-casino-gold/20 border-casino-gold/20 casino-gold hover:bg-casino-gold/30"
                   >
