@@ -317,23 +317,18 @@ export default function CrashGame() {
                         </linearGradient>
                       </defs>
                       
-                      {/* Graph line - Starting from rocket's fire/exhaust */}
+                      {/* Rocket exhaust trail - flowing behind the rocket */}
                       <path
-                        d={`M ${Math.max(20, 30 + (gameStatus.currentMultiplier - 1) * 150)} ${Math.min(190, 200 - (gameStatus.currentMultiplier - 1) * 50)} Q ${Math.min(500, 20 + (gameStatus.currentMultiplier - 1) * 120)} ${Math.max(5, 180 - (gameStatus.currentMultiplier - 1) * 65)} ${Math.min(550, 20 + (gameStatus.currentMultiplier - 1) * 140)} ${Math.max(2, 180 - (gameStatus.currentMultiplier - 1) * 70)}`}
+                        d={`M 30 190 Q ${Math.min(400, 30 + (gameStatus.currentMultiplier - 1) * 120)} ${Math.max(30, 190 - (gameStatus.currentMultiplier - 1) * 50)} ${Math.min(500, 30 + (gameStatus.currentMultiplier - 1) * 150)} ${Math.max(10, 190 - (gameStatus.currentMultiplier - 1) * 70)}`}
                         stroke="url(#graphGradient)"
-                        strokeWidth="3"
+                        strokeWidth="4"
                         fill="none"
                         className="transition-all duration-50 ease-out"
                       />
                       
 
                       
-                      {/* Graph fill area - Starting from rocket position */}
-                      <path
-                        d={`M ${Math.max(20, 30 + (gameStatus.currentMultiplier - 1) * 150)} ${Math.min(190, 200 - (gameStatus.currentMultiplier - 1) * 50)} Q ${Math.min(500, 20 + (gameStatus.currentMultiplier - 1) * 120)} ${Math.max(5, 180 - (gameStatus.currentMultiplier - 1) * 65)} ${Math.min(550, 20 + (gameStatus.currentMultiplier - 1) * 140)} ${Math.max(2, 180 - (gameStatus.currentMultiplier - 1) * 70)} L ${Math.min(550, 20 + (gameStatus.currentMultiplier - 1) * 140)} 200 L ${Math.max(20, 30 + (gameStatus.currentMultiplier - 1) * 150)} 200 Z`}
-                        fill="url(#graphFill)"
-                        className="transition-all duration-50 ease-out"
-                      />
+
                     </svg>
                     
                     {/* Rocket - Faster movement and bigger scaling */}
