@@ -351,9 +351,18 @@ export default function CrashGame() {
                 
                 {gameStatus?.status === 'crashed' && (
                   <>
-                    {/* Single Explosion Animation - 1 second */}
-                    <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-20">
+                    {/* Explosion Animation at rocket's final position */}
+                    <div 
+                      className="absolute z-20"
+                      style={{
+                        left: `${Math.min(90, 5 + (gameStatus.crashPoint - 1) * 25)}%`,
+                        bottom: `${Math.min(85, 10 + (gameStatus.crashPoint - 1) * 25)}%`,
+                        transform: 'translate(-50%, 50%)'
+                      }}
+                    >
                       <div className="text-8xl animate-ping" style={{animationDuration: '1s', animationIterationCount: '1'}}>💥</div>
+                      {/* Additional explosion effects */}
+                      <div className="absolute inset-0 text-8xl animate-pulse opacity-70" style={{animationDuration: '0.5s', animationIterationCount: '2'}}>💥</div>
                     </div>
                     
                     {/* Remove crashed rocket - no rocket after crash */}
