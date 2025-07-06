@@ -1,12 +1,12 @@
 import { useState } from "react";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { useLocation } from "wouter";
-import { ArrowLeft, Dice1 } from "lucide-react";
+import { ArrowLeft, RotateCcw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent } from "@/components/ui/card";
-import { Switch } from "@/components/ui/switch";
+import { Slider } from "@/components/ui/slider";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 
@@ -23,9 +23,11 @@ interface DiceResult {
 export default function DiceGame() {
   const [, setLocation] = useLocation();
   const { toast } = useToast();
-  const [betAmount, setBetAmount] = useState("10.00");
-  const [target, setTarget] = useState("50");
-  const [isOver, setIsOver] = useState(true);
+  const [betAmount, setBetAmount] = useState("0.00000000");
+  const [profitOnWin, setProfitOnWin] = useState("0.00000000");
+  const [rollTarget, setRollTarget] = useState([50]);
+  const [isManual, setIsManual] = useState(true);
+  const [lastRoll, setLastRoll] = useState<number | null>(null);
 
   const { data: balance } = useQuery<{ balance: number }>({
     queryKey: ["/api/balance"],
@@ -39,6 +41,7 @@ export default function DiceGame() {
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ["/api/balance"] });
       queryClient.invalidateQueries({ queryKey: ["/api/games/recent"] });
+      setLastRoll(data.roll);
       
       if (data.result === "win") {
         toast({
@@ -64,145 +67,225 @@ export default function DiceGame() {
 
   const handlePlay = () => {
     const bet = parseFloat(betAmount);
-    const targetNumber = parseInt(target);
+    const target = rollTarget[0];
     
-    if (bet <= 0 || targetNumber < 1 || targetNumber > 99) {
+    if (bet <= 0 || target < 2 || target > 98) {
       toast({
         title: "Invalid Input",
-        description: "Please enter valid bet amount and target (1-99)",
+        description: "Please enter valid bet amount and target (2-98)",
         variant: "destructive",
       });
       return;
     }
 
-    playGameMutation.mutate({ betAmount: bet, target: targetNumber, isOver });
+    // Roll over if target < 50, under if target >= 50
+    const isOver = target < 50;
+    playGameMutation.mutate({ betAmount: bet, target, isOver });
   };
 
-  const winChance = isOver ? (100 - parseInt(target)) : parseInt(target);
-  const multiplier = (100 / winChance).toFixed(2);
-  const potentialPayout = (parseFloat(betAmount) * parseFloat(multiplier)).toFixed(2);
+  const target = rollTarget[0];
+  const isOver = target < 50;
+  const winChance = isOver ? (99 - target) : target;
+  const multiplier = (99 / winChance);
+  const calculatedProfit = parseFloat(betAmount) * (multiplier - 1);
+
+  // Update profit when bet amount or target changes
+  const updateProfit = () => {
+    setProfitOnWin(calculatedProfit.toFixed(8));
+  };
 
   return (
-    <div className="pt-24 pb-8 px-4 sm:px-6 lg:px-8 min-h-screen">
-      <div className="max-w-4xl mx-auto">
-        <div className="flex items-center justify-between mb-6">
+    <div className="min-h-screen casino-bg-blue">
+      {/* Header */}
+      <div className="flex items-center justify-between p-4 border-b border-gray-700">
+        <Button
+          variant="ghost"
+          onClick={() => setLocation("/")}
+          className="text-white hover:text-yellow-400"
+        >
+          <ArrowLeft className="mr-2" size={16} />
+          Back to Games
+        </Button>
+        <h2 className="text-2xl font-bold text-white">DICE</h2>
+        <div className="text-sm text-gray-400">Roll Over/Under</div>
+      </div>
+
+      <div className="flex h-[calc(100vh-80px)]">
+        {/* Left Panel - Controls */}
+        <div className="w-80 bg-gray-800/90 p-6 border-r border-gray-700">
+          {/* Mode Toggle */}
+          <div className="flex bg-gray-700 rounded-lg p-1 mb-6">
+            <button
+              onClick={() => setIsManual(true)}
+              className={`flex-1 py-2 px-4 rounded-md text-sm font-medium transition-colors ${
+                isManual ? 'bg-gray-600 text-white' : 'text-gray-400 hover:text-white'
+              }`}
+            >
+              Manual
+            </button>
+            <button
+              onClick={() => setIsManual(false)}
+              className={`flex-1 py-2 px-4 rounded-md text-sm font-medium transition-colors ${
+                !isManual ? 'bg-gray-600 text-white' : 'text-gray-400 hover:text-white'
+              }`}
+            >
+              Auto
+            </button>
+            <button className="p-2 text-gray-400 hover:text-white">
+              <RotateCcw size={16} />
+            </button>
+          </div>
+
+          {/* Bet Amount */}
+          <div className="mb-6">
+            <Label className="text-gray-300 text-sm mb-2 block">Bet Amount</Label>
+            <div className="flex items-center">
+              <Input
+                value={betAmount}
+                onChange={(e) => {
+                  setBetAmount(e.target.value);
+                  updateProfit();
+                }}
+                className="bg-gray-700 border-gray-600 text-white flex-1"
+                placeholder="0.00000000"
+              />
+              <div className="flex ml-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => {
+                    const newAmount = (parseFloat(betAmount || "0") / 2).toFixed(8);
+                    setBetAmount(newAmount);
+                    updateProfit();
+                  }}
+                  className="bg-yellow-500 hover:bg-yellow-600 text-black border-0 px-3 py-1 text-xs"
+                >
+                  ½
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => {
+                    const newAmount = (parseFloat(betAmount || "0") * 2).toFixed(8);
+                    setBetAmount(newAmount);
+                    updateProfit();
+                  }}
+                  className="bg-yellow-500 hover:bg-yellow-600 text-black border-0 px-3 py-1 text-xs ml-1"
+                >
+                  2×
+                </Button>
+              </div>
+            </div>
+            <div className="text-xs text-gray-500 mt-1">$0.00</div>
+          </div>
+
+          {/* Profit on Win */}
+          <div className="mb-6">
+            <Label className="text-gray-300 text-sm mb-2 block">Profit on Win</Label>
+            <div className="flex items-center">
+              <Input
+                value={profitOnWin}
+                onChange={(e) => setProfitOnWin(e.target.value)}
+                className="bg-gray-700 border-gray-600 text-white flex-1"
+                placeholder="0.00000000"
+              />
+              <div className="w-6 h-6 bg-yellow-500 rounded ml-2 flex items-center justify-center">
+                <span className="text-black text-xs font-bold">₿</span>
+              </div>
+            </div>
+            <div className="text-xs text-gray-500 mt-1">$0.00</div>
+          </div>
+
+          {/* Bet Button */}
           <Button
-            variant="ghost"
-            onClick={() => setLocation("/")}
-            className="casino-gold hover:text-white"
+            onClick={handlePlay}
+            disabled={playGameMutation.isPending}
+            className="w-full bg-green-500 hover:bg-green-600 text-white py-3 text-lg font-bold mb-6"
           >
-            <ArrowLeft className="mr-2" size={16} />
-            Back to Games
+            {playGameMutation.isPending ? "Rolling..." : "Bet"}
           </Button>
-          <h2 className="text-3xl font-bold casino-gold">DICE</h2>
-          <div className="text-sm text-gray-400">234 players online</div>
         </div>
 
-        {/* Game Display */}
-        <Card className="casino-bg-blue border-casino-gold/20 mb-6">
-          <CardContent className="p-8">
-            <div className="text-center mb-8">
-              <div className="w-32 h-32 mx-auto mb-6 bg-green-400/20 rounded-full flex items-center justify-center text-6xl text-green-400 animate-float">
-                <Dice1 size={64} />
-              </div>
-              <div className="text-2xl font-bold casino-gold mb-2">Roll the Dice</div>
-              <div className="text-gray-300">Predict over or under your target</div>
+        {/* Right Panel - Game Area */}
+        <div className="flex-1 p-6">
+          {/* Roll Slider */}
+          <div className="max-w-4xl mx-auto">
+            {/* Numbers */}
+            <div className="flex justify-between text-white mb-4 text-lg font-bold">
+              <span>0</span>
+              <span>25</span>
+              <span>50</span>
+              <span>75</span>
+              <span>100</span>
             </div>
-            
-            <div className="grid grid-cols-3 gap-4 text-center">
-              <div>
-                <div className="text-2xl font-bold text-green-400">{winChance}%</div>
-                <div className="text-sm text-gray-400">Win Chance</div>
-              </div>
-              <div>
-                <div className="text-2xl font-bold casino-gold">{multiplier}x</div>
-                <div className="text-sm text-gray-400">Multiplier</div>
-              </div>
-              <div>
-                <div className="text-2xl font-bold text-green-400">${potentialPayout}</div>
-                <div className="text-sm text-gray-400">Win Amount</div>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
 
-        {/* Betting Controls */}
-        <Card className="casino-bg-blue/50 border-casino-gold/20 mb-6">
-          <CardContent className="p-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div>
-                <Label className="text-sm font-medium mb-2 block">Bet Amount</Label>
-                <div className="relative">
-                  <span className="absolute left-3 top-1/2 transform -translate-y-1/2 casino-gold">$</span>
-                  <Input
-                    type="number"
-                    value={betAmount}
-                    onChange={(e) => setBetAmount(e.target.value)}
-                    className="pl-8 casino-bg border-casino-gold/20 text-white"
-                    placeholder="0.00"
-                  />
-                </div>
-                <div className="flex space-x-2 mt-2">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => setBetAmount((parseFloat(betAmount) / 2).toFixed(2))}
-                    className="flex-1 bg-casino-gold/20 border-casino-gold/20 casino-gold hover:bg-casino-gold/30"
-                  >
-                    1/2
-                  </Button>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => setBetAmount((parseFloat(betAmount) * 2).toFixed(2))}
-                    className="flex-1 bg-casino-gold/20 border-casino-gold/20 casino-gold hover:bg-casino-gold/30"
-                  >
-                    2x
-                  </Button>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => setBetAmount((balance?.balance || 0).toFixed(2))}
-                    className="flex-1 bg-casino-gold/20 border-casino-gold/20 casino-gold hover:bg-casino-gold/30"
-                  >
-                    Max
-                  </Button>
-                </div>
-              </div>
-              <div>
-                <Label className="text-sm font-medium mb-2 block">Target Number</Label>
-                <Input
-                  type="number"
-                  min="1"
-                  max="99"
-                  value={target}
-                  onChange={(e) => setTarget(e.target.value)}
-                  className="casino-bg border-casino-gold/20 text-white"
-                  placeholder="50"
+            {/* Slider Container */}
+            <div className="relative mb-12">
+              <div className="h-8 bg-gray-700 rounded-full overflow-hidden">
+                {/* Red section (under) */}
+                <div 
+                  className="h-full bg-red-500 float-left"
+                  style={{ width: `${target}%` }}
                 />
-                <div className="flex items-center space-x-2 mt-2">
-                  <Switch
-                    id="dice-mode"
-                    checked={isOver}
-                    onCheckedChange={setIsOver}
-                  />
-                  <Label htmlFor="dice-mode" className="text-sm">
-                    Roll {isOver ? "OVER" : "UNDER"} {target}
-                  </Label>
-                </div>
+                {/* Green section (over) */}
+                <div 
+                  className="h-full bg-green-500"
+                  style={{ width: `${100 - target}%` }}
+                />
+              </div>
+              
+              {/* Slider thumb */}
+              <div 
+                className="absolute top-1/2 transform -translate-y-1/2 w-12 h-10 bg-blue-500 rounded cursor-pointer flex items-center justify-center text-white font-bold"
+                style={{ left: `calc(${target}% - 24px)` }}
+              >
+                {target}
+              </div>
+              
+              {/* Slider Input */}
+              <input
+                type="range"
+                min="2"
+                max="98"
+                value={target}
+                onChange={(e) => {
+                  setRollTarget([parseInt(e.target.value)]);
+                  updateProfit();
+                }}
+                className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+              />
+            </div>
+
+            {/* Game Stats */}
+            <div className="grid grid-cols-3 gap-8 text-center">
+              <div className="bg-gray-800 rounded-lg p-4">
+                <div className="text-white text-2xl font-bold">{multiplier.toFixed(4)}</div>
+                <div className="text-gray-400 text-sm">Multiplier</div>
+              </div>
+              <div className="bg-gray-800 rounded-lg p-4">
+                <div className="text-white text-2xl font-bold">{target}.50</div>
+                <div className="text-gray-400 text-sm">Roll {isOver ? 'Over' : 'Under'}</div>
+              </div>
+              <div className="bg-gray-800 rounded-lg p-4">
+                <div className="text-white text-2xl font-bold">{winChance.toFixed(4)}</div>
+                <div className="text-gray-400 text-sm">Win Chance</div>
               </div>
             </div>
-          </CardContent>
-        </Card>
 
-        {/* Play Button */}
-        <Button
-          onClick={handlePlay}
-          disabled={playGameMutation.isPending}
-          className="w-full bg-casino-gold hover:bg-casino-gold/90 text-casino-navy py-6 text-lg font-bold mb-8"
-        >
-          {playGameMutation.isPending ? "Rolling..." : "Roll Dice"}
-        </Button>
+            {/* Last Roll Result */}
+            {lastRoll !== null && (
+              <div className="text-center mt-8">
+                <div className="text-white text-4xl font-bold mb-2">Last Roll: {lastRoll}</div>
+                <div className={`text-lg font-medium ${
+                  (isOver && lastRoll > target) || (!isOver && lastRoll < target) 
+                    ? 'text-green-400' : 'text-red-400'
+                }`}>
+                  {(isOver && lastRoll > target) || (!isOver && lastRoll < target) ? 'WIN!' : 'LOSE!'}
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
       </div>
     </div>
   );
