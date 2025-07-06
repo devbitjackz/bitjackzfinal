@@ -154,7 +154,7 @@ export default function CrashGame() {
         } catch (error) {
           console.error('Failed to fetch game status:', error);
         }
-      }, 100); // Update every 100ms instead of 50ms to reduce server load
+      }, 30); // Update every 30ms for 33 FPS smooth animation
 
       statusIntervalRef.current = statusInterval;
     };
@@ -278,29 +278,38 @@ export default function CrashGame() {
               <div className="absolute inset-0">
                 {gameStatus?.status === 'active' && (
                   <>
-                    {/* Rocket Trail */}
-                    <div 
-                      className="absolute transition-all duration-100 ease-linear"
-                      style={{
-                        left: '5%',
-                        bottom: '10%',
-                        width: `${Math.min(75, (gameStatus.currentMultiplier - 1) * 15)}%`,
-                        height: `${Math.min(70, (gameStatus.currentMultiplier - 1) * 12)}%`,
-                        background: 'linear-gradient(45deg, rgba(255,215,0,0.1) 0%, rgba(255,215,0,0.3) 100%)',
-                        clipPath: 'polygon(0 100%, 100% 0%, 100% 20%, 20% 100%)'
-                      }}
-                    />
+                    {/* Curved Rocket Trail */}
+                    <svg 
+                      className="absolute inset-0 w-full h-full" 
+                      viewBox="0 0 400 200"
+                      preserveAspectRatio="none"
+                    >
+                      <defs>
+                        <linearGradient id="trailGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                          <stop offset="0%" style={{stopColor: 'rgba(255,215,0,0.8)', stopOpacity: 0.8}} />
+                          <stop offset="50%" style={{stopColor: 'rgba(255,215,0,0.4)', stopOpacity: 0.4}} />
+                          <stop offset="100%" style={{stopColor: 'rgba(255,215,0,0.1)', stopOpacity: 0.1}} />
+                        </linearGradient>
+                      </defs>
+                      <path
+                        d={`M 20 180 Q ${Math.min(320, 20 + (gameStatus.currentMultiplier - 1) * 50)} ${Math.max(20, 180 - (gameStatus.currentMultiplier - 1) * 30)} ${Math.min(380, 20 + (gameStatus.currentMultiplier - 1) * 60)} ${Math.max(10, 180 - (gameStatus.currentMultiplier - 1) * 35)}`}
+                        stroke="url(#trailGradient)"
+                        strokeWidth="3"
+                        fill="none"
+                        className="transition-all duration-50 ease-out"
+                      />
+                    </svg>
                     
                     {/* Rocket */}
                     <div 
-                      className="absolute transition-all duration-100 ease-linear z-10"
+                      className="absolute z-10 transition-all duration-50 ease-out"
                       style={{
-                        left: `${Math.min(80, 5 + (gameStatus.currentMultiplier - 1) * 15)}%`,
-                        bottom: `${Math.min(75, 10 + (gameStatus.currentMultiplier - 1) * 12)}%`,
-                        transform: `rotate(${Math.min(30, (gameStatus.currentMultiplier - 1) * 3)}deg)`
+                        left: `${Math.min(85, 5 + (gameStatus.currentMultiplier - 1) * 15)}%`,
+                        bottom: `${Math.min(80, 10 + (gameStatus.currentMultiplier - 1) * 17)}%`,
+                        transform: `rotate(${Math.min(35, (gameStatus.currentMultiplier - 1) * 4)}deg)`
                       }}
                     >
-                      <div className="text-5xl animate-pulse filter drop-shadow-lg">🚀</div>
+                      <div className="text-7xl animate-pulse filter drop-shadow-2xl">🚀</div>
                     </div>
                   </>
                 )}
@@ -317,20 +326,20 @@ export default function CrashGame() {
                     
                     {/* Crashed Rocket */}
                     <div className="absolute bottom-10 right-20 opacity-50">
-                      <div className="text-4xl rocket-crash">🚀</div>
+                      <div className="text-6xl rocket-crash">🚀</div>
                     </div>
                   </>
                 )}
                 
                 {gameStatus?.status === 'countdown' && (
                   <div className="absolute bottom-8 left-8">
-                    <div className="text-4xl animate-bounce">🚀</div>
+                    <div className="text-6xl animate-bounce">🚀</div>
                   </div>
                 )}
                 
                 {(!gameStatus || gameStatus.status === 'finished') && (
                   <div className="absolute bottom-8 left-8">
-                    <div className="text-4xl opacity-50">🚀</div>
+                    <div className="text-6xl opacity-50">🚀</div>
                   </div>
                 )}
               </div>
