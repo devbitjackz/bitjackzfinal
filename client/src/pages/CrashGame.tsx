@@ -326,14 +326,7 @@ export default function CrashGame() {
                         className="transition-all duration-50 ease-out"
                       />
                       
-                      {/* Previous path - smaller and faded */}
-                      <path
-                        d={`M 20 180 Q ${Math.min(450, 20 + (gameStatus.currentMultiplier - 1.5) * 100)} ${Math.max(10, 180 - (gameStatus.currentMultiplier - 1.5) * 50)} ${Math.min(500, 20 + (gameStatus.currentMultiplier - 1.5) * 120)} ${Math.max(5, 180 - (gameStatus.currentMultiplier - 1.5) * 55)}`}
-                        stroke="rgba(255,215,0,0.3)"
-                        strokeWidth="1"
-                        fill="none"
-                        className="transition-all duration-50 ease-out"
-                      />
+
                       
                       {/* Graph fill area */}
                       <path
