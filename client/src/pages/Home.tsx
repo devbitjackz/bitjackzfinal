@@ -106,8 +106,8 @@ export default function Home() {
 
         {/* Game Banners */}
         <div className="mb-12">
-          {/* First Row - 4 Banners */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
+          {/* First Row - 3 Banners */}
+          <div className="grid grid-cols-3 gap-4 mb-4">
             <div className="relative overflow-hidden rounded-lg cursor-pointer hover:scale-105 transition-transform duration-300" onClick={() => setLocation('/crash')}>
               <img 
                 src={crashBanner} 
@@ -129,6 +129,10 @@ export default function Home() {
                 className="w-full h-auto object-cover"
               />
             </div>
+          </div>
+          
+          {/* Second Row - 3 Banners */}
+          <div className="grid grid-cols-3 gap-4">
             <div className="relative overflow-hidden rounded-lg cursor-pointer hover:scale-105 transition-transform duration-300" onClick={() => setLocation('/limbo')}>
               <img 
                 src={limboBanner} 
@@ -136,10 +140,6 @@ export default function Home() {
                 className="w-full h-auto object-cover"
               />
             </div>
-          </div>
-          
-          {/* Second Row - 2 Banners Shifted Left */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             <div className="relative overflow-hidden rounded-lg cursor-pointer hover:scale-105 transition-transform duration-300" onClick={() => setLocation('/mines')}>
               <img 
                 src={minesBanner} 
