@@ -302,7 +302,7 @@ export default function CrashGame() {
                     {/* Rising Graph Line */}
                     <svg 
                       className="absolute inset-0 w-full h-full" 
-                      viewBox="0 0 400 200"
+                      viewBox="0 0 600 200"
                       preserveAspectRatio="none"
                     >
                       <defs>
@@ -317,35 +317,46 @@ export default function CrashGame() {
                         </linearGradient>
                       </defs>
                       
-                      {/* Graph line */}
+                      {/* Graph line - Much longer path for better visibility */}
                       <path
-                        d={`M 20 180 Q ${Math.min(360, 20 + (gameStatus.currentMultiplier - 1) * 60)} ${Math.max(10, 180 - (gameStatus.currentMultiplier - 1) * 40)} ${Math.min(380, 20 + (gameStatus.currentMultiplier - 1) * 65)} ${Math.max(5, 180 - (gameStatus.currentMultiplier - 1) * 42)}`}
+                        d={`M 20 180 Q ${Math.min(500, 20 + (gameStatus.currentMultiplier - 1) * 120)} ${Math.max(5, 180 - (gameStatus.currentMultiplier - 1) * 65)} ${Math.min(550, 20 + (gameStatus.currentMultiplier - 1) * 140)} ${Math.max(2, 180 - (gameStatus.currentMultiplier - 1) * 70)}`}
                         stroke="url(#graphGradient)"
-                        strokeWidth="2"
+                        strokeWidth="3"
                         fill="none"
-                        className="transition-all duration-100 ease-out"
+                        className="transition-all duration-50 ease-out"
+                      />
+                      
+                      {/* Previous path - smaller and faded */}
+                      <path
+                        d={`M 20 180 Q ${Math.min(450, 20 + (gameStatus.currentMultiplier - 1.5) * 100)} ${Math.max(10, 180 - (gameStatus.currentMultiplier - 1.5) * 50)} ${Math.min(500, 20 + (gameStatus.currentMultiplier - 1.5) * 120)} ${Math.max(5, 180 - (gameStatus.currentMultiplier - 1.5) * 55)}`}
+                        stroke="rgba(255,215,0,0.3)"
+                        strokeWidth="1"
+                        fill="none"
+                        className="transition-all duration-50 ease-out"
                       />
                       
                       {/* Graph fill area */}
                       <path
-                        d={`M 20 180 Q ${Math.min(360, 20 + (gameStatus.currentMultiplier - 1) * 60)} ${Math.max(10, 180 - (gameStatus.currentMultiplier - 1) * 40)} ${Math.min(380, 20 + (gameStatus.currentMultiplier - 1) * 65)} ${Math.max(5, 180 - (gameStatus.currentMultiplier - 1) * 42)} L ${Math.min(380, 20 + (gameStatus.currentMultiplier - 1) * 65)} 180 L 20 180 Z`}
+                        d={`M 20 180 Q ${Math.min(500, 20 + (gameStatus.currentMultiplier - 1) * 120)} ${Math.max(5, 180 - (gameStatus.currentMultiplier - 1) * 65)} ${Math.min(550, 20 + (gameStatus.currentMultiplier - 1) * 140)} ${Math.max(2, 180 - (gameStatus.currentMultiplier - 1) * 70)} L ${Math.min(550, 20 + (gameStatus.currentMultiplier - 1) * 140)} 180 L 20 180 Z`}
                         fill="url(#graphFill)"
-                        className="transition-all duration-100 ease-out"
+                        className="transition-all duration-50 ease-out"
                       />
                     </svg>
                     
-                    {/* Rocket - Bigger and more prominent */}
+                    {/* Rocket - Faster movement and bigger scaling */}
                     <div 
-                      className="absolute z-10 transition-all duration-75 ease-out"
+                      className="absolute z-10 transition-all duration-50 ease-out"
                       style={{
-                        left: `${Math.min(85, 5 + (gameStatus.currentMultiplier - 1) * 15)}%`,
-                        bottom: `${Math.min(80, 10 + (gameStatus.currentMultiplier - 1) * 17)}%`,
-                        transform: `rotate(${Math.min(35, (gameStatus.currentMultiplier - 1) * 4)}deg) scale(${1 + (gameStatus.currentMultiplier - 1) * 0.1})`
+                        left: `${Math.min(90, 5 + (gameStatus.currentMultiplier - 1) * 25)}%`,
+                        bottom: `${Math.min(85, 10 + (gameStatus.currentMultiplier - 1) * 25)}%`,
+                        transform: `rotate(${Math.min(45, (gameStatus.currentMultiplier - 1) * 8)}deg) scale(${1 + (gameStatus.currentMultiplier - 1) * 0.2})`
                       }}
                     >
                       <div className="text-8xl sm:text-9xl filter drop-shadow-lg">🚀</div>
-                      {/* Rocket trail effect */}
-                      <div className="absolute inset-0 text-8xl sm:text-9xl filter blur-sm opacity-40">🚀</div>
+                      {/* Rocket trail effect - more prominent */}
+                      <div className="absolute inset-0 text-8xl sm:text-9xl filter blur-sm opacity-60">🚀</div>
+                      {/* Additional glow effect */}
+                      <div className="absolute inset-0 text-8xl sm:text-9xl filter blur-lg opacity-30">🚀</div>
                     </div>
                   </>
                 )}
