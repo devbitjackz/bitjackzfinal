@@ -26,7 +26,7 @@ export default function DiceGame() {
   const [betAmount, setBetAmount] = useState("0.00000000");
   const [profitOnWin, setProfitOnWin] = useState("0.00000000");
   const [rollTarget, setRollTarget] = useState([50]);
-  const [isManual, setIsManual] = useState(true);
+
   const [lastRoll, setLastRoll] = useState<number | null>(null);
 
   const { data: balance } = useQuery<{ balance: number }>({
@@ -78,17 +78,15 @@ export default function DiceGame() {
       return;
     }
 
-    // Determine if betting on green (over) or red (under) based on target position
-    const isOver = targetValue >= 50;
+    // Always roll over - only betting on green area (roll > target)
+    const isOver = true;
     playGameMutation.mutate({ betAmount: bet, target: targetValue, isOver });
   };
 
   const target = rollTarget[0];
-  // Red area (left side) = roll under target (winning if roll < target)
-  // Green area (right side) = roll over target (winning if roll > target)  
-  const isOver = target >= 50; // If target >= 50, we're betting on green (over)
-  const winChance = isOver ? (99 - target) : target;
-  const multiplier = (99 / winChance);
+  // Only roll over - green area represents winning condition (roll > target)
+  const winChance = 100 - target; // Win chance is 100 - target for roll over
+  const multiplier = (100 / winChance);
   const calculatedProfit = parseFloat(betAmount) * (multiplier - 1);
 
   // Update profit when bet amount or target changes
@@ -115,28 +113,7 @@ export default function DiceGame() {
       <div className="flex h-[calc(100vh-80px)]">
         {/* Left Panel - Controls */}
         <div className="w-80 bg-gray-800/90 p-6 border-r border-gray-700">
-          {/* Mode Toggle */}
-          <div className="flex bg-gray-700 rounded-lg p-1 mb-6">
-            <button
-              onClick={() => setIsManual(true)}
-              className={`flex-1 py-2 px-4 rounded-md text-sm font-medium transition-colors ${
-                isManual ? 'bg-gray-600 text-white' : 'text-gray-400 hover:text-white'
-              }`}
-            >
-              Manual
-            </button>
-            <button
-              onClick={() => setIsManual(false)}
-              className={`flex-1 py-2 px-4 rounded-md text-sm font-medium transition-colors ${
-                !isManual ? 'bg-gray-600 text-white' : 'text-gray-400 hover:text-white'
-              }`}
-            >
-              Auto
-            </button>
-            <button className="p-2 text-gray-400 hover:text-white">
-              <RotateCcw size={16} />
-            </button>
-          </div>
+
 
           {/* Bet Amount */}
           <div className="mb-6">
@@ -197,12 +174,12 @@ export default function DiceGame() {
             <div className="relative mb-12">
               {/* Outer container with rounded corners and border */}
               <div className="h-12 bg-gray-700 rounded-full border-2 border-gray-600 overflow-hidden relative">
-                {/* Red section (roll under - winner area) */}
+                {/* Gray section (no win zone) */}
                 <div 
-                  className="h-full bg-red-500 absolute left-0 top-0"
+                  className="h-full bg-gray-600 absolute left-0 top-0"
                   style={{ width: `${target}%` }}
                 />
-                {/* Green section (roll over - winner area) */}
+                {/* Green section (roll over - winner area only) */}
                 <div 
                   className="h-full bg-green-500 absolute right-0 top-0"
                   style={{ width: `${100 - target}%` }}
@@ -242,7 +219,7 @@ export default function DiceGame() {
               </div>
               <div className="bg-gray-800 rounded-lg p-4">
                 <div className="text-white text-2xl font-bold">{target}.50</div>
-                <div className="text-gray-400 text-sm">Roll {isOver ? 'Over' : 'Under'}</div>
+                <div className="text-gray-400 text-sm">Roll Over</div>
               </div>
               <div className="bg-gray-800 rounded-lg p-4">
                 <div className="text-white text-2xl font-bold">{winChance.toFixed(4)}</div>
@@ -258,10 +235,9 @@ export default function DiceGame() {
               <div className="text-center mt-8">
                 <div className="text-white text-4xl font-bold mb-2">Last Roll: {lastRoll}</div>
                 <div className={`text-lg font-medium ${
-                  (isOver && lastRoll > target) || (!isOver && lastRoll < target) 
-                    ? 'text-green-400' : 'text-red-400'
+                  lastRoll > target ? 'text-green-400' : 'text-red-400'
                 }`}>
-                  {(isOver && lastRoll > target) || (!isOver && lastRoll < target) ? 'WIN!' : 'LOSE!'}
+                  {lastRoll > target ? 'WIN!' : 'LOSE!'}
                 </div>
               </div>
             )}
