@@ -57,8 +57,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // Start the first game
   setTimeout(() => {
-    globalCrashGame.status = 'active';
-    globalCrashGame.gameStartTime = Date.now();
+    if (globalCrashGame.status === 'countdown') {
+      globalCrashGame.status = 'active';
+      globalCrashGame.gameStartTime = Date.now();
+      console.log(`First game ${globalCrashGame.gameId} now active, crash point: ${globalCrashGame.crashPoint}x`);
+    }
   }, 5000);
 
   let gameCounter = 1;
@@ -96,7 +99,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       );
       
       // Check if crashed
-      if (globalCrashGame.currentMultiplier >= globalCrashGame.crashPoint) {
+      if (globalCrashGame.currentMultiplier >= globalCrashGame.crashPoint && !globalCrashGame.isCrashed) {
         globalCrashGame.isCrashed = true;
         globalCrashGame.status = 'crashed';
         
@@ -114,7 +117,30 @@ export async function registerRoutes(app: Express): Promise<Server> {
           }
         });
         
-        restartGlobalGame();
+        console.log(`Game crashed at ${globalCrashGame.crashPoint}x, restarting in 3 seconds...`);
+        
+        // Immediate restart instead of function call
+        setTimeout(() => {
+          globalCrashGame = {
+            gameId: `crash_global_${++gameCounter}`,
+            crashPoint: generateCrashPoint(),
+            gameStartTime: Date.now() + 5000, // 5 second countdown
+            currentMultiplier: 1.0,
+            isCrashed: false,
+            status: 'countdown' as 'countdown' | 'active' | 'crashed',
+            playerBets: new Map<number, {betAmount: number, cashedOut: boolean, cashedOutAt: number | null}>()
+          };
+          
+          console.log(`New game started: ${globalCrashGame.gameId}, crash point: ${globalCrashGame.crashPoint}x`);
+          
+          setTimeout(() => {
+            if (globalCrashGame.status === 'countdown') {
+              globalCrashGame.status = 'active';
+              globalCrashGame.gameStartTime = Date.now();
+              console.log(`Game ${globalCrashGame.gameId} now active`);
+            }
+          }, 5000);
+        }, 3000); // 3 second break between games
       }
     }
   }, 50); // Update every 50ms
