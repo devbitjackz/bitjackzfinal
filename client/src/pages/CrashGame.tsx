@@ -33,8 +33,9 @@ export default function CrashGame() {
   const [, setLocation] = useLocation();
   const { toast } = useToast();
   const [betAmount, setBetAmount] = useState("10.00");
-  const [currentGameId, setCurrentGameId] = useState<string | null>(null);
+  const [currentGameId, setCurrentGameId] = useState<string>('crash_global_1');
   const [gameStatus, setGameStatus] = useState<GameStatus | null>(null);
+  const [isWatching, setIsWatching] = useState<boolean>(true);
   const [countdown, setCountdown] = useState<number>(0);
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
   const statusIntervalRef = useRef<NodeJS.Timeout | null>(null);
@@ -131,10 +132,15 @@ export default function CrashGame() {
           const status: GameStatus = await response.json();
           
           // Only update if something actually changed to prevent excessive re-renders
-          if (status.currentMultiplier !== lastMultiplier || status.status !== lastStatus) {
+          if (status.currentMultiplier !== lastMultiplier || status.status !== lastStatus || status.gameId !== currentGameId) {
             setGameStatus(status);
             lastMultiplier = status.currentMultiplier;
             lastStatus = status.status;
+            
+            // Update game ID if it changed (new game started)
+            if (status.gameId !== currentGameId) {
+              setCurrentGameId(status.gameId);
+            }
           }
 
           if (status.status === 'crashed' || status.status === 'finished') {
@@ -147,12 +153,13 @@ export default function CrashGame() {
               });
             }
             setTimeout(() => {
-              setCurrentGameId(null);
+              // Game will restart automatically, keep watching
               setGameStatus(null);
             }, 3000);
           }
         } catch (error) {
           console.error('Failed to fetch game status:', error);
+          // Continue polling even on error to maintain game state
         }
       }, 30); // Update every 30ms for 33 FPS smooth animation
 
@@ -174,12 +181,15 @@ export default function CrashGame() {
     }
   };
 
-  // Cleanup on unmount
+  // Auto-start watching global game
   useEffect(() => {
+    if (isWatching && currentGameId) {
+      startGameTracking(currentGameId, Date.now());
+    }
     return () => {
       stopGameTracking();
     };
-  }, []);
+  }, [isWatching, currentGameId]);
 
   const handlePlay = () => {
     const bet = parseFloat(betAmount);
@@ -278,25 +288,38 @@ export default function CrashGame() {
               <div className="absolute inset-0">
                 {gameStatus?.status === 'active' && (
                   <>
-                    {/* Curved Rocket Trail */}
+                    {/* Rising Graph Line */}
                     <svg 
                       className="absolute inset-0 w-full h-full" 
                       viewBox="0 0 400 200"
                       preserveAspectRatio="none"
                     >
                       <defs>
-                        <linearGradient id="trailGradient" x1="0%" y1="0%" x2="100%" y2="0%">
-                          <stop offset="0%" style={{stopColor: 'rgba(255,215,0,0.8)', stopOpacity: 0.8}} />
-                          <stop offset="50%" style={{stopColor: 'rgba(255,215,0,0.4)', stopOpacity: 0.4}} />
-                          <stop offset="100%" style={{stopColor: 'rgba(255,215,0,0.1)', stopOpacity: 0.1}} />
+                        <linearGradient id="graphGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                          <stop offset="0%" style={{stopColor: 'rgba(255,215,0,0.9)', stopOpacity: 0.9}} />
+                          <stop offset="70%" style={{stopColor: 'rgba(255,215,0,0.6)', stopOpacity: 0.6}} />
+                          <stop offset="100%" style={{stopColor: 'rgba(255,215,0,0.3)', stopOpacity: 0.3}} />
+                        </linearGradient>
+                        <linearGradient id="graphFill" x1="0%" y1="0%" x2="0%" y2="100%">
+                          <stop offset="0%" style={{stopColor: 'rgba(255,215,0,0.2)', stopOpacity: 0.2}} />
+                          <stop offset="100%" style={{stopColor: 'rgba(255,215,0,0.05)', stopOpacity: 0.05}} />
                         </linearGradient>
                       </defs>
+                      
+                      {/* Graph line */}
                       <path
-                        d={`M 20 180 Q ${Math.min(320, 20 + (gameStatus.currentMultiplier - 1) * 50)} ${Math.max(20, 180 - (gameStatus.currentMultiplier - 1) * 30)} ${Math.min(380, 20 + (gameStatus.currentMultiplier - 1) * 60)} ${Math.max(10, 180 - (gameStatus.currentMultiplier - 1) * 35)}`}
-                        stroke="url(#trailGradient)"
-                        strokeWidth="3"
+                        d={`M 20 180 Q ${Math.min(360, 20 + (gameStatus.currentMultiplier - 1) * 60)} ${Math.max(10, 180 - (gameStatus.currentMultiplier - 1) * 40)} ${Math.min(380, 20 + (gameStatus.currentMultiplier - 1) * 65)} ${Math.max(5, 180 - (gameStatus.currentMultiplier - 1) * 42)}`}
+                        stroke="url(#graphGradient)"
+                        strokeWidth="2"
                         fill="none"
-                        className="transition-all duration-50 ease-out"
+                        className="transition-all duration-30 ease-linear"
+                      />
+                      
+                      {/* Graph fill area */}
+                      <path
+                        d={`M 20 180 Q ${Math.min(360, 20 + (gameStatus.currentMultiplier - 1) * 60)} ${Math.max(10, 180 - (gameStatus.currentMultiplier - 1) * 40)} ${Math.min(380, 20 + (gameStatus.currentMultiplier - 1) * 65)} ${Math.max(5, 180 - (gameStatus.currentMultiplier - 1) * 42)} L ${Math.min(380, 20 + (gameStatus.currentMultiplier - 1) * 65)} 180 L 20 180 Z`}
+                        fill="url(#graphFill)"
+                        className="transition-all duration-30 ease-linear"
                       />
                     </svg>
                     

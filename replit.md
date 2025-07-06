@@ -109,6 +109,7 @@ Six casino games are fully implemented:
 - July 05, 2025. Implemented Telegram user verification system and wallet transaction management
 - July 05, 2025. Added individual user account system with session-based authentication across all endpoints
 - July 05, 2025. Rebuilt complete Crash Game module with real-time multiplier tracking, 5-second countdown, live status polling, exponential decay crash points, and instant cash-out mechanics - now matches Stake/Rubet style gameplay
+- July 06, 2025. Made Crash Game public and always running - anyone can watch without betting, improved rocket size and animations, added rising graph line that follows multiplier, optimized to 30-40 FPS for smooth movement
 
 ## User Preferences
 
