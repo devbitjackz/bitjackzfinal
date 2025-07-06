@@ -145,13 +145,6 @@ export default function CrashGame() {
 
           if (status.status === 'crashed' || status.status === 'finished') {
             clearInterval(statusInterval);
-            if (status.status === 'crashed' && !status.cashedOut) {
-              toast({
-                title: "💥 CRASHED!",
-                description: `The rocket crashed at ${status.crashPoint.toFixed(2)}x`,
-                variant: "destructive",
-              });
-            }
             setTimeout(() => {
               // Game will restart automatically, keep watching
               setGameStatus(null);
@@ -161,7 +154,7 @@ export default function CrashGame() {
           console.error('Failed to fetch game status:', error);
           // Continue polling even on error to maintain game state
         }
-      }, 30); // Update every 30ms for 33 FPS smooth animation
+      }, 100); // Update every 100ms to reduce lag
 
       statusIntervalRef.current = statusInterval;
     };
@@ -312,44 +305,41 @@ export default function CrashGame() {
                         stroke="url(#graphGradient)"
                         strokeWidth="2"
                         fill="none"
-                        className="transition-all duration-30 ease-linear"
+                        className="transition-all duration-100 ease-out"
                       />
                       
                       {/* Graph fill area */}
                       <path
                         d={`M 20 180 Q ${Math.min(360, 20 + (gameStatus.currentMultiplier - 1) * 60)} ${Math.max(10, 180 - (gameStatus.currentMultiplier - 1) * 40)} ${Math.min(380, 20 + (gameStatus.currentMultiplier - 1) * 65)} ${Math.max(5, 180 - (gameStatus.currentMultiplier - 1) * 42)} L ${Math.min(380, 20 + (gameStatus.currentMultiplier - 1) * 65)} 180 L 20 180 Z`}
                         fill="url(#graphFill)"
-                        className="transition-all duration-30 ease-linear"
+                        className="transition-all duration-100 ease-out"
                       />
                     </svg>
                     
                     {/* Rocket */}
                     <div 
-                      className="absolute z-10 transition-all duration-50 ease-out"
+                      className="absolute z-10 transition-all duration-100 ease-out"
                       style={{
                         left: `${Math.min(85, 5 + (gameStatus.currentMultiplier - 1) * 15)}%`,
                         bottom: `${Math.min(80, 10 + (gameStatus.currentMultiplier - 1) * 17)}%`,
                         transform: `rotate(${Math.min(35, (gameStatus.currentMultiplier - 1) * 4)}deg)`
                       }}
                     >
-                      <div className="text-7xl animate-pulse filter drop-shadow-2xl">🚀</div>
+                      <div className="text-7xl filter drop-shadow-lg">🚀</div>
                     </div>
                   </>
                 )}
                 
                 {gameStatus?.status === 'crashed' && (
                   <>
-                    {/* Explosion Animation */}
+                    {/* Single Explosion Animation - 1 second */}
                     <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-20">
-                      <div className="text-8xl animate-bounce">💥</div>
-                      <div className="absolute inset-0 bg-red-500 rounded-full explosion-ring opacity-20"></div>
-                      <div className="absolute inset-0 bg-orange-500 rounded-full explosion-ring opacity-30 animation-delay-100"></div>
-                      <div className="absolute inset-0 bg-yellow-500 rounded-full explosion-ring opacity-40 animation-delay-200"></div>
+                      <div className="text-8xl animate-ping" style={{animationDuration: '1s', animationIterationCount: '1'}}>💥</div>
                     </div>
                     
                     {/* Crashed Rocket */}
-                    <div className="absolute bottom-10 right-20 opacity-50">
-                      <div className="text-6xl rocket-crash">🚀</div>
+                    <div className="absolute bottom-10 right-20 opacity-30">
+                      <div className="text-5xl">🚀</div>
                     </div>
                   </>
                 )}
