@@ -317,9 +317,9 @@ export default function CrashGame() {
                         </linearGradient>
                       </defs>
                       
-                      {/* Graph line - Much longer path for better visibility */}
+                      {/* Graph line - Starting from rocket's fire/exhaust */}
                       <path
-                        d={`M 20 180 Q ${Math.min(500, 20 + (gameStatus.currentMultiplier - 1) * 120)} ${Math.max(5, 180 - (gameStatus.currentMultiplier - 1) * 65)} ${Math.min(550, 20 + (gameStatus.currentMultiplier - 1) * 140)} ${Math.max(2, 180 - (gameStatus.currentMultiplier - 1) * 70)}`}
+                        d={`M ${Math.max(20, 30 + (gameStatus.currentMultiplier - 1) * 150)} ${Math.min(190, 200 - (gameStatus.currentMultiplier - 1) * 50)} Q ${Math.min(500, 20 + (gameStatus.currentMultiplier - 1) * 120)} ${Math.max(5, 180 - (gameStatus.currentMultiplier - 1) * 65)} ${Math.min(550, 20 + (gameStatus.currentMultiplier - 1) * 140)} ${Math.max(2, 180 - (gameStatus.currentMultiplier - 1) * 70)}`}
                         stroke="url(#graphGradient)"
                         strokeWidth="3"
                         fill="none"
@@ -328,9 +328,9 @@ export default function CrashGame() {
                       
 
                       
-                      {/* Graph fill area */}
+                      {/* Graph fill area - Starting from rocket position */}
                       <path
-                        d={`M 20 180 Q ${Math.min(500, 20 + (gameStatus.currentMultiplier - 1) * 120)} ${Math.max(5, 180 - (gameStatus.currentMultiplier - 1) * 65)} ${Math.min(550, 20 + (gameStatus.currentMultiplier - 1) * 140)} ${Math.max(2, 180 - (gameStatus.currentMultiplier - 1) * 70)} L ${Math.min(550, 20 + (gameStatus.currentMultiplier - 1) * 140)} 180 L 20 180 Z`}
+                        d={`M ${Math.max(20, 30 + (gameStatus.currentMultiplier - 1) * 150)} ${Math.min(190, 200 - (gameStatus.currentMultiplier - 1) * 50)} Q ${Math.min(500, 20 + (gameStatus.currentMultiplier - 1) * 120)} ${Math.max(5, 180 - (gameStatus.currentMultiplier - 1) * 65)} ${Math.min(550, 20 + (gameStatus.currentMultiplier - 1) * 140)} ${Math.max(2, 180 - (gameStatus.currentMultiplier - 1) * 70)} L ${Math.min(550, 20 + (gameStatus.currentMultiplier - 1) * 140)} 200 L ${Math.max(20, 30 + (gameStatus.currentMultiplier - 1) * 150)} 200 Z`}
                         fill="url(#graphFill)"
                         className="transition-all duration-50 ease-out"
                       />
