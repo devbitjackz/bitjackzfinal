@@ -33,7 +33,7 @@ This is a full-stack crypto casino web application built to run seamlessly on bo
 
 ### Games Implementation
 Six casino games are fully implemented:
-1. **Crash Game** - Rising multiplier with cash-out mechanics
+1. **Crash Game** - Real-time multiplier game with 5-second countdown, live multiplier tracking, and instant cash-out mechanics
 2. **Coin Flip** - Simple heads/tails 50/50 game
 3. **Limbo** - Multiplier prediction game
 4. **Dice** - Over/under number prediction
@@ -108,6 +108,7 @@ Six casino games are fully implemented:
 - July 05, 2025. Added wallet page with deposit/withdraw functions and set initial balance to $0
 - July 05, 2025. Implemented Telegram user verification system and wallet transaction management
 - July 05, 2025. Added individual user account system with session-based authentication across all endpoints
+- July 05, 2025. Rebuilt complete Crash Game module with real-time multiplier tracking, 5-second countdown, live status polling, exponential decay crash points, and instant cash-out mechanics - now matches Stake/Rubet style gameplay
 
 ## User Preferences
 
