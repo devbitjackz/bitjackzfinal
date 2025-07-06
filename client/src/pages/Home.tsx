@@ -104,21 +104,21 @@ export default function Home() {
         <div className="mb-12">
           {/* First Row - 3 Banners */}
           <div className="grid grid-cols-3 gap-4 mb-4">
-            <div className="relative overflow-hidden rounded-lg cursor-pointer hover:scale-105 transition-transform duration-300" onClick={() => setLocation('/crash')}>
+            <div className="relative overflow-hidden rounded-2xl cursor-pointer hover:scale-105 transition-transform duration-300" onClick={() => setLocation('/crash')}>
               <img 
                 src={crashBanner} 
                 alt="BitJackz Crash Game" 
                 className="w-full h-auto object-cover"
               />
             </div>
-            <div className="relative overflow-hidden rounded-lg cursor-pointer hover:scale-105 transition-transform duration-300" onClick={() => setLocation('/coinflip')}>
+            <div className="relative overflow-hidden rounded-2xl cursor-pointer hover:scale-105 transition-transform duration-300" onClick={() => setLocation('/coinflip')}>
               <img 
                 src={cointossBanner} 
                 alt="BitJackz Coin Toss Game" 
                 className="w-full h-auto object-cover"
               />
             </div>
-            <div className="relative overflow-hidden rounded-lg cursor-pointer hover:scale-105 transition-transform duration-300" onClick={() => setLocation('/dice')}>
+            <div className="relative overflow-hidden rounded-2xl cursor-pointer hover:scale-105 transition-transform duration-300" onClick={() => setLocation('/dice')}>
               <img 
                 src={diceBanner} 
                 alt="BitJackz Dice Game" 
@@ -129,21 +129,21 @@ export default function Home() {
           
           {/* Second Row - 3 Banners */}
           <div className="grid grid-cols-3 gap-4">
-            <div className="relative overflow-hidden rounded-lg cursor-pointer hover:scale-105 transition-transform duration-300" onClick={() => setLocation('/limbo')}>
+            <div className="relative overflow-hidden rounded-2xl cursor-pointer hover:scale-105 transition-transform duration-300" onClick={() => setLocation('/limbo')}>
               <img 
                 src={limboBanner} 
                 alt="BitJackz Limbo Game" 
                 className="w-full h-auto object-cover"
               />
             </div>
-            <div className="relative overflow-hidden rounded-lg cursor-pointer hover:scale-105 transition-transform duration-300" onClick={() => setLocation('/mines')}>
+            <div className="relative overflow-hidden rounded-2xl cursor-pointer hover:scale-105 transition-transform duration-300" onClick={() => setLocation('/mines')}>
               <img 
                 src={minesBanner} 
                 alt="BitJackz Mines Game" 
                 className="w-full h-auto object-cover"
               />
             </div>
-            <div className="relative overflow-hidden rounded-lg cursor-pointer hover:scale-105 transition-transform duration-300" onClick={() => setLocation('/roulette')}>
+            <div className="relative overflow-hidden rounded-2xl cursor-pointer hover:scale-105 transition-transform duration-300" onClick={() => setLocation('/roulette')}>
               <img 
                 src={rouletteBanner} 
                 alt="BitJackz Roulette Game" 
