@@ -109,28 +109,35 @@ export default function CoinFlipGame() {
         <Card className="casino-bg-blue border-casino-gold/20 mb-6">
           <CardContent className="p-8">
             <div className="text-center mb-8">
-              <div className="w-32 h-32 mx-auto mb-6 relative">
+              <div className="w-32 h-32 mx-auto mb-6 relative coin-3d">
                 <div className={`
                   w-full h-full rounded-full flex items-center justify-center text-4xl
-                  ${isFlipping ? 'animate-spin' : ''}
-                  ${lastFlipResult === 'heads' ? 'bg-casino-gold text-casino-navy' : 
-                    lastFlipResult === 'tails' ? 'bg-casino-gold text-casino-navy' : 
-                    'bg-casino-gold/70 text-casino-navy'}
+                  ${isFlipping ? 'coin-spinning' : ''}
+                  ${lastFlipResult === 'heads' ? 'bg-yellow-400 text-black' : 
+                    lastFlipResult === 'tails' ? 'bg-purple-500 text-white' : 
+                    'bg-gradient-to-r from-yellow-400 to-purple-500'}
                   transition-all duration-500
                   shadow-2xl border-4 border-casino-gold/50
                 `}>
                   {isFlipping ? (
-                    <div className="animate-bounce">?</div>
+                    <div className="relative w-full h-full flex items-center justify-center rounded-full overflow-hidden">
+                      <div className="absolute inset-0 bg-yellow-400 rounded-full flex items-center justify-center">
+                        <Circle className="w-8 h-8 text-black" />
+                      </div>
+                      <div className="absolute inset-0 bg-purple-500 rounded-full flex items-center justify-center" style={{ clipPath: 'polygon(50% 0%, 100% 0%, 100% 100%, 50% 100%)' }}>
+                        <Star className="w-8 h-8 text-white" />
+                      </div>
+                    </div>
                   ) : lastFlipResult === 'heads' ? (
                     <Circle className="w-12 h-12" />
                   ) : lastFlipResult === 'tails' ? (
                     <Star className="w-12 h-12" />
                   ) : (
-                    <div className="text-2xl font-bold">?</div>
+                    <div className="text-2xl font-bold text-white">COIN</div>
                   )}
                 </div>
                 {isFlipping && (
-                  <div className="absolute inset-0 rounded-full bg-casino-gold/30 animate-ping"></div>
+                  <div className="absolute inset-0 rounded-full bg-gradient-to-r from-yellow-400/30 to-purple-500/30 animate-ping"></div>
                 )}
               </div>
               <div className="text-2xl font-bold casino-gold mb-2">
@@ -193,8 +200,8 @@ export default function CoinFlipGame() {
                 className={`
                   py-8 text-xl font-bold transition-all duration-300
                   ${selectedSide === 'heads' || lastFlipResult === 'heads' ? 
-                    'bg-casino-gold hover:bg-casino-gold/90 text-casino-navy' : 
-                    'bg-casino-gold/20 hover:bg-casino-gold/30 text-casino-gold border border-casino-gold/50'}
+                    'bg-yellow-400 hover:bg-yellow-500 text-black' : 
+                    'bg-yellow-400/20 hover:bg-yellow-400/30 text-yellow-400 border border-yellow-400/50'}
                   ${(playGameMutation.isPending || isFlipping) ? 'opacity-50 cursor-not-allowed' : ''}
                   flex flex-col items-center
                 `}
@@ -208,8 +215,8 @@ export default function CoinFlipGame() {
                 className={`
                   py-8 text-xl font-bold transition-all duration-300
                   ${selectedSide === 'tails' || lastFlipResult === 'tails' ? 
-                    'bg-casino-gold hover:bg-casino-gold/90 text-casino-navy' : 
-                    'bg-casino-gold/20 hover:bg-casino-gold/30 text-casino-gold border border-casino-gold/50'}
+                    'bg-purple-500 hover:bg-purple-600 text-white' : 
+                    'bg-purple-500/20 hover:bg-purple-500/30 text-purple-400 border border-purple-400/50'}
                   ${(playGameMutation.isPending || isFlipping) ? 'opacity-50 cursor-not-allowed' : ''}
                   flex flex-col items-center
                 `}
