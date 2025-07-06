@@ -39,11 +39,9 @@ export default function TopNavbar() {
               </div>
               <Button
                 onClick={() => setShowWallet(true)}
-                className="bg-casino-gold hover:bg-casino-gold/90 text-casino-navy font-semibold text-sm sm:text-base px-2 sm:px-4"
+                className="bg-casino-gold hover:bg-casino-gold/90 text-casino-navy font-semibold text-sm sm:text-base px-3 py-2"
               >
-                <Plus className="mr-1 sm:mr-2" size={16} />
-                <span className="hidden sm:inline">Deposit</span>
-                <span className="sm:hidden">+</span>
+                <Plus size={18} />
               </Button>
             </div>
           </div>
