@@ -130,21 +130,6 @@ export default function DiceGame() {
               />
 
             </div>
-            <div className="text-xs text-gray-500 mt-1">$0.00</div>
-          </div>
-
-          {/* Profit on Win */}
-          <div className="mb-6">
-            <Label className="text-gray-300 text-sm mb-2 block">Profit on Win</Label>
-            <div className="flex items-center">
-              <Input
-                value={profitOnWin}
-                onChange={(e) => setProfitOnWin(e.target.value)}
-                className="bg-gray-700 border-gray-600 text-white flex-1"
-                placeholder="0.00000000"
-              />
-            </div>
-            <div className="text-xs text-gray-500 mt-1">$0.00</div>
           </div>
 
           {/* Bet Button */}
@@ -169,6 +154,24 @@ export default function DiceGame() {
               <span>75</span>
               <span>100</span>
             </div>
+
+            {/* Roll Result Display */}
+            {lastRoll !== null && (
+              <div className="relative mb-6 h-12">
+                <div 
+                  className="absolute bg-white text-black px-3 py-2 rounded-lg font-bold text-sm shadow-lg"
+                  style={{ 
+                    left: `${lastRoll}%`,
+                    transform: 'translateX(-50%)',
+                    top: '0'
+                  }}
+                >
+                  {lastRoll.toFixed(2)}
+                  {/* Arrow pointing down */}
+                  <div className="absolute top-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-[6px] border-r-[6px] border-t-[6px] border-transparent border-t-white"></div>
+                </div>
+              </div>
+            )}
 
             {/* Slider Container */}
             <div className="relative mb-12">
@@ -230,17 +233,7 @@ export default function DiceGame() {
               </div>
             </div>
 
-            {/* Last Roll Result */}
-            {lastRoll !== null && (
-              <div className="text-center mt-8">
-                <div className="text-white text-4xl font-bold mb-2">Last Roll: {lastRoll}</div>
-                <div className={`text-lg font-medium ${
-                  lastRoll > target ? 'text-green-400' : 'text-red-400'
-                }`}>
-                  {lastRoll > target ? 'WIN!' : 'LOSE!'}
-                </div>
-              </div>
-            )}
+
           </div>
         </div>
       </div>
