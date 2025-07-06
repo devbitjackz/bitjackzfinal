@@ -340,11 +340,11 @@ export default function CrashGame() {
                         transform: `rotate(${Math.min(45, (gameStatus.currentMultiplier - 1) * 8)}deg) scale(${1 + (gameStatus.currentMultiplier - 1) * 0.2})`
                       }}
                     >
-                      <div className="text-4xl sm:text-5xl filter drop-shadow-lg">🚀</div>
+                      <div className="text-6xl filter drop-shadow-lg">🚀</div>
                       {/* Rocket trail effect - more prominent */}
-                      <div className="absolute inset-0 text-4xl sm:text-5xl filter blur-sm opacity-60">🚀</div>
+                      <div className="absolute inset-0 text-6xl filter blur-sm opacity-60">🚀</div>
                       {/* Additional glow effect */}
-                      <div className="absolute inset-0 text-4xl sm:text-5xl filter blur-lg opacity-30">🚀</div>
+                      <div className="absolute inset-0 text-6xl filter blur-lg opacity-30">🚀</div>
                     </div>
                   </>
                 )}
