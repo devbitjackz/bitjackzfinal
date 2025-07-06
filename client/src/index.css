@@ -118,6 +118,64 @@
   .game-tile * {
     border-radius: inherit;
   }
+
+  /* Custom animations for Crash Game */
+  @keyframes neon-glow {
+    0%, 100% { text-shadow: 0 0 5px var(--casino-gold), 0 0 10px var(--casino-gold); }
+    50% { text-shadow: 0 0 10px var(--casino-gold), 0 0 20px var(--casino-gold); }
+  }
+
+  @keyframes balance-glow {
+    0%, 100% { box-shadow: 0 0 5px rgba(255, 215, 0, 0.3); }
+    50% { box-shadow: 0 0 15px rgba(255, 215, 0, 0.5); }
+  }
+
+  @keyframes rocket-float {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-10px); }
+  }
+
+  @keyframes explosion-ring {
+    0% { transform: scale(0.8); opacity: 0.8; }
+    50% { transform: scale(1.2); opacity: 0.4; }
+    100% { transform: scale(2); opacity: 0; }
+  }
+
+  @keyframes rocket-crash {
+    0% { transform: rotate(0deg) scale(1); }
+    25% { transform: rotate(90deg) scale(1.1); }
+    50% { transform: rotate(180deg) scale(0.9); }
+    75% { transform: rotate(270deg) scale(1.1); }
+    100% { transform: rotate(360deg) scale(1); }
+  }
+
+  .neon-glow {
+    animation: neon-glow 2s ease-in-out infinite;
+  }
+
+  .balance-glow {
+    animation: balance-glow 2s ease-in-out infinite;
+  }
+
+  .crash-rocket {
+    animation: rocket-float 1s ease-in-out infinite;
+  }
+
+  .explosion-ring {
+    animation: explosion-ring 1s ease-out infinite;
+  }
+
+  .rocket-crash {
+    animation: rocket-crash 2s ease-in-out infinite;
+  }
+
+  .animation-delay-100 {
+    animation-delay: 100ms;
+  }
+
+  .animation-delay-200 {
+    animation-delay: 200ms;
+  }
   
   .game-tile:hover {
     transform: scale(1.05);

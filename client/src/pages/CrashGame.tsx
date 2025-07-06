@@ -118,6 +118,9 @@ export default function CrashGame() {
     };
 
     const trackGameStatus = () => {
+      let lastMultiplier = 0;
+      let lastStatus = '';
+      
       const statusInterval = setInterval(async () => {
         try {
           const response = await fetch(`/api/games/crash/status/${gameId}`, {
@@ -126,7 +129,13 @@ export default function CrashGame() {
             }
           });
           const status: GameStatus = await response.json();
-          setGameStatus(status);
+          
+          // Only update if something actually changed to prevent excessive re-renders
+          if (status.currentMultiplier !== lastMultiplier || status.status !== lastStatus) {
+            setGameStatus(status);
+            lastMultiplier = status.currentMultiplier;
+            lastStatus = status.status;
+          }
 
           if (status.status === 'crashed' || status.status === 'finished') {
             clearInterval(statusInterval);
@@ -145,7 +154,7 @@ export default function CrashGame() {
         } catch (error) {
           console.error('Failed to fetch game status:', error);
         }
-      }, 50); // Update every 50ms for smooth animation
+      }, 100); // Update every 100ms instead of 50ms to reduce server load
 
       statusIntervalRef.current = statusInterval;
     };
@@ -254,13 +263,76 @@ export default function CrashGame() {
             </div>
             
             {/* Crash Chart Visualization */}
-            <div className="relative h-40 mb-8 bg-casino-navy/50 rounded-lg overflow-hidden">
-              <div className="absolute bottom-0 left-0 w-full h-full flex items-end">
-                <div className="w-full h-1 bg-casino-gold/30"></div>
-                <div className="absolute bottom-0 left-0 w-3/4 h-20 bg-gradient-to-r from-casino-gold/20 to-casino-gold/40 rounded-tr-lg"></div>
-                <div className="absolute bottom-20 left-3/4 w-8 h-8 bg-casino-gold rounded-full animate-pulse flex items-center justify-center">
-                  <span className="text-casino-navy text-xl crash-rocket">🚀</span>
-                </div>
+            <div className="relative h-64 mb-8 bg-gradient-to-b from-blue-900 to-blue-950 rounded-lg overflow-hidden border border-casino-gold/20">
+              {/* Background Grid */}
+              <div className="absolute inset-0 opacity-20">
+                {[...Array(6)].map((_, i) => (
+                  <div key={i} className="absolute w-full h-px bg-casino-gold/20" style={{bottom: `${i * 20}%`}}></div>
+                ))}
+                {[...Array(6)].map((_, i) => (
+                  <div key={i} className="absolute h-full w-px bg-casino-gold/20" style={{left: `${i * 20}%`}}></div>
+                ))}
+              </div>
+              
+              {/* Rocket Animation */}
+              <div className="absolute inset-0">
+                {gameStatus?.status === 'active' && (
+                  <>
+                    {/* Rocket Trail */}
+                    <div 
+                      className="absolute transition-all duration-100 ease-linear"
+                      style={{
+                        left: '5%',
+                        bottom: '10%',
+                        width: `${Math.min(75, (gameStatus.currentMultiplier - 1) * 15)}%`,
+                        height: `${Math.min(70, (gameStatus.currentMultiplier - 1) * 12)}%`,
+                        background: 'linear-gradient(45deg, rgba(255,215,0,0.1) 0%, rgba(255,215,0,0.3) 100%)',
+                        clipPath: 'polygon(0 100%, 100% 0%, 100% 20%, 20% 100%)'
+                      }}
+                    />
+                    
+                    {/* Rocket */}
+                    <div 
+                      className="absolute transition-all duration-100 ease-linear z-10"
+                      style={{
+                        left: `${Math.min(80, 5 + (gameStatus.currentMultiplier - 1) * 15)}%`,
+                        bottom: `${Math.min(75, 10 + (gameStatus.currentMultiplier - 1) * 12)}%`,
+                        transform: `rotate(${Math.min(30, (gameStatus.currentMultiplier - 1) * 3)}deg)`
+                      }}
+                    >
+                      <div className="text-5xl animate-pulse filter drop-shadow-lg">🚀</div>
+                    </div>
+                  </>
+                )}
+                
+                {gameStatus?.status === 'crashed' && (
+                  <>
+                    {/* Explosion Animation */}
+                    <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-20">
+                      <div className="text-8xl animate-bounce">💥</div>
+                      <div className="absolute inset-0 bg-red-500 rounded-full explosion-ring opacity-20"></div>
+                      <div className="absolute inset-0 bg-orange-500 rounded-full explosion-ring opacity-30 animation-delay-100"></div>
+                      <div className="absolute inset-0 bg-yellow-500 rounded-full explosion-ring opacity-40 animation-delay-200"></div>
+                    </div>
+                    
+                    {/* Crashed Rocket */}
+                    <div className="absolute bottom-10 right-20 opacity-50">
+                      <div className="text-4xl rocket-crash">🚀</div>
+                    </div>
+                  </>
+                )}
+                
+                {gameStatus?.status === 'countdown' && (
+                  <div className="absolute bottom-8 left-8">
+                    <div className="text-4xl animate-bounce">🚀</div>
+                  </div>
+                )}
+                
+                {(!gameStatus || gameStatus.status === 'finished') && (
+                  <div className="absolute bottom-8 left-8">
+                    <div className="text-4xl opacity-50">🚀</div>
+                  </div>
+                )}
               </div>
             </div>
 
