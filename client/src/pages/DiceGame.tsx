@@ -111,85 +111,9 @@ export default function DiceGame() {
         <div className="text-sm text-gray-400">Roll Over/Under</div>
       </div>
 
-      <div className="flex flex-col lg:flex-row h-[calc(100vh-80px)]">
-        {/* Left Panel - Controls */}
-        <div className="w-full lg:w-80 bg-gray-800/90 p-4 lg:p-6 border-b lg:border-b-0 lg:border-r border-gray-700">
-          
-          {/* Over/Under Toggle */}
-          <div className="mb-6">
-            <Label className="text-gray-300 text-sm mb-3 block">Bet Type</Label>
-            <div className="flex bg-gray-700 rounded-lg p-1">
-              <button
-                onClick={() => setBetType("over")}
-                className={`flex-1 py-2 px-4 rounded-lg text-sm font-medium transition-colors ${
-                  betType === "over" 
-                    ? "bg-blue-500 text-white" 
-                    : "text-gray-400 hover:text-white"
-                }`}
-              >
-                Roll Over
-              </button>
-              <button
-                onClick={() => setBetType("under")}
-                className={`flex-1 py-2 px-4 rounded-lg text-sm font-medium transition-colors ${
-                  betType === "under" 
-                    ? "bg-blue-500 text-white" 
-                    : "text-gray-400 hover:text-white"
-                }`}
-              >
-                Roll Under
-              </button>
-            </div>
-          </div>
-
-
-          {/* Bet Amount */}
-          <div className="mb-6">
-            <Label className="text-gray-300 text-sm mb-2 block">Bet Amount</Label>
-            <div className="flex items-center">
-              <Input
-                value={betAmount}
-                onChange={(e) => {
-                  setBetAmount(e.target.value);
-                  updateProfit();
-                }}
-                className="bg-gray-700 border-gray-600 text-white flex-1"
-                placeholder="0.00000000"
-              />
-
-            </div>
-          </div>
-
-          {/* Bet Button */}
-          <Button
-            onClick={handlePlay}
-            disabled={playGameMutation.isPending}
-            className="w-full bg-green-500 hover:bg-green-600 text-white py-3 text-lg font-bold mb-6"
-          >
-            {playGameMutation.isPending ? "Rolling..." : "Bet"}
-          </Button>
-          
-          {/* Game Stats - Mobile friendly */}
-          <div className="grid grid-cols-3 gap-4 text-center">
-            <div className="bg-gray-700 rounded-lg p-3">
-              <div className="text-white text-xl font-bold">{multiplier.toFixed(2)}</div>
-              <div className="text-gray-400 text-xs">Multiplier</div>
-            </div>
-            <div className="bg-gray-700 rounded-lg p-3">
-              <div className="text-white text-xl font-bold">{target}</div>
-              <div className="text-gray-400 text-xs">Roll {betType === "over" ? "Over" : "Under"}</div>
-            </div>
-            <div className="bg-gray-700 rounded-lg p-3">
-              <div className="text-white text-xl font-bold">{winChance.toFixed(1)}%</div>
-              <div className="text-gray-400 text-xs">Win Chance</div>
-            </div>
-          </div>
-        </div>
-
-        {/* Right Panel - Game Area */}
-        <div className="flex-1 p-4 lg:p-6">
-          {/* Roll Slider */}
-          <div className="max-w-4xl mx-auto">
+      {/* Slider Section - Top Priority */}
+      <div className="p-4 lg:p-6 bg-gray-900">
+        <div className="max-w-4xl mx-auto">
             {/* Numbers */}
             <div className="flex justify-between text-white mb-4 text-lg font-bold">
               <span>0</span>
@@ -300,6 +224,82 @@ export default function DiceGame() {
             </div>
 
 
+          </div>
+        </div>
+      </div>
+
+      {/* Betting Controls Section - Below Slider */}
+      <div className="p-4 lg:p-6 bg-gray-800">
+        <div className="max-w-4xl mx-auto">
+          <div className="flex flex-col lg:flex-row gap-6">
+            
+            {/* Over/Under Toggle */}
+            <div className="flex-1">
+              <Label className="text-gray-300 text-sm mb-3 block">Bet Type</Label>
+              <div className="flex bg-gray-700 rounded-lg p-1">
+                <button
+                  onClick={() => setBetType("over")}
+                  className={`flex-1 py-2 px-4 rounded-lg text-sm font-medium transition-colors ${
+                    betType === "over" 
+                      ? "bg-blue-500 text-white" 
+                      : "text-gray-400 hover:text-white"
+                  }`}
+                >
+                  Roll Over
+                </button>
+                <button
+                  onClick={() => setBetType("under")}
+                  className={`flex-1 py-2 px-4 rounded-lg text-sm font-medium transition-colors ${
+                    betType === "under" 
+                      ? "bg-blue-500 text-white" 
+                      : "text-gray-400 hover:text-white"
+                  }`}
+                >
+                  Roll Under
+                </button>
+              </div>
+            </div>
+
+            {/* Bet Amount */}
+            <div className="flex-1">
+              <Label className="text-gray-300 text-sm mb-3 block">Bet Amount</Label>
+              <Input
+                value={betAmount}
+                onChange={(e) => {
+                  setBetAmount(e.target.value);
+                  updateProfit();
+                }}
+                className="bg-gray-700 border-gray-600 text-white w-full"
+                placeholder="0.00000000"
+              />
+            </div>
+
+            {/* Bet Button */}
+            <div className="flex-1 flex items-end">
+              <Button
+                onClick={handlePlay}
+                disabled={playGameMutation.isPending}
+                className="w-full bg-green-500 hover:bg-green-600 text-white py-3 text-lg font-bold"
+              >
+                {playGameMutation.isPending ? "Rolling..." : "Bet"}
+              </Button>
+            </div>
+          </div>
+          
+          {/* Game Stats - Mobile friendly */}
+          <div className="grid grid-cols-3 gap-4 text-center mt-6">
+            <div className="bg-gray-700 rounded-lg p-3">
+              <div className="text-white text-xl font-bold">{multiplier.toFixed(2)}</div>
+              <div className="text-gray-400 text-xs">Multiplier</div>
+            </div>
+            <div className="bg-gray-700 rounded-lg p-3">
+              <div className="text-white text-xl font-bold">{target}</div>
+              <div className="text-gray-400 text-xs">Roll {betType === "over" ? "Over" : "Under"}</div>
+            </div>
+            <div className="bg-gray-700 rounded-lg p-3">
+              <div className="text-white text-xl font-bold">{winChance.toFixed(1)}%</div>
+              <div className="text-gray-400 text-xs">Win Chance</div>
+            </div>
           </div>
         </div>
       </div>
