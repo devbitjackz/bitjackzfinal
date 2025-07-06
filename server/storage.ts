@@ -25,7 +25,7 @@ export class MemStorage implements IStorage {
     this.currentUserId = 1;
     this.currentGameResultId = 1;
     
-    // Create a default user for demo purposes with initial balance of 0
+    // Create a default user for demo purposes with initial balance of $500
     this.users.set(1, {
       id: 1,
       username: "player1", 
@@ -33,7 +33,7 @@ export class MemStorage implements IStorage {
       telegramId: "1",
       firstName: "Demo",
       lastName: "User",
-      balance: 0.00,
+      balance: 500.00,
       createdAt: new Date(),
     });
 
@@ -94,7 +94,7 @@ export class MemStorage implements IStorage {
       telegramId: insertUser.telegramId || null,
       firstName: insertUser.firstName || null,
       lastName: insertUser.lastName || null,
-      balance: 0.00, // Set initial balance to 0
+      balance: 500.00, // Set initial balance to $500
       createdAt: new Date(),
     };
     this.users.set(id, user);
