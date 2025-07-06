@@ -157,18 +157,25 @@ export default function DiceGame() {
 
             {/* Roll Result Display */}
             {lastRoll !== null && (
-              <div className="relative mb-6 h-12">
+              <div className="relative mb-2 h-16">
                 <div 
-                  className="absolute bg-white text-black px-3 py-2 rounded-lg font-bold text-sm shadow-lg"
+                  className="absolute"
                   style={{ 
                     left: `${lastRoll}%`,
                     transform: 'translateX(-50%)',
                     top: '0'
                   }}
                 >
-                  {lastRoll.toFixed(2)}
-                  {/* Arrow pointing down */}
-                  <div className="absolute top-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-[6px] border-r-[6px] border-t-[6px] border-transparent border-t-white"></div>
+                  {/* Dice Shape */}
+                  <div className="bg-white border-2 border-gray-300 rounded-lg w-12 h-12 flex items-center justify-center shadow-lg">
+                    <span className="font-bold text-black text-sm">{lastRoll.toFixed(2)}</span>
+                  </div>
+                  {/* Win/Loss Text */}
+                  <div className={`text-center mt-1 font-bold text-xs ${
+                    lastRoll > target ? 'text-green-400' : 'text-red-400'
+                  }`}>
+                    {lastRoll > target ? 'WIN' : 'LOSE'}
+                  </div>
                 </div>
               </div>
             )}
@@ -176,10 +183,10 @@ export default function DiceGame() {
             {/* Slider Container */}
             <div className="relative mb-12">
               {/* Outer container with rounded corners and border */}
-              <div className="h-12 bg-gray-700 rounded-full border-2 border-gray-600 overflow-hidden relative">
-                {/* Gray section (no win zone) */}
+              <div className="h-8 bg-gray-700 rounded-full border-2 border-gray-600 overflow-hidden relative">
+                {/* Red section (no win zone) */}
                 <div 
-                  className="h-full bg-gray-600 absolute left-0 top-0"
+                  className="h-full bg-red-500 absolute left-0 top-0"
                   style={{ width: `${target}%` }}
                 />
                 {/* Green section (roll over - winner area only) */}
@@ -191,8 +198,8 @@ export default function DiceGame() {
               
               {/* Slider thumb - blue square with target number */}
               <div 
-                className="absolute top-1/2 transform -translate-y-1/2 w-14 h-10 bg-blue-500 rounded cursor-pointer flex items-center justify-center text-white font-bold text-sm shadow-lg border-2 border-blue-400"
-                style={{ left: `calc(${target}% - 28px)` }}
+                className="absolute top-1/2 transform -translate-y-1/2 w-12 h-8 bg-blue-500 rounded cursor-pointer flex items-center justify-center text-white font-bold text-xs shadow-lg border-2 border-blue-400"
+                style={{ left: `calc(${target}% - 24px)` }}
               >
                 {target}
               </div>
