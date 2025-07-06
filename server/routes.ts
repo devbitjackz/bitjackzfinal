@@ -34,10 +34,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Generate initial crash point using the new fair formula
+  function generateCrashPoint() {
+    // Generate crash points with average around 1.9x, max 5.86x
+    // Using exponential distribution that averages to 1.9
+    const random = Math.random();
+    const lambda = 1 / 0.9; // This gives us an average of 1.9 when we add 1.0
+    const crashPoint = Math.max(1.01, Math.min(5.86, 1.0 + (-Math.log(random) / lambda)));
+    return Math.round(crashPoint * 100) / 100;
+  }
+
   // Global crash game state management - always running
   let globalCrashGame = {
     gameId: `crash_global_1`,
-    crashPoint: Math.max(1.0, Math.round((-Math.log(Math.random()) / 0.5) * 100) / 100),
+    crashPoint: generateCrashPoint(),
     gameStartTime: Date.now() + 5000, // Start in 5 seconds
     currentMultiplier: 1.0,
     isCrashed: false,
@@ -52,13 +62,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
   }, 5000);
 
   let gameCounter = 1;
-
-  function generateCrashPoint() {
-    // Generate crash points between 1.0x and 5.86x with exponential distribution
-    const random = Math.random();
-    const crashPoint = Math.max(1.0, Math.min(5.86, Math.round((-Math.log(random) / 0.5) * 100) / 100));
-    return crashPoint;
-  }
 
   // Restart global game when it crashes
   function restartGlobalGame() {
@@ -132,6 +135,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ error: "Insufficient balance" });
       }
 
+      // Only allow betting during countdown phase
+      if (globalCrashGame.status !== 'countdown') {
+        return res.status(400).json({ error: "Betting is only allowed during countdown phase" });
+      }
+
       // Check if user already has a bet in current game
       if (globalCrashGame.playerBets.has(userId)) {
         return res.status(400).json({ error: "You already have a bet in this game" });
@@ -147,10 +155,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
         cashedOutAt: null
       });
 
+      console.log(`Bet placed by user ${userId}: $${amount}, Game: ${globalCrashGame.gameId}, Crash Point: ${globalCrashGame.crashPoint}x, Status: ${globalCrashGame.status}`);
+      
       res.json({
         gameId: globalCrashGame.gameId,
         message: "Bet placed! Watch the rocket fly!",
-        currentStatus: globalCrashGame.status
+        currentStatus: globalCrashGame.status,
+        crashPoint: globalCrashGame.crashPoint // Debug info
       });
     } catch (error) {
       res.status(500).json({ error: "Failed to place bet" });
