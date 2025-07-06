@@ -4,7 +4,7 @@ import GameTile from "@/components/GameTile";
 
 
 import bitjackzBanner from "@assets/banner_1751570113317.jpg";
-import crashBanner from "@assets/Default_A_2D_digital_game_icon_for_a_casino_game_called_Crash__0_1751790602965.jpg";
+import crashBanner from "@assets/Default_A_2D_digital_game_icon_for_a_casino_game_called_Crash__0_1751790706258.jpg";
 import cointossBanner from "@assets/cointoss_1751570242550.png";
 import diceBanner from "@assets/image_1751790109419.png";
 import limboBanner from "@assets/limbo_1751570260414.png";
