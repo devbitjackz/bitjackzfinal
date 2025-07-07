@@ -87,8 +87,8 @@ export default function DiceGame() {
   const target = rollTarget[0];
   // Calculate win chance based on bet type
   const winChance = betType === "over" ? 100 - target : target - 1;
-  // Apply 90% RTP to the displayed multiplier so users see the actual payout multiplier
-  const multiplier = (100 / winChance) * 0.9;
+  // Apply 93% RTP to the displayed multiplier so users see the actual payout multiplier
+  const multiplier = (100 / winChance) * 0.93;
   const calculatedProfit = parseFloat(betAmount) * (multiplier - 1);
 
   // Update profit when bet amount or target changes
