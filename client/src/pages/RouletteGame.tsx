@@ -39,6 +39,7 @@ export default function RouletteGame() {
   const [lastResult, setLastResult] = useState<number | string | null>(null);
   const [wheelRotation, setWheelRotation] = useState(0);
   const [animationFrame, setAnimationFrame] = useState<number | null>(null);
+  const [isAnimationStopped, setIsAnimationStopped] = useState(false);
 
   const chipValues = [1, 2, 5, 10, 20, 50, 100];
 
@@ -72,6 +73,7 @@ export default function RouletteGame() {
           const targetCycle = currentCycle + 3;
           const basePosition = targetCycle * cycleLength;
           const winningPosition = winningIndex * tileWidth;
+          // Center the winning number perfectly under the indicator
           const targetPosition = basePosition + winningPosition - containerCenter + (tileWidth / 2);
           
           // Stop the spinning animation and move to target
@@ -82,6 +84,7 @@ export default function RouletteGame() {
         setTimeout(() => {
           setLastResult(data.winningNumber);
           setIsSpinning(false);
+          setIsAnimationStopped(true); // Stop all animations
           
           if (data.result === "win") {
             toast({
@@ -97,8 +100,10 @@ export default function RouletteGame() {
           }
           
           // Clear all bets after result is shown
-          setSelectedBets({});
-        }, 1500); // Wait for deceleration
+          setTimeout(() => {
+            setSelectedBets({});
+          }, 3000); // Wait 3 seconds before clearing bets
+        }, 2000); // Wait for deceleration
       }, 2000); // Spin for 2 seconds
     },
     onError: () => {
@@ -126,6 +131,8 @@ export default function RouletteGame() {
   const startSpinningAnimation = () => {
     let spinSpeed = 12; // pixels per frame for faster spinning
     const spin = () => {
+      if (isAnimationStopped) return; // Stop if animation is disabled
+      
       setWheelRotation(prev => {
         const newPos = prev + spinSpeed;
         // Keep position within reasonable bounds to prevent overflow
@@ -147,12 +154,17 @@ export default function RouletteGame() {
     
     // Smooth deceleration to target position
     let currentPos = wheelRotation;
+    let isDecelerating = true;
+    
     const decelerate = () => {
-      const distance = targetPosition - currentPos;
-      const speed = Math.max(Math.abs(distance) * 0.1, 1);
+      if (!isDecelerating || isAnimationStopped) return;
       
-      if (Math.abs(distance) < 2) {
+      const distance = targetPosition - currentPos;
+      const speed = Math.max(Math.abs(distance) * 0.08, 0.5);
+      
+      if (Math.abs(distance) < 1) {
         setWheelRotation(targetPosition);
+        isDecelerating = false;
         return;
       }
       
@@ -174,6 +186,7 @@ export default function RouletteGame() {
     }
 
     setIsSpinning(true);
+    setIsAnimationStopped(false);
     startSpinningAnimation();
     
     // Pick the first bet for now (simplified)
