@@ -115,6 +115,7 @@ Six casino games are fully implemented:
 - July 07, 2025. Set Dice Game RTP to 93% by applying 0.93 multiplier to payout calculations, ensuring consistent house edge across all games - RTP is built into multiplier calculations rather than displayed separately
 - July 07, 2025. Enhanced Mines Game with improved visuals, animations, live statistics display, better mine distribution algorithm, and consistent 93% RTP across all casino games
 - July 07, 2025. Fixed Mines Game notifications and balance issues - mines now show immediately when clicked, removed unwanted win notifications on mine hits, fixed balance deduction logic, and implemented user's exact gem and bomb images with proper 12x12 sizing
+- July 07, 2025. Made Roulette Game mobile-friendly with responsive betting board layout - added horizontal scrolling for number grid on mobile, increased touch targets to 48px minimum, reorganized betting controls into mobile-optimized grid layouts, improved chip selection with better mobile spacing, and enhanced overall mobile experience with touch-friendly interactions
 
 ## User Preferences
 

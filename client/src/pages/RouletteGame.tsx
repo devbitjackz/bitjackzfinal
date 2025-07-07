@@ -333,9 +333,171 @@ export default function RouletteGame() {
           </div>
         </div>
 
-        {/* Betting Layout */}
-        <div className="bg-gray-800 rounded-lg p-4 mb-4">
-          <div className="flex gap-2">
+        {/* Betting Layout - Mobile Responsive */}
+        <div className="bg-gray-800 rounded-lg p-2 sm:p-4 mb-4">
+          {/* Mobile Layout */}
+          <div className="block lg:hidden">
+            {/* Zero section - Mobile */}
+            <div className="flex justify-center gap-2 mb-3">
+              <button
+                onClick={() => addBet("number", 0)}
+                className="bg-green-600 hover:bg-green-700 text-white p-3 rounded text-sm font-bold min-h-[48px] min-w-[48px] relative touch-manipulation"
+              >
+                0
+                {selectedBets["number-0"] && renderChipOnBet("number-0", selectedBets["number-0"])}
+              </button>
+              <button
+                onClick={() => addBet("number", "00")}
+                className="bg-green-600 hover:bg-green-700 text-white p-3 rounded text-sm font-bold min-h-[48px] min-w-[48px] relative touch-manipulation"
+              >
+                00
+                {selectedBets["number-00"] && renderChipOnBet("number-00", selectedBets["number-00"])}
+              </button>
+            </div>
+
+            {/* Numbers Grid - Mobile Scrollable */}
+            <div className="overflow-x-auto mb-3">
+              <div className="min-w-[600px]">
+                {/* Numbers 1-36 in proper roulette layout */}
+                <div className="grid grid-cols-12 gap-1 mb-2">
+                  {/* Row 1: 3, 6, 9, 12, 15, 18, 21, 24, 27, 30, 33, 36 */}
+                  {[3, 6, 9, 12, 15, 18, 21, 24, 27, 30, 33, 36].map((num) => {
+                    const color = getNumberColor(num);
+                    return (
+                      <button
+                        key={num}
+                        onClick={() => addBet("number", num)}
+                        className={`${
+                          color === 'red' ? 'bg-red-600 hover:bg-red-700' : 'bg-gray-900 hover:bg-gray-800'
+                        } text-white p-2 rounded text-sm font-bold min-h-[48px] relative touch-manipulation`}
+                      >
+                        {num}
+                        {selectedBets[`number-${num}`] && renderChipOnBet(`number-${num}`, selectedBets[`number-${num}`])}
+                      </button>
+                    );
+                  })}
+                </div>
+                
+                <div className="grid grid-cols-12 gap-1 mb-2">
+                  {/* Row 2: 2, 5, 8, 11, 14, 17, 20, 23, 26, 29, 32, 35 */}
+                  {[2, 5, 8, 11, 14, 17, 20, 23, 26, 29, 32, 35].map((num) => {
+                    const color = getNumberColor(num);
+                    return (
+                      <button
+                        key={num}
+                        onClick={() => addBet("number", num)}
+                        className={`${
+                          color === 'red' ? 'bg-red-600 hover:bg-red-700' : 'bg-gray-900 hover:bg-gray-800'
+                        } text-white p-2 rounded text-sm font-bold min-h-[48px] relative touch-manipulation`}
+                      >
+                        {num}
+                        {selectedBets[`number-${num}`] && renderChipOnBet(`number-${num}`, selectedBets[`number-${num}`])}
+                      </button>
+                    );
+                  })}
+                </div>
+                
+                <div className="grid grid-cols-12 gap-1 mb-3">
+                  {/* Row 3: 1, 4, 7, 10, 13, 16, 19, 22, 25, 28, 31, 34 */}
+                  {[1, 4, 7, 10, 13, 16, 19, 22, 25, 28, 31, 34].map((num) => {
+                    const color = getNumberColor(num);
+                    return (
+                      <button
+                        key={num}
+                        onClick={() => addBet("number", num)}
+                        className={`${
+                          color === 'red' ? 'bg-red-600 hover:bg-red-700' : 'bg-gray-900 hover:bg-gray-800'
+                        } text-white p-2 rounded text-sm font-bold min-h-[48px] relative touch-manipulation`}
+                      >
+                        {num}
+                        {selectedBets[`number-${num}`] && renderChipOnBet(`number-${num}`, selectedBets[`number-${num}`])}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            </div>
+
+            {/* Outside Bets - Mobile */}
+            <div className="space-y-2">
+              {/* Dozens */}
+              <div className="grid grid-cols-3 gap-2">
+                <button
+                  onClick={() => addBet("column", 1)}
+                  className="bg-blue-600 hover:bg-blue-700 text-white p-3 rounded text-sm font-bold min-h-[48px] relative touch-manipulation"
+                >
+                  1-12
+                  {selectedBets["column-1"] && renderChipOnBet("column-1", selectedBets["column-1"])}
+                </button>
+                <button
+                  onClick={() => addBet("column", 2)}
+                  className="bg-blue-600 hover:bg-blue-700 text-white p-3 rounded text-sm font-bold min-h-[48px] relative touch-manipulation"
+                >
+                  13-24
+                  {selectedBets["column-2"] && renderChipOnBet("column-2", selectedBets["column-2"])}
+                </button>
+                <button
+                  onClick={() => addBet("column", 3)}
+                  className="bg-blue-600 hover:bg-blue-700 text-white p-3 rounded text-sm font-bold min-h-[48px] relative touch-manipulation"
+                >
+                  25-36
+                  {selectedBets["column-3"] && renderChipOnBet("column-3", selectedBets["column-3"])}
+                </button>
+              </div>
+
+              {/* Even Money Bets - Two Rows */}
+              <div className="grid grid-cols-3 gap-2">
+                <button
+                  onClick={() => addBet("low")}
+                  className="bg-gray-600 hover:bg-gray-700 text-white p-3 rounded text-sm font-bold min-h-[48px] relative touch-manipulation"
+                >
+                  1-18
+                  {selectedBets["low"] && renderChipOnBet("low", selectedBets["low"])}
+                </button>
+                <button
+                  onClick={() => addBet("even")}
+                  className="bg-gray-600 hover:bg-gray-700 text-white p-3 rounded text-sm font-bold min-h-[48px] relative touch-manipulation"
+                >
+                  EVEN
+                  {selectedBets["even"] && renderChipOnBet("even", selectedBets["even"])}
+                </button>
+                <button
+                  onClick={() => addBet("red")}
+                  className="bg-red-600 hover:bg-red-700 text-white p-3 rounded text-sm font-bold min-h-[48px] relative touch-manipulation"
+                >
+                  RED
+                  {selectedBets["red"] && renderChipOnBet("red", selectedBets["red"])}
+                </button>
+              </div>
+              
+              <div className="grid grid-cols-3 gap-2">
+                <button
+                  onClick={() => addBet("black")}
+                  className="bg-gray-900 hover:bg-gray-800 text-white p-3 rounded text-sm font-bold min-h-[48px] relative touch-manipulation"
+                >
+                  BLACK
+                  {selectedBets["black"] && renderChipOnBet("black", selectedBets["black"])}
+                </button>
+                <button
+                  onClick={() => addBet("odd")}
+                  className="bg-gray-600 hover:bg-gray-700 text-white p-3 rounded text-sm font-bold min-h-[48px] relative touch-manipulation"
+                >
+                  ODD
+                  {selectedBets["odd"] && renderChipOnBet("odd", selectedBets["odd"])}
+                </button>
+                <button
+                  onClick={() => addBet("high")}
+                  className="bg-gray-600 hover:bg-gray-700 text-white p-3 rounded text-sm font-bold min-h-[48px] relative touch-manipulation"
+                >
+                  19-36
+                  {selectedBets["high"] && renderChipOnBet("high", selectedBets["high"])}
+                </button>
+              </div>
+            </div>
+          </div>
+
+          {/* Desktop Layout */}
+          <div className="hidden lg:flex gap-2">
             {/* Zero Column */}
             <div className="flex flex-col gap-1">
               <button
@@ -522,19 +684,19 @@ export default function RouletteGame() {
           </div>
         </div>
 
-        {/* Betting Controls */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        {/* Betting Controls - Mobile Responsive */}
+        <div className="bg-gray-800 rounded-lg p-3 sm:p-4 space-y-4">
           <div className="space-y-3">
             <div>
-              <Label className="text-white text-sm">Select Chip Value</Label>
-              <div className="flex gap-2 flex-wrap">
+              <Label className="text-white text-sm sm:text-base font-bold">Select Chip Value</Label>
+              <div className="grid grid-cols-3 sm:grid-cols-6 gap-2 mt-2">
                 {chipValues.map((value) => (
                   <button
                     key={value}
                     onClick={() => setSelectedChip(value)}
-                    className={`w-12 h-12 rounded-full border-2 font-bold text-xs flex items-center justify-center transition-all ${
+                    className={`min-h-[48px] min-w-[48px] rounded-full border-2 font-bold text-xs sm:text-sm flex items-center justify-center transition-all touch-manipulation ${
                       selectedChip === value 
-                        ? `${getChipColor(value)} ring-2 ring-white` 
+                        ? `${getChipColor(value)} ring-2 ring-white scale-105` 
                         : `${getChipColor(value)} opacity-70 hover:opacity-100`
                     }`}
                   >
@@ -544,58 +706,65 @@ export default function RouletteGame() {
               </div>
             </div>
             
-            <div className="text-white text-sm space-y-2">
-              <div className="flex justify-between">
-                <span>Selected Chip:</span>
-                <span className="font-bold text-casino-gold">${selectedChip}</span>
+            {/* Stats Row */}
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-white text-xs sm:text-sm">
+              <div className="bg-gray-700 rounded p-2 text-center">
+                <div className="font-bold text-casino-gold">${selectedChip}</div>
+                <div className="text-gray-300">Selected</div>
               </div>
-              <div className="flex justify-between">
-                <span>Total Bets:</span>
-                <span className="font-bold text-green-400">${getTotalBets().toFixed(2)}</span>
+              <div className="bg-gray-700 rounded p-2 text-center">
+                <div className="font-bold text-green-400">${getTotalBets().toFixed(2)}</div>
+                <div className="text-gray-300">Total Bets</div>
               </div>
-              <div className="flex justify-between">
-                <span>Active Bets:</span>
-                <span className="font-bold text-blue-400">{Object.keys(selectedBets).length}</span>
+              <div className="bg-gray-700 rounded p-2 text-center">
+                <div className="font-bold text-blue-400">{Object.keys(selectedBets).length}</div>
+                <div className="text-gray-300">Active Bets</div>
               </div>
               {lastResult !== null && (
-                <div className="flex justify-between">
-                  <span>Last Result:</span>
-                  <span className={`font-bold ${getNumberColor(lastResult) === 'red' ? 'text-red-500' : getNumberColor(lastResult) === 'green' ? 'text-green-500' : 'text-white'}`}>{lastResult}</span>
+                <div className="bg-gray-700 rounded p-2 text-center">
+                  <div className={`font-bold ${getNumberColor(lastResult) === 'red' ? 'text-red-500' : getNumberColor(lastResult) === 'green' ? 'text-green-500' : 'text-white'}`}>
+                    {lastResult}
+                  </div>
+                  <div className="text-gray-300">Last Result</div>
                 </div>
               )}
             </div>
 
+            {/* Current Bets Preview - Mobile */}
             {Object.keys(selectedBets).length > 0 && (
-              <div className="text-white text-xs">
-                <h3 className="font-bold mb-1">Current Bets:</h3>
-                {Object.entries(selectedBets).slice(0, 3).map(([key, amount]) => (
-                  <div key={key} className="flex justify-between">
-                    <span>{key.replace('-', ' ')}</span>
-                    <span>${amount.toFixed(2)}</span>
-                  </div>
-                ))}
-                {Object.keys(selectedBets).length > 3 && (
-                  <p className="text-gray-400">+{Object.keys(selectedBets).length - 3} more...</p>
-                )}
+              <div className="text-white text-xs bg-gray-700 rounded p-2">
+                <h3 className="font-bold mb-1">Current Bets ({Object.keys(selectedBets).length}):</h3>
+                <div className="max-h-16 overflow-y-auto space-y-1">
+                  {Object.entries(selectedBets).slice(0, 2).map(([key, amount]) => (
+                    <div key={key} className="flex justify-between">
+                      <span className="truncate">{key.replace('-', ' ')}</span>
+                      <span className="font-bold">${amount.toFixed(2)}</span>
+                    </div>
+                  ))}
+                  {Object.keys(selectedBets).length > 2 && (
+                    <p className="text-gray-400">+{Object.keys(selectedBets).length - 2} more bets...</p>
+                  )}
+                </div>
               </div>
             )}
           </div>
 
-          <div className="space-y-3">
+          {/* Action Buttons */}
+          <div className="grid grid-cols-2 gap-3">
             <Button
               onClick={handleSpin}
               disabled={isSpinning || playGameMutation.isPending}
-              className="w-full bg-casino-gold hover:bg-yellow-500 text-black font-bold h-12"
+              className="bg-casino-gold hover:bg-yellow-500 text-black font-bold h-12 sm:h-14 text-base touch-manipulation"
             >
               {isSpinning ? "Spinning..." : "SPIN"}
             </Button>
             
             <Button
               onClick={clearBets}
-              className="w-full bg-red-600 hover:bg-red-700 text-white font-bold h-10"
+              className="bg-red-600 hover:bg-red-700 text-white font-bold h-12 sm:h-14 touch-manipulation"
               disabled={isSpinning}
             >
-              Clear All Bets ({Object.keys(selectedBets).length})
+              Clear All ({Object.keys(selectedBets).length})
             </Button>
           </div>
         </div>
