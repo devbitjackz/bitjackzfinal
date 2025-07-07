@@ -204,32 +204,56 @@ export default function MinesGame() {
                 >
                   {selectedTiles.includes(i) ? (
                     minePositions.includes(i) ? (
-                      <div className="relative w-full h-full flex items-center justify-center bg-black rounded-lg">
-                        <div className="w-8 h-8 bg-black rounded-full relative">
-                          <div className="absolute top-1 left-1 w-6 h-6 bg-gray-800 rounded-full"></div>
-                          <div className="absolute top-0 right-0 w-3 h-1 bg-orange-500 rounded-full transform rotate-45"></div>
-                          <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-1 h-2 bg-yellow-400"></div>
-                        </div>
-                      </div>
+                      <svg className="w-8 h-8" viewBox="0 0 100 100" fill="none">
+                        {/* Bomb body */}
+                        <circle cx="50" cy="55" r="25" fill="#2d2d2d" stroke="#1a1a1a" strokeWidth="2"/>
+                        <circle cx="50" cy="55" r="20" fill="#1a1a1a"/>
+                        {/* Highlight */}
+                        <ellipse cx="45" cy="48" rx="8" ry="6" fill="#404040" opacity="0.8"/>
+                        {/* Fuse */}
+                        <rect x="48" y="25" width="4" height="15" fill="#8B4513" rx="2"/>
+                        {/* Spark */}
+                        <circle cx="50" cy="22" r="3" fill="#FFA500"/>
+                        <path d="M47 19 L50 16 L53 19" stroke="#FF4500" strokeWidth="2" strokeLinecap="round"/>
+                        <path d="M45 21 L48 18 L51 21" stroke="#FF6347" strokeWidth="1.5" strokeLinecap="round"/>
+                      </svg>
                     ) : (
-                      <div className="relative w-full h-full flex items-center justify-center">
-                        <div className="w-8 h-8 relative">
-                          {/* Diamond shape matching your reference */}
-                          <div className="absolute inset-0 bg-gradient-to-br from-blue-300 via-blue-400 to-blue-600 transform rotate-45 rounded-sm shadow-lg"></div>
-                          <div className="absolute top-1 left-1 w-6 h-6 bg-gradient-to-br from-cyan-200 via-blue-300 to-blue-400 transform rotate-45 rounded-sm"></div>
-                          <div className="absolute top-2 left-2 w-4 h-4 bg-gradient-to-br from-white via-cyan-100 to-blue-200 transform rotate-45 rounded-sm"></div>
-                          <div className="absolute top-2.5 left-2.5 w-3 h-3 bg-white transform rotate-45 rounded-sm opacity-80"></div>
-                        </div>
-                      </div>
+                      <svg className="w-8 h-8" viewBox="0 0 100 100" fill="none">
+                        {/* Diamond gem */}
+                        <path d="M50 15 L25 40 L50 85 L75 40 Z" fill="url(#gemGradient)" stroke="#1e40af" strokeWidth="2"/>
+                        <path d="M50 15 L35 35 L50 45 L65 35 Z" fill="url(#gemTopGradient)"/>
+                        <path d="M25 40 L50 45 L75 40 L50 85 Z" fill="url(#gemBottomGradient)"/>
+                        <defs>
+                          <linearGradient id="gemGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" stopColor="#60a5fa"/>
+                            <stop offset="50%" stopColor="#3b82f6"/>
+                            <stop offset="100%" stopColor="#1d4ed8"/>
+                          </linearGradient>
+                          <linearGradient id="gemTopGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" stopColor="#bfdbfe"/>
+                            <stop offset="100%" stopColor="#60a5fa"/>
+                          </linearGradient>
+                          <linearGradient id="gemBottomGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" stopColor="#3b82f6"/>
+                            <stop offset="100%" stopColor="#1e40af"/>
+                          </linearGradient>
+                        </defs>
+                      </svg>
                     )
                   ) : revealedMines.includes(i) ? (
-                    <div className="relative w-full h-full flex items-center justify-center bg-black rounded-lg">
-                      <div className="w-8 h-8 bg-black rounded-full relative">
-                        <div className="absolute top-1 left-1 w-6 h-6 bg-gray-800 rounded-full"></div>
-                        <div className="absolute top-0 right-0 w-3 h-1 bg-orange-500 rounded-full transform rotate-45"></div>
-                        <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-1 h-2 bg-yellow-400"></div>
-                      </div>
-                    </div>
+                    <svg className="w-8 h-8" viewBox="0 0 100 100" fill="none">
+                      {/* Bomb body */}
+                      <circle cx="50" cy="55" r="25" fill="#2d2d2d" stroke="#1a1a1a" strokeWidth="2"/>
+                      <circle cx="50" cy="55" r="20" fill="#1a1a1a"/>
+                      {/* Highlight */}
+                      <ellipse cx="45" cy="48" rx="8" ry="6" fill="#404040" opacity="0.8"/>
+                      {/* Fuse */}
+                      <rect x="48" y="25" width="4" height="15" fill="#8B4513" rx="2"/>
+                      {/* Spark */}
+                      <circle cx="50" cy="22" r="3" fill="#FFA500"/>
+                      <path d="M47 19 L50 16 L53 19" stroke="#FF4500" strokeWidth="2" strokeLinecap="round"/>
+                      <path d="M45 21 L48 18 L51 21" stroke="#FF6347" strokeWidth="1.5" strokeLinecap="round"/>
+                    </svg>
                   ) : null}
                 </button>
               ))}
