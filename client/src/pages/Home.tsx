@@ -245,44 +245,9 @@ export default function Home() {
           </div>
         </div>
 
-        {/* Hot Games Section */}
-        <div className="mb-8">
-          <div className="flex items-center mb-4">
-            <h2 className="text-2xl font-bold text-white">🔥 Hot Games</h2>
-            <div className="ml-3 bg-red-600 text-white text-xs px-2 py-1 rounded-full animate-pulse">
-              POPULAR
-            </div>
-          </div>
-          <div className="grid grid-cols-2 lg:grid-cols-3 gap-4">
-            {hotGames.map((game) => (
-              <GameTile key={game.id} game={game} />
-            ))}
-          </div>
-        </div>
-
-        {/* Degen Zone Section */}
-        <div className="mb-8">
-          <div className="flex items-center mb-4">
-            <h2 className="text-2xl font-bold text-white">⚡ Degen Zone</h2>
-            <div className="ml-3 bg-purple-600 text-white text-xs px-2 py-1 rounded-full">
-              HIGH RISK
-            </div>
-          </div>
-          <div className="grid grid-cols-2 lg:grid-cols-3 gap-4">
-            {degenGames.map((game) => (
-              <GameTile key={game.id} game={game} />
-            ))}
-          </div>
-        </div>
-
-        {/* BitJackz Originals Section */}
-        <div className="mb-8">
-          <div className="flex items-center mb-4">
-            <h2 className="text-2xl font-bold text-white">🎰 BitJackz Originals</h2>
-            <div className="ml-3 bg-casino-gold text-black text-xs px-2 py-1 rounded-full font-bold">
-              EXCLUSIVE
-            </div>
-          </div>
+        {/* All Games Section */}
+        <div className="mb-12">
+          <h2 className="text-2xl font-bold text-white mb-6">All Games</h2>
           <div className="grid grid-cols-2 lg:grid-cols-3 gap-4">
             {originalGames.map((game) => (
               <GameTile key={game.id} game={game} />
