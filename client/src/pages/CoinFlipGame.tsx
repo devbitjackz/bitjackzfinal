@@ -144,7 +144,7 @@ export default function CoinFlipGame() {
                 {isFlipping ? 'Flipping...' : 'Choose Your Side'}
               </div>
               <div className="text-gray-300">
-                {isFlipping ? 'The coin is spinning!' : '50% chance to double your bet'}
+                {isFlipping ? 'The coin is spinning!' : '50% chance to win 1.86x your bet'}
               </div>
             </div>
           </CardContent>

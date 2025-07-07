@@ -281,7 +281,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       const result = Math.random() < 0.5 ? "heads" : "tails";
       const won = result === gameData.choice;
-      const payout = won ? gameData.betAmount * 2 : 0;
+      // Apply 93% RTP to coin flip - 2x multiplier becomes 1.86x
+      const payout = won ? gameData.betAmount * 2 * 0.93 : 0;
       
       const newBalance = user.balance - gameData.betAmount + payout;
       await storage.updateUserBalance(userId, newBalance);
@@ -290,7 +291,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         userId,
         gameType: "coinflip",
         betAmount: gameData.betAmount,
-        multiplier: won ? 2 : 0,
+        multiplier: won ? 1.86 : 0,
         payout,
         result: won ? "win" : "loss",
       });
@@ -429,7 +430,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           // Calculate multiplier based on tiles revealed and mines
           const tilesRevealed = gameData.selectedTiles.length;
           const safeTiles = 25 - gameData.minesCount;
-          multiplier = Math.pow(safeTiles / (safeTiles - tilesRevealed + 1), tilesRevealed);
+          multiplier = Math.pow(safeTiles / (safeTiles - tilesRevealed + 1), tilesRevealed) * 0.93; // Apply 93% RTP
         }
       }
       
@@ -476,25 +477,25 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       if (gameData.betType === "number" && gameData.betValue === winningNumber) {
         won = true;
-        multiplier = 36;
+        multiplier = 36 * 0.93; // Apply 93% RTP
       } else if (gameData.betType === "red" && isRed(winningNumber)) {
         won = true;
-        multiplier = 2;
+        multiplier = 2 * 0.93; // Apply 93% RTP
       } else if (gameData.betType === "black" && isBlack(winningNumber)) {
         won = true;
-        multiplier = 2;
+        multiplier = 2 * 0.93; // Apply 93% RTP
       } else if (gameData.betType === "odd" && winningNumber % 2 === 1 && winningNumber !== 0) {
         won = true;
-        multiplier = 2;
+        multiplier = 2 * 0.93; // Apply 93% RTP
       } else if (gameData.betType === "even" && winningNumber % 2 === 0 && winningNumber !== 0) {
         won = true;
-        multiplier = 2;
+        multiplier = 2 * 0.93; // Apply 93% RTP
       } else if (gameData.betType === "high" && winningNumber >= 19 && winningNumber <= 36) {
         won = true;
-        multiplier = 2;
+        multiplier = 2 * 0.93; // Apply 93% RTP
       } else if (gameData.betType === "low" && winningNumber >= 1 && winningNumber <= 18) {
         won = true;
-        multiplier = 2;
+        multiplier = 2 * 0.93; // Apply 93% RTP
       }
       
       const payout = won ? gameData.betAmount * multiplier : 0;
