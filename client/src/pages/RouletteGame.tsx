@@ -40,6 +40,9 @@ export default function RouletteGame() {
   const [wheelRotation, setWheelRotation] = useState(0);
   const [animationFrame, setAnimationFrame] = useState<number | null>(null);
   const [isAnimationStopped, setIsAnimationStopped] = useState(false);
+  const [showWinAnimation, setShowWinAnimation] = useState(false);
+  const [showLossAnimation, setShowLossAnimation] = useState(false);
+  const [gameResult, setGameResult] = useState<RouletteResult | null>(null);
 
   const chipValues = [1, 2, 5, 10, 20, 50, 100];
 
@@ -89,6 +92,7 @@ export default function RouletteGame() {
           setIsAnimationStopped(true);
           setIsSpinning(false);
           setLastResult(data.winningNumber);
+          setGameResult(data);
           
           // Cancel any remaining animation frames
           if (animationFrame) {
@@ -96,12 +100,15 @@ export default function RouletteGame() {
             setAnimationFrame(null);
           }
           
+          // Trigger win/loss animations
           if (data.result === "win") {
+            setShowWinAnimation(true);
             toast({
               title: "Winner!",
               description: `Number ${data.winningNumber} - You won $${data.payout.toFixed(2)}!`,
             });
           } else {
+            setShowLossAnimation(true);
             toast({
               title: "Better luck next time!",
               description: `Number ${data.winningNumber} - Your bet didn't win this time`,
@@ -109,10 +116,13 @@ export default function RouletteGame() {
             });
           }
           
-          // Clear all bets after result is shown
+          // Clear animations after 3 seconds
           setTimeout(() => {
+            setShowWinAnimation(false);
+            setShowLossAnimation(false);
+            setGameResult(null);
             setSelectedBets({});
-          }, 3000); // Wait 3 seconds before clearing bets
+          }, 3000);
         }, 1500); // Wait for deceleration
       }, 2000); // Spin for 2 seconds
     },
@@ -768,6 +778,82 @@ export default function RouletteGame() {
             </Button>
           </div>
         </div>
+        
+        {/* Win/Loss Animation Overlay */}
+        {(showWinAnimation || showLossAnimation) && gameResult && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 pointer-events-none">
+            <div className={`text-center transform transition-all duration-500 ${
+              showWinAnimation ? 'animate-bounce' : 'animate-pulse'
+            }`}>
+              {showWinAnimation && (
+                <div className="space-y-4">
+                  <div className="text-6xl sm:text-8xl font-bold text-green-400 drop-shadow-lg animate-pulse">
+                    🎉 WINNER! 🎉
+                  </div>
+                  <div className="text-3xl sm:text-4xl font-bold text-white bg-green-600 rounded-lg px-6 py-3 shadow-2xl">
+                    Number {gameResult.winningNumber}
+                  </div>
+                  <div className="text-2xl sm:text-3xl font-bold text-yellow-400 animate-bounce">
+                    +${gameResult.payout.toFixed(2)}
+                  </div>
+                  <div className="text-lg sm:text-xl text-white">
+                    Multiplier: {gameResult.multiplier}x
+                  </div>
+                </div>
+              )}
+              
+              {showLossAnimation && (
+                <div className="space-y-4">
+                  <div className="text-6xl sm:text-8xl font-bold text-red-400 drop-shadow-lg animate-pulse">
+                    💔 UNLUCKY 💔
+                  </div>
+                  <div className="text-3xl sm:text-4xl font-bold text-white bg-red-600 rounded-lg px-6 py-3 shadow-2xl">
+                    Number {gameResult.winningNumber}
+                  </div>
+                  <div className="text-xl sm:text-2xl text-gray-300">
+                    Better luck next time!
+                  </div>
+                </div>
+              )}
+            </div>
+            
+            {/* Animated confetti for wins */}
+            {showWinAnimation && (
+              <div className="absolute inset-0 pointer-events-none">
+                {Array.from({ length: 50 }, (_, i) => (
+                  <div
+                    key={i}
+                    className="absolute w-2 h-2 bg-yellow-400 rounded-full animate-ping"
+                    style={{
+                      left: `${Math.random() * 100}%`,
+                      top: `${Math.random() * 100}%`,
+                      animationDelay: `${Math.random() * 2}s`,
+                      animationDuration: `${1 + Math.random()}s`
+                    }}
+                  />
+                ))}
+              </div>
+            )}
+            
+            {/* Red particles for losses */}
+            {showLossAnimation && (
+              <div className="absolute inset-0 pointer-events-none">
+                {Array.from({ length: 20 }, (_, i) => (
+                  <div
+                    key={i}
+                    className="absolute w-1 h-8 bg-red-500 opacity-70"
+                    style={{
+                      left: `${Math.random() * 100}%`,
+                      top: `${Math.random() * 100}%`,
+                      transform: `rotate(${Math.random() * 360}deg)`,
+                      animation: `fadeInOut 2s ease-in-out infinite`
+                    }}
+                  />
+                ))}
+              </div>
+            )}
+          </div>
+        )}
       </div>
     </div>
   );
