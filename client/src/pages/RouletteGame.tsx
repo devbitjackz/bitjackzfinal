@@ -62,13 +62,17 @@ export default function RouletteGame() {
         if (winningIndex !== -1) {
           // Calculate exact position to center the winning number under the indicator
           const tileWidth = 64;
-          const containerCenter = 400; // Center of visible area
+          const containerCenter = 400; // Center of visible area (half of 800px)
           
-          // Ensure we have enough repetitions and stop at a visible position
-          const currentCycle = Math.floor(wheelRotation / (rouletteNumbers.length * tileWidth));
-          const targetCycle = currentCycle + 2; // Add at least 2 more full cycles
-          const adjustedIndex = winningIndex + (targetCycle * rouletteNumbers.length);
-          const targetPosition = (adjustedIndex * tileWidth) - containerCenter + (tileWidth / 2);
+          // Calculate how many complete cycles we've spun
+          const cycleLength = rouletteNumbers.length * tileWidth;
+          const currentCycle = Math.floor(wheelRotation / cycleLength);
+          
+          // Add 3 more full cycles for dramatic effect, then stop at winning number
+          const targetCycle = currentCycle + 3;
+          const basePosition = targetCycle * cycleLength;
+          const winningPosition = winningIndex * tileWidth;
+          const targetPosition = basePosition + winningPosition - containerCenter + (tileWidth / 2);
           
           // Stop the spinning animation and move to target
           stopSpinningAnimation(targetPosition);
@@ -120,9 +124,15 @@ export default function RouletteGame() {
   };
 
   const startSpinningAnimation = () => {
-    let spinSpeed = 8; // pixels per frame
+    let spinSpeed = 12; // pixels per frame for faster spinning
     const spin = () => {
-      setWheelRotation(prev => prev + spinSpeed);
+      setWheelRotation(prev => {
+        const newPos = prev + spinSpeed;
+        // Keep position within reasonable bounds to prevent overflow
+        const tileWidth = 64;
+        const cycleLength = rouletteNumbers.length * tileWidth;
+        return newPos % (cycleLength * 10); // Reset every 10 cycles
+      });
       const frame = requestAnimationFrame(spin);
       setAnimationFrame(frame);
     };
@@ -139,9 +149,9 @@ export default function RouletteGame() {
     let currentPos = wheelRotation;
     const decelerate = () => {
       const distance = targetPosition - currentPos;
-      const speed = Math.max(Math.abs(distance) * 0.08, 0.5);
+      const speed = Math.max(Math.abs(distance) * 0.1, 1);
       
-      if (Math.abs(distance) < 1) {
+      if (Math.abs(distance) < 2) {
         setWheelRotation(targetPosition);
         return;
       }
@@ -246,7 +256,7 @@ export default function RouletteGame() {
               }}
             >
               {/* Create extended sequence for smooth infinite scrolling */}
-              {Array.from({ length: 20 }, (_, repetition) => 
+              {Array.from({ length: 50 }, (_, repetition) => 
                 rouletteNumbers.map((item, index) => (
                   <div
                     key={`${repetition}-${index}`}
