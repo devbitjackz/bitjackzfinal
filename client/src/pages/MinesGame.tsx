@@ -198,30 +198,24 @@ export default function MinesGame() {
                 >
                   {selectedTiles.includes(i) ? (
                     minePositions.includes(i) ? (
-                      <div className="w-12 h-12 flex items-center justify-center">
-                        <div className="w-10 h-10 bg-gray-900 rounded-full border-2 border-red-600 flex items-center justify-center relative">
-                          <div className="w-6 h-6 bg-black rounded-full"></div>
-                          <div className="absolute -top-2 left-1/2 transform -translate-x-1/2 w-1 h-3 bg-orange-400 rounded-full"></div>
-                          <div className="absolute -top-3 left-1/2 transform -translate-x-1/2 w-2 h-2 bg-orange-500 rounded-full animate-pulse"></div>
-                        </div>
-                      </div>
+                      <img 
+                        src="/attached_assets/image_1751887905678.png" 
+                        alt="Bomb" 
+                        className="w-12 h-12 object-contain"
+                      />
                     ) : (
-                      <div className="w-12 h-12 flex items-center justify-center">
-                        <div className="w-8 h-8 bg-gradient-to-br from-blue-400 via-blue-500 to-blue-700 transform rotate-45 relative">
-                          <div className="absolute inset-1 bg-gradient-to-br from-cyan-200 via-blue-300 to-blue-500 transform -rotate-45 rounded-sm"></div>
-                          <div className="absolute inset-2 bg-gradient-to-br from-white via-cyan-100 to-blue-300 transform -rotate-45 rounded-sm"></div>
-                          <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-2 h-2 bg-white rounded-full opacity-80"></div>
-                        </div>
-                      </div>
+                      <img 
+                        src="/attached_assets/image_1751887916323.png" 
+                        alt="Gem" 
+                        className="w-12 h-12 object-contain"
+                      />
                     )
                   ) : revealedMines.includes(i) ? (
-                    <div className="w-12 h-12 flex items-center justify-center">
-                      <div className="w-10 h-10 bg-gray-900 rounded-full border-2 border-red-600 flex items-center justify-center relative">
-                        <div className="w-6 h-6 bg-black rounded-full"></div>
-                        <div className="absolute -top-2 left-1/2 transform -translate-x-1/2 w-1 h-3 bg-orange-400 rounded-full"></div>
-                        <div className="absolute -top-3 left-1/2 transform -translate-x-1/2 w-2 h-2 bg-orange-500 rounded-full animate-pulse"></div>
-                      </div>
-                    </div>
+                    <img 
+                      src="/attached_assets/image_1751887905678.png" 
+                      alt="Bomb" 
+                      className="w-12 h-12 object-contain"
+                    />
                   ) : null}
                 </button>
               ))}
