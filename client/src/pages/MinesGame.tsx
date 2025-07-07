@@ -135,7 +135,7 @@ export default function MinesGame() {
 
         {/* Game Display */}
         <Card className="casino-bg-blue border-casino-gold/20 mb-6">
-          <CardContent className="p-8">
+          <CardContent className="p-4 sm:p-6 md:p-8">
             <div className="text-center mb-8">
               <div className="text-4xl font-bold casino-gold mb-2">
                 {gameActive ? `${currentMultiplier.toFixed(2)}x` : "MINES"}
@@ -151,14 +151,14 @@ export default function MinesGame() {
             </div>
             
             {/* Mines Grid */}
-            <div className="grid grid-cols-5 gap-3 mb-6 mx-auto max-w-lg">
+            <div className="grid grid-cols-5 gap-1 mb-6 mx-auto max-w-3xl">
               {Array.from({ length: 25 }, (_, i) => (
                 <button
                   key={i}
                   data-tile={i}
                   onClick={() => handleTileClick(i)}
                   disabled={!gameActive || selectedTiles.includes(i)}
-                  className={`aspect-square rounded-xl border-2 transition-all duration-300 flex items-center justify-center text-3xl font-bold transform hover:scale-105 shadow-lg ${
+                  className={`aspect-square rounded-lg border-2 transition-all duration-300 flex items-center justify-center text-4xl font-bold transform hover:scale-105 shadow-lg min-h-16 sm:min-h-20 md:min-h-24 ${
                     selectedTiles.includes(i)
                       ? revealedMines.includes(i)
                         ? "bg-red-500 border-red-400 animate-pulse"
@@ -172,12 +172,12 @@ export default function MinesGame() {
                 >
                   {selectedTiles.includes(i) ? (
                     revealedMines.includes(i) ? (
-                      <Bomb className="text-white" size={24} />
+                      <Bomb className="text-white" size={32} />
                     ) : (
-                      <Gem className="text-white" size={24} />
+                      <Gem className="text-white" size={32} />
                     )
                   ) : revealedMines.includes(i) ? (
-                    <Bomb className="text-white" size={24} />
+                    <Bomb className="text-white" size={32} />
                   ) : null}
                 </button>
               ))}
