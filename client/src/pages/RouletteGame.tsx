@@ -1,11 +1,10 @@
 import { useState } from "react";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { useLocation } from "wouter";
-import { ArrowLeft, RotateCcw } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Card, CardContent } from "@/components/ui/card";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 
@@ -17,14 +16,27 @@ interface RouletteResult {
   newBalance: number;
 }
 
+const rouletteNumbers = [
+  { number: 0, color: 'green' },
+  { number: 32, color: 'red' }, { number: 15, color: 'black' }, { number: 19, color: 'red' }, { number: 4, color: 'black' },
+  { number: 21, color: 'red' }, { number: 2, color: 'black' }, { number: 25, color: 'red' }, { number: 17, color: 'black' },
+  { number: 34, color: 'red' }, { number: 6, color: 'black' }, { number: 27, color: 'red' }, { number: 13, color: 'black' },
+  { number: 36, color: 'red' }, { number: 11, color: 'black' }, { number: 30, color: 'red' }, { number: 8, color: 'black' },
+  { number: 23, color: 'red' }, { number: 10, color: 'black' }, { number: 5, color: 'red' }, { number: 24, color: 'black' },
+  { number: 16, color: 'red' }, { number: 33, color: 'black' }, { number: 1, color: 'red' }, { number: 20, color: 'black' },
+  { number: 14, color: 'red' }, { number: 31, color: 'black' }, { number: 9, color: 'red' }, { number: 22, color: 'black' },
+  { number: 18, color: 'red' }, { number: 29, color: 'black' }, { number: 7, color: 'red' }, { number: 28, color: 'black' },
+  { number: 12, color: 'red' }, { number: 35, color: 'black' }, { number: 3, color: 'red' }, { number: 26, color: 'black' }
+];
+
 export default function RouletteGame() {
   const [, setLocation] = useLocation();
   const { toast } = useToast();
   const [betAmount, setBetAmount] = useState("10.00");
-  const [selectedBet, setSelectedBet] = useState<{
-    type: "number" | "red" | "black" | "odd" | "even" | "high" | "low";
-    value?: number;
-  } | null>(null);
+  const [selectedBets, setSelectedBets] = useState<{[key: string]: number}>({});
+  const [isSpinning, setIsSpinning] = useState(false);
+  const [lastResult, setLastResult] = useState<number | null>(null);
+  const [wheelRotation, setWheelRotation] = useState(0);
 
   const { data: balance } = useQuery<{ balance: number }>({
     queryKey: ["/api/balance"],
@@ -39,10 +51,13 @@ export default function RouletteGame() {
       queryClient.invalidateQueries({ queryKey: ["/api/balance"] });
       queryClient.invalidateQueries({ queryKey: ["/api/games/recent"] });
       
+      setLastResult(data.winningNumber);
+      setIsSpinning(false);
+      
       if (data.result === "win") {
         toast({
           title: "Winner!",
-          description: `Number ${data.winningNumber} - You won $${data.payout.toFixed(2)} with ${data.multiplier}x!`,
+          description: `Number ${data.winningNumber} - You won $${data.payout.toFixed(2)}!`,
         });
       } else {
         toast({
@@ -53,6 +68,7 @@ export default function RouletteGame() {
       }
     },
     onError: () => {
+      setIsSpinning(false);
       toast({
         title: "Error",
         description: "Failed to process game",
@@ -61,243 +77,256 @@ export default function RouletteGame() {
     },
   });
 
-  const handleBetSelection = (type: "number" | "red" | "black" | "odd" | "even" | "high" | "low", value?: number) => {
-    setSelectedBet({ type, value });
-  };
-
-  const handlePlay = () => {
-    if (!selectedBet) {
-      toast({
-        title: "No bet selected",
-        description: "Please select a bet first",
-        variant: "destructive",
-      });
-      return;
-    }
-
+  const addBet = (betType: string, betValue?: number) => {
     const bet = parseFloat(betAmount);
-    
-    if (bet <= 0) {
+    if (bet <= 0) return;
+
+    const key = betValue !== undefined ? `${betType}-${betValue}` : betType;
+    setSelectedBets(prev => ({
+      ...prev,
+      [key]: (prev[key] || 0) + bet
+    }));
+  };
+
+  const clearBets = () => {
+    setSelectedBets({});
+  };
+
+  const handleSpin = () => {
+    if (Object.keys(selectedBets).length === 0) {
       toast({
-        title: "Invalid Bet",
-        description: "Please enter a valid bet amount",
+        title: "No bets placed",
+        description: "Please place at least one bet before spinning",
         variant: "destructive",
       });
       return;
     }
 
-    playGameMutation.mutate({ 
-      betAmount: bet, 
-      betType: selectedBet.type, 
-      betValue: selectedBet.value 
-    });
+    setIsSpinning(true);
+    
+    // Animate wheel spin
+    const spins = 5 + Math.random() * 5; // 5-10 full rotations
+    const finalRotation = wheelRotation + (spins * 360);
+    setWheelRotation(finalRotation);
+
+    // Pick the first bet for now (simplified)
+    const firstBetKey = Object.keys(selectedBets)[0];
+    const [betType, betValue] = firstBetKey.split('-');
+    
+    setTimeout(() => {
+      playGameMutation.mutate({
+        betAmount: selectedBets[firstBetKey],
+        betType,
+        betValue: betValue ? parseInt(betValue) : undefined
+      });
+    }, 3000);
   };
 
-  const redNumbers = [1, 3, 5, 7, 9, 12, 14, 16, 18, 19, 21, 23, 25, 27, 30, 32, 34, 36];
-  const blackNumbers = [2, 4, 6, 8, 10, 11, 13, 15, 17, 20, 22, 24, 26, 28, 29, 31, 33, 35];
-
-  const getMultiplier = () => {
-    if (!selectedBet) return 0;
-    switch (selectedBet.type) {
-      case "number":
-        return 36;
-      case "red":
-      case "black":
-      case "odd":
-      case "even":
-      case "high":
-      case "low":
-        return 2;
-      default:
-        return 0;
-    }
+  const getTotalBets = () => {
+    return Object.values(selectedBets).reduce((sum, bet) => sum + bet, 0);
   };
 
-  const potentialPayout = (parseFloat(betAmount) * getMultiplier()).toFixed(2);
+  const getNumberColor = (num: number) => {
+    if (num === 0) return 'green';
+    const redNumbers = [1, 3, 5, 7, 9, 12, 14, 16, 18, 19, 21, 23, 25, 27, 30, 32, 34, 36];
+    return redNumbers.includes(num) ? 'red' : 'black';
+  };
 
   return (
     <div className="pt-24 pb-8 px-4 sm:px-6 lg:px-8 min-h-screen">
-      <div className="max-w-4xl mx-auto">
+      <div className="max-w-6xl mx-auto">
         <div className="flex items-center justify-between mb-6">
           <Button
             variant="ghost"
             onClick={() => setLocation("/")}
-            className="casino-gold hover:text-white"
+            className="text-white hover:text-casino-gold"
           >
-            <ArrowLeft className="mr-2" size={16} />
-            Back to Games
+            <ArrowLeft className="mr-2 h-4 w-4" />
+            Back to Home
           </Button>
-          <h2 className="text-3xl font-bold casino-gold">ROULETTE</h2>
-          <div className="text-sm text-gray-400">78 players online</div>
+          <div className="text-white text-lg">
+            Balance: ${balance?.balance?.toFixed(2) || "0.00"}
+          </div>
         </div>
 
-        {/* Game Display */}
-        <Card className="casino-bg-blue border-casino-gold/20 mb-6">
-          <CardContent className="p-8">
-            <div className="text-center mb-8">
-              <div className="w-32 h-32 mx-auto mb-6 bg-casino-gold/20 rounded-full flex items-center justify-center text-6xl casino-gold">
-                <RotateCcw className="animate-spin" size={64} />
-              </div>
-              <div className="text-2xl font-bold casino-gold mb-2">European Roulette</div>
-              <div className="text-gray-300">Place your bets on numbers or colors</div>
-            </div>
-            
-            {selectedBet && (
-              <div className="text-center">
-                <div className="text-xl font-bold casino-gold mb-2">
-                  Selected: {selectedBet.type === "number" ? `Number ${selectedBet.value}` : selectedBet.type.toUpperCase()}
-                </div>
-                <div className="text-lg text-gray-300">
-                  Potential payout: ${potentialPayout} ({getMultiplier()}x)
-                </div>
-              </div>
-            )}
-          </CardContent>
-        </Card>
+        <div className="text-center mb-8">
+          <h1 className="text-4xl font-bold text-white mb-2">Roulette</h1>
+          <p className="text-gray-400">Place your bets and spin the wheel!</p>
+        </div>
 
-        {/* Betting Grid */}
-        <Card className="casino-bg-blue/50 border-casino-gold/20 mb-6">
-          <CardContent className="p-6">
-            <div className="grid grid-cols-13 gap-1 mb-6">
-              {/* Zero */}
-              <button
-                onClick={() => handleBetSelection("number", 0)}
-                className={`col-span-1 aspect-square bg-green-600 hover:bg-green-700 rounded flex items-center justify-center text-white font-bold ${
-                  selectedBet?.type === "number" && selectedBet?.value === 0 ? "ring-2 ring-casino-gold" : ""
-                }`}
-              >
-                0
-              </button>
-              
-              {/* Numbers 1-36 */}
-              {Array.from({ length: 36 }, (_, i) => {
-                const number = i + 1;
-                const isRed = redNumbers.includes(number);
-                const isBlack = blackNumbers.includes(number);
+        {/* Roulette Wheel */}
+        <div className="flex justify-center mb-8">
+          <div className="relative">
+            <div 
+              className="w-80 h-80 rounded-full border-8 border-yellow-500 relative overflow-hidden transition-transform duration-3000 ease-out"
+              style={{ transform: `rotate(${wheelRotation}deg)` }}
+            >
+              {/* Wheel segments */}
+              {rouletteNumbers.map((item, index) => {
+                const angle = (360 / rouletteNumbers.length) * index;
+                const nextAngle = (360 / rouletteNumbers.length) * (index + 1);
                 
                 return (
-                  <button
-                    key={number}
-                    onClick={() => handleBetSelection("number", number)}
-                    className={`aspect-square rounded flex items-center justify-center text-white font-bold ${
-                      isRed ? "bg-red-600 hover:bg-red-700" : "bg-black hover:bg-gray-900"
-                    } ${
-                      selectedBet?.type === "number" && selectedBet?.value === number ? "ring-2 ring-casino-gold" : ""
+                  <div
+                    key={index}
+                    className={`absolute inset-0 ${
+                      item.color === 'red' ? 'bg-red-600' : 
+                      item.color === 'black' ? 'bg-gray-900' : 'bg-green-600'
                     }`}
+                    style={{
+                      clipPath: `polygon(50% 50%, ${50 + 40 * Math.cos((angle - 90) * Math.PI / 180)}% ${50 + 40 * Math.sin((angle - 90) * Math.PI / 180)}%, ${50 + 40 * Math.cos((nextAngle - 90) * Math.PI / 180)}% ${50 + 40 * Math.sin((nextAngle - 90) * Math.PI / 180)}%)`
+                    }}
                   >
-                    {number}
-                  </button>
+                    <div 
+                      className="absolute text-white font-bold text-sm"
+                      style={{
+                        top: `${50 + 25 * Math.sin((angle + 5) * Math.PI / 180)}%`,
+                        left: `${50 + 25 * Math.cos((angle + 5) * Math.PI / 180)}%`,
+                        transform: `translate(-50%, -50%) rotate(${angle + 5}deg)`
+                      }}
+                    >
+                      {item.number}
+                    </div>
+                  </div>
                 );
               })}
+              
+              {/* Center circle */}
+              <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-16 h-16 bg-yellow-500 rounded-full flex items-center justify-center">
+                <div className="w-8 h-8 bg-gray-900 rounded-full"></div>
+              </div>
             </div>
             
-            {/* Outside Bets */}
-            <div className="grid grid-cols-2 md:grid-cols-6 gap-2">
-              <Button
-                onClick={() => handleBetSelection("red")}
-                className={`bg-red-600 hover:bg-red-700 text-white ${
-                  selectedBet?.type === "red" ? "ring-2 ring-casino-gold" : ""
-                }`}
-              >
-                Red
-              </Button>
-              <Button
-                onClick={() => handleBetSelection("black")}
-                className={`bg-black hover:bg-gray-900 text-white ${
-                  selectedBet?.type === "black" ? "ring-2 ring-casino-gold" : ""
-                }`}
-              >
-                Black
-              </Button>
-              <Button
-                onClick={() => handleBetSelection("odd")}
-                className={`bg-casino-purple hover:bg-casino-purple/90 text-white ${
-                  selectedBet?.type === "odd" ? "ring-2 ring-casino-gold" : ""
-                }`}
-              >
-                Odd
-              </Button>
-              <Button
-                onClick={() => handleBetSelection("even")}
-                className={`bg-casino-purple hover:bg-casino-purple/90 text-white ${
-                  selectedBet?.type === "even" ? "ring-2 ring-casino-gold" : ""
-                }`}
-              >
-                Even
-              </Button>
-              <Button
-                onClick={() => handleBetSelection("low")}
-                className={`bg-casino-cyan hover:bg-casino-cyan/90 text-white ${
-                  selectedBet?.type === "low" ? "ring-2 ring-casino-gold" : ""
-                }`}
-              >
-                1-18
-              </Button>
-              <Button
-                onClick={() => handleBetSelection("high")}
-                className={`bg-casino-cyan hover:bg-casino-cyan/90 text-white ${
-                  selectedBet?.type === "high" ? "ring-2 ring-casino-gold" : ""
-                }`}
-              >
-                19-36
-              </Button>
+            {/* Pointer */}
+            <div className="absolute top-0 left-1/2 transform -translate-x-1/2 -translate-y-2">
+              <div className="w-0 h-0 border-l-4 border-r-4 border-b-8 border-l-transparent border-r-transparent border-b-yellow-500"></div>
             </div>
-          </CardContent>
-        </Card>
+          </div>
+        </div>
+
+        {/* Betting Layout */}
+        <div className="bg-gray-800 rounded-lg p-6 mb-6">
+          {/* Numbers Grid */}
+          <div className="grid grid-cols-13 gap-1 mb-4">
+            {/* Zero */}
+            <button
+              onClick={() => addBet("number", 0)}
+              className="col-span-1 bg-green-600 hover:bg-green-700 text-white p-3 rounded font-bold"
+            >
+              0
+            </button>
+            
+            {/* Numbers 1-36 */}
+            {Array.from({ length: 36 }, (_, i) => i + 1).map((num) => {
+              const color = getNumberColor(num);
+              return (
+                <button
+                  key={num}
+                  onClick={() => addBet("number", num)}
+                  className={`${
+                    color === 'red' ? 'bg-red-600 hover:bg-red-700' : 'bg-gray-900 hover:bg-gray-800'
+                  } text-white p-3 rounded font-bold`}
+                >
+                  {num}
+                </button>
+              );
+            })}
+          </div>
+
+          {/* Outside Bets */}
+          <div className="grid grid-cols-6 gap-2">
+            <button
+              onClick={() => addBet("low")}
+              className="bg-gray-700 hover:bg-gray-600 text-white p-3 rounded font-bold"
+            >
+              1 to 18
+            </button>
+            <button
+              onClick={() => addBet("even")}
+              className="bg-gray-700 hover:bg-gray-600 text-white p-3 rounded font-bold"
+            >
+              Even
+            </button>
+            <button
+              onClick={() => addBet("red")}
+              className="bg-red-600 hover:bg-red-700 text-white p-3 rounded font-bold"
+            >
+              Red
+            </button>
+            <button
+              onClick={() => addBet("black")}
+              className="bg-gray-900 hover:bg-gray-800 text-white p-3 rounded font-bold"
+            >
+              Black
+            </button>
+            <button
+              onClick={() => addBet("odd")}
+              className="bg-gray-700 hover:bg-gray-600 text-white p-3 rounded font-bold"
+            >
+              Odd
+            </button>
+            <button
+              onClick={() => addBet("high")}
+              className="bg-gray-700 hover:bg-gray-600 text-white p-3 rounded font-bold"
+            >
+              19 to 36
+            </button>
+          </div>
+        </div>
 
         {/* Betting Controls */}
-        <Card className="casino-bg-blue/50 border-casino-gold/20 mb-6">
-          <CardContent className="p-6">
-            <div className="mb-6">
-              <Label className="text-sm font-medium mb-2 block">Bet Amount</Label>
-              <div className="relative">
-                <span className="absolute left-3 top-1/2 transform -translate-y-1/2 casino-gold">$</span>
-                <Input
-                  type="number"
-                  value={betAmount}
-                  onChange={(e) => setBetAmount(e.target.value)}
-                  className="pl-8 casino-bg border-casino-gold/20 text-white"
-                  placeholder="0.00"
-                />
-              </div>
-              <div className="flex space-x-2 mt-2">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setBetAmount((parseFloat(betAmount) / 2).toFixed(2))}
-                  className="flex-1 bg-casino-gold/20 border-casino-gold/20 casino-gold hover:bg-casino-gold/30"
-                >
-                  1/2
-                </Button>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setBetAmount((parseFloat(betAmount) * 2).toFixed(2))}
-                  className="flex-1 bg-casino-gold/20 border-casino-gold/20 casino-gold hover:bg-casino-gold/30"
-                >
-                  2x
-                </Button>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setBetAmount((balance?.balance || 0).toFixed(2))}
-                  className="flex-1 bg-casino-gold/20 border-casino-gold/20 casino-gold hover:bg-casino-gold/30"
-                >
-                  Max
-                </Button>
-              </div>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="space-y-4">
+            <div>
+              <Label htmlFor="betAmount" className="text-white">Bet Amount</Label>
+              <Input
+                id="betAmount"
+                type="number"
+                step="0.01"
+                min="0.01"
+                value={betAmount}
+                onChange={(e) => setBetAmount(e.target.value)}
+                className="bg-gray-700 border-gray-600 text-white"
+                placeholder="Enter bet amount"
+              />
             </div>
-          </CardContent>
-        </Card>
+            
+            <div className="text-white">
+              <p>Total Bets: ${getTotalBets().toFixed(2)}</p>
+              {lastResult !== null && (
+                <p className="mt-2">Last Result: <span className={`font-bold ${getNumberColor(lastResult) === 'red' ? 'text-red-500' : getNumberColor(lastResult) === 'green' ? 'text-green-500' : 'text-white'}`}>{lastResult}</span></p>
+              )}
+            </div>
+          </div>
 
-        {/* Play Button */}
-        <Button
-          onClick={handlePlay}
-          disabled={!selectedBet || playGameMutation.isPending}
-          className="w-full bg-casino-gold hover:bg-casino-gold/90 text-casino-navy py-6 text-lg font-bold mb-8"
-        >
-          {playGameMutation.isPending ? "Spinning..." : "Spin Wheel"}
-        </Button>
+          <div className="space-y-4">
+            <Button
+              onClick={handleSpin}
+              disabled={isSpinning || playGameMutation.isPending}
+              className="w-full bg-casino-gold hover:bg-yellow-500 text-black font-bold py-3"
+            >
+              {isSpinning ? "Spinning..." : "SPIN"}
+            </Button>
+            
+            <Button
+              onClick={clearBets}
+              variant="outline"
+              className="w-full border-gray-600 text-white hover:bg-gray-700"
+            >
+              Clear Bets
+            </Button>
+          </div>
+
+          <div className="space-y-2 text-white text-sm">
+            <h3 className="font-bold">Current Bets:</h3>
+            {Object.entries(selectedBets).map(([key, amount]) => (
+              <div key={key} className="flex justify-between">
+                <span>{key.replace('-', ' ')}</span>
+                <span>${amount.toFixed(2)}</span>
+              </div>
+            ))}
+          </div>
+        </div>
       </div>
     </div>
   );
