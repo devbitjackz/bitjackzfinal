@@ -317,27 +317,33 @@ export default function CrashGame() {
                         </linearGradient>
                       </defs>
                       
-                      {/* Rocket exhaust trail - ending at rocket position */}
+                      {/* Curved Rocket exhaust trail - smooth parabolic trajectory */}
                       <path
-                        d={`M 30 190 Q ${Math.min(300, 30 + (gameStatus.currentMultiplier - 1) * 80)} ${Math.max(50, 190 - (gameStatus.currentMultiplier - 1) * 40)} ${Math.min(360, 30 + (gameStatus.currentMultiplier - 1) * 100)} ${Math.max(20, 190 - (gameStatus.currentMultiplier - 1) * 50)}`}
+                        d={`M 30 190 Q ${Math.min(300, 30 + (gameStatus.currentMultiplier - 1) * 90)} ${Math.max(50, 190 - (gameStatus.currentMultiplier - 1) * 70)} ${Math.min(450, 30 + (gameStatus.currentMultiplier - 1) * 140)} ${Math.max(10, 190 - (gameStatus.currentMultiplier - 1) * 90)}`}
                         stroke="url(#graphGradient)"
                         strokeWidth="4"
                         fill="none"
                         className="transition-all duration-50 ease-out"
                       />
                       
-
-                      
+                      {/* Curved fill area under trajectory */}
+                      <path
+                        d={`M 30 190 Q ${Math.min(300, 30 + (gameStatus.currentMultiplier - 1) * 90)} ${Math.max(50, 190 - (gameStatus.currentMultiplier - 1) * 70)} ${Math.min(450, 30 + (gameStatus.currentMultiplier - 1) * 140)} ${Math.max(10, 190 - (gameStatus.currentMultiplier - 1) * 90)} L ${Math.min(450, 30 + (gameStatus.currentMultiplier - 1) * 140)} 190 L 30 190 Z`}
+                        fill="url(#graphFill)"
+                        className="transition-all duration-50 ease-out"
+                      />
 
                     </svg>
                     
-                    {/* Rocket - Faster movement and bigger scaling */}
+                    {/* Rocket - Following curved trajectory */}
                     <div 
                       className="absolute z-10 transition-all duration-50 ease-out"
                       style={{
-                        left: `${Math.min(90, 5 + (gameStatus.currentMultiplier - 1) * 25)}%`,
-                        bottom: `${Math.min(85, 10 + (gameStatus.currentMultiplier - 1) * 25)}%`,
-                        transform: `rotate(${Math.min(45, (gameStatus.currentMultiplier - 1) * 8)}deg) scale(${1 + (gameStatus.currentMultiplier - 1) * 0.2})`
+                        // Curved trajectory calculation - matching the parabolic path
+                        left: `${Math.min(80, 5 + (gameStatus.currentMultiplier - 1) * 20)}%`,
+                        bottom: `${Math.min(85, 10 + (gameStatus.currentMultiplier - 1) * 30)}%`,
+                        // Dynamic rotation based on curve slope
+                        transform: `rotate(${Math.min(50, 10 + (gameStatus.currentMultiplier - 1) * 10)}deg) scale(${1 + (gameStatus.currentMultiplier - 1) * 0.3})`
                       }}
                     >
                       <div className="text-6xl filter drop-shadow-lg">🚀</div>
