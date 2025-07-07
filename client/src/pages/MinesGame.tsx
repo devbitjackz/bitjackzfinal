@@ -26,6 +26,7 @@ export default function MinesGame() {
   const [selectedTiles, setSelectedTiles] = useState<number[]>([]);
   const [gameActive, setGameActive] = useState(false);
   const [revealedMines, setRevealedMines] = useState<number[]>([]);
+  const [minePositions, setMinePositions] = useState<number[]>([]);
 
   const { data: balance } = useQuery<{ balance: number }>({
     queryKey: ["/api/balance"],
@@ -40,7 +41,10 @@ export default function MinesGame() {
       queryClient.invalidateQueries({ queryKey: ["/api/balance"] });
       queryClient.invalidateQueries({ queryKey: ["/api/games/recent"] });
       
-      setRevealedMines(data.minePositions);
+      // Only reveal all mines if the game ended (hit a mine or cashed out)
+      if (data.result === "loss") {
+        setRevealedMines(data.minePositions);
+      }
       setGameActive(false);
       
       if (data.result === "win") {
@@ -72,6 +76,24 @@ export default function MinesGame() {
     const newSelectedTiles = [...selectedTiles, tileIndex];
     setSelectedTiles(newSelectedTiles);
     
+    // Check if this tile is a mine
+    if (minePositions.includes(tileIndex)) {
+      // Hit a mine - end game immediately
+      setRevealedMines(minePositions);
+      setGameActive(false);
+      toast({
+        title: "BOOM!",
+        description: "You hit a mine! Better luck next time.",
+        variant: "destructive",
+      });
+      
+      // Update balance on backend
+      const bet = parseFloat(betAmount);
+      const mines = parseInt(minesCount);
+      playGameMutation.mutate({ betAmount: bet, minesCount: mines, selectedTiles: newSelectedTiles });
+      return;
+    }
+    
     // Add tile opening animation
     const tile = document.querySelector(`[data-tile="${tileIndex}"]`);
     if (tile) {
@@ -95,6 +117,14 @@ export default function MinesGame() {
       });
       return;
     }
+
+    // Generate mine positions on client side for immediate feedback
+    const newMinePositions = [];
+    const shuffledPositions = Array.from({ length: 25 }, (_, i) => i).sort(() => Math.random() - 0.5);
+    for (let i = 0; i < mines; i++) {
+      newMinePositions.push(shuffledPositions[i]);
+    }
+    setMinePositions(newMinePositions);
 
     setGameActive(true);
     setSelectedTiles([]);
@@ -174,7 +204,7 @@ export default function MinesGame() {
                   }`}
                 >
                   {selectedTiles.includes(i) ? (
-                    revealedMines.includes(i) ? (
+                    minePositions.includes(i) ? (
                       <div className="relative w-full h-full flex items-center justify-center bg-black rounded-lg">
                         <div className="w-8 h-8 bg-black rounded-full relative">
                           <div className="absolute top-1 left-1 w-6 h-6 bg-gray-800 rounded-full"></div>
@@ -185,10 +215,11 @@ export default function MinesGame() {
                     ) : (
                       <div className="relative w-full h-full flex items-center justify-center">
                         <div className="w-8 h-8 relative">
-                          {/* Diamond shape */}
-                          <div className="absolute inset-0 bg-gradient-to-br from-cyan-300 via-blue-400 to-blue-600 transform rotate-45 rounded-sm shadow-lg"></div>
-                          <div className="absolute top-1 left-1 w-6 h-6 bg-gradient-to-br from-cyan-100 via-cyan-200 to-blue-300 transform rotate-45 rounded-sm"></div>
-                          <div className="absolute top-2 left-2 w-4 h-4 bg-gradient-to-br from-white via-cyan-100 to-cyan-200 transform rotate-45 rounded-sm"></div>
+                          {/* Diamond shape matching your reference */}
+                          <div className="absolute inset-0 bg-gradient-to-br from-blue-300 via-blue-400 to-blue-600 transform rotate-45 rounded-sm shadow-lg"></div>
+                          <div className="absolute top-1 left-1 w-6 h-6 bg-gradient-to-br from-cyan-200 via-blue-300 to-blue-400 transform rotate-45 rounded-sm"></div>
+                          <div className="absolute top-2 left-2 w-4 h-4 bg-gradient-to-br from-white via-cyan-100 to-blue-200 transform rotate-45 rounded-sm"></div>
+                          <div className="absolute top-2.5 left-2.5 w-3 h-3 bg-white transform rotate-45 rounded-sm opacity-80"></div>
                         </div>
                       </div>
                     )
