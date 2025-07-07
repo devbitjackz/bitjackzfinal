@@ -32,11 +32,13 @@ const rouletteNumbers = [
 export default function RouletteGame() {
   const [, setLocation] = useLocation();
   const { toast } = useToast();
-  const [betAmount, setBetAmount] = useState("10.00");
+  const [selectedChip, setSelectedChip] = useState(10);
   const [selectedBets, setSelectedBets] = useState<{[key: string]: number}>({});
   const [isSpinning, setIsSpinning] = useState(false);
   const [lastResult, setLastResult] = useState<number | null>(null);
   const [wheelRotation, setWheelRotation] = useState(0);
+
+  const chipValues = [1, 2, 5, 10, 20, 50, 100];
 
   const { data: balance } = useQuery<{ balance: number }>({
     queryKey: ["/api/balance"],
@@ -78,13 +80,10 @@ export default function RouletteGame() {
   });
 
   const addBet = (betType: string, betValue?: number) => {
-    const bet = parseFloat(betAmount);
-    if (bet <= 0) return;
-
     const key = betValue !== undefined ? `${betType}-${betValue}` : betType;
     setSelectedBets(prev => ({
       ...prev,
-      [key]: (prev[key] || 0) + bet
+      [key]: (prev[key] || 0) + selectedChip
     }));
   };
 
@@ -119,6 +118,8 @@ export default function RouletteGame() {
         betType,
         betValue: betValue ? parseInt(betValue) : undefined
       });
+      // Clear all bets after spin
+      setSelectedBets({});
     }, 3000);
   };
 
@@ -130,6 +131,30 @@ export default function RouletteGame() {
     if (num === 0) return 'green';
     const redNumbers = [1, 3, 5, 7, 9, 12, 14, 16, 18, 19, 21, 23, 25, 27, 30, 32, 34, 36];
     return redNumbers.includes(num) ? 'red' : 'black';
+  };
+
+  const getChipColor = (value: number) => {
+    switch(value) {
+      case 1: return 'bg-white text-black border-gray-400';
+      case 2: return 'bg-pink-500 text-white border-pink-600';
+      case 5: return 'bg-red-600 text-white border-red-700';
+      case 10: return 'bg-blue-600 text-white border-blue-700';
+      case 20: return 'bg-yellow-500 text-black border-yellow-600';
+      case 50: return 'bg-green-600 text-white border-green-700';
+      case 100: return 'bg-purple-600 text-white border-purple-700';
+      default: return 'bg-gray-600 text-white border-gray-700';
+    }
+  };
+
+  const renderChipOnBet = (betKey: string, amount: number) => {
+    const chipValue = amount >= 100 ? 100 : amount >= 50 ? 50 : amount >= 20 ? 20 : amount >= 10 ? 10 : amount >= 5 ? 5 : amount >= 2 ? 2 : 1;
+    const chipColor = getChipColor(chipValue);
+    
+    return (
+      <div className={`absolute top-1 right-1 w-6 h-6 rounded-full border-2 ${chipColor} flex items-center justify-center text-xs font-bold z-10`}>
+        ${chipValue}
+      </div>
+    );
   };
 
   return (
@@ -211,9 +236,10 @@ export default function RouletteGame() {
             <div className="flex flex-col">
               <button
                 onClick={() => addBet("number", 0)}
-                className="bg-green-600 hover:bg-green-700 text-white p-3 rounded text-sm font-bold h-16 w-12 mb-2"
+                className="bg-green-600 hover:bg-green-700 text-white p-3 rounded text-sm font-bold h-16 w-12 mb-2 relative"
               >
                 0
+                {selectedBets["number-0"] && renderChipOnBet("number-0", selectedBets["number-0"])}
               </button>
             </div>
 
@@ -230,9 +256,10 @@ export default function RouletteGame() {
                       onClick={() => addBet("number", num)}
                       className={`${
                         color === 'red' ? 'bg-red-600 hover:bg-red-700' : 'bg-gray-900 hover:bg-gray-800'
-                      } text-white p-2 rounded text-sm font-bold h-12`}
+                      } text-white p-2 rounded text-sm font-bold h-12 relative`}
                     >
                       {num}
+                      {selectedBets[`number-${num}`] && renderChipOnBet(`number-${num}`, selectedBets[`number-${num}`])}
                     </button>
                   );
                 })}
@@ -248,9 +275,10 @@ export default function RouletteGame() {
                       onClick={() => addBet("number", num)}
                       className={`${
                         color === 'red' ? 'bg-red-600 hover:bg-red-700' : 'bg-gray-900 hover:bg-gray-800'
-                      } text-white p-2 rounded text-sm font-bold h-12`}
+                      } text-white p-2 rounded text-sm font-bold h-12 relative`}
                     >
                       {num}
+                      {selectedBets[`number-${num}`] && renderChipOnBet(`number-${num}`, selectedBets[`number-${num}`])}
                     </button>
                   );
                 })}
@@ -266,9 +294,10 @@ export default function RouletteGame() {
                       onClick={() => addBet("number", num)}
                       className={`${
                         color === 'red' ? 'bg-red-600 hover:bg-red-700' : 'bg-gray-900 hover:bg-gray-800'
-                      } text-white p-2 rounded text-sm font-bold h-12`}
+                      } text-white p-2 rounded text-sm font-bold h-12 relative`}
                     >
                       {num}
+                      {selectedBets[`number-${num}`] && renderChipOnBet(`number-${num}`, selectedBets[`number-${num}`])}
                     </button>
                   );
                 })}
@@ -278,28 +307,32 @@ export default function RouletteGame() {
               <div className="grid grid-cols-4 gap-1 mb-3">
                 <button
                   onClick={() => addBet("column", 1)}
-                  className="bg-gray-700 hover:bg-gray-600 text-white p-2 rounded text-xs font-bold col-span-1"
+                  className="bg-gray-700 hover:bg-gray-600 text-white p-2 rounded text-xs font-bold col-span-1 relative"
                 >
                   1 to 12
+                  {selectedBets["column-1"] && renderChipOnBet("column-1", selectedBets["column-1"])}
                 </button>
                 <button
                   onClick={() => addBet("column", 2)}
-                  className="bg-gray-700 hover:bg-gray-600 text-white p-2 rounded text-xs font-bold col-span-1"
+                  className="bg-gray-700 hover:bg-gray-600 text-white p-2 rounded text-xs font-bold col-span-1 relative"
                 >
                   13 to 24
+                  {selectedBets["column-2"] && renderChipOnBet("column-2", selectedBets["column-2"])}
                 </button>
                 <button
                   onClick={() => addBet("column", 3)}
-                  className="bg-gray-700 hover:bg-gray-600 text-white p-2 rounded text-xs font-bold col-span-1"
+                  className="bg-gray-700 hover:bg-gray-600 text-white p-2 rounded text-xs font-bold col-span-1 relative"
                 >
                   25 to 36
+                  {selectedBets["column-3"] && renderChipOnBet("column-3", selectedBets["column-3"])}
                 </button>
                 <div className="col-span-1">
                   <button
                     onClick={() => addBet("2to1-top")}
-                    className="bg-gray-700 hover:bg-gray-600 text-white p-1 rounded text-xs font-bold w-full h-8"
+                    className="bg-gray-700 hover:bg-gray-600 text-white p-1 rounded text-xs font-bold w-full h-8 relative"
                   >
                     2:1
+                    {selectedBets["2to1-top"] && renderChipOnBet("2to1-top", selectedBets["2to1-top"])}
                   </button>
                 </div>
               </div>
@@ -308,39 +341,45 @@ export default function RouletteGame() {
               <div className="grid grid-cols-6 gap-1">
                 <button
                   onClick={() => addBet("low")}
-                  className="bg-gray-700 hover:bg-gray-600 text-white p-2 rounded text-sm font-bold"
+                  className="bg-gray-700 hover:bg-gray-600 text-white p-2 rounded text-sm font-bold relative"
                 >
                   1-18
+                  {selectedBets["low"] && renderChipOnBet("low", selectedBets["low"])}
                 </button>
                 <button
                   onClick={() => addBet("even")}
-                  className="bg-gray-700 hover:bg-gray-600 text-white p-2 rounded text-sm font-bold"
+                  className="bg-gray-700 hover:bg-gray-600 text-white p-2 rounded text-sm font-bold relative"
                 >
                   Even
+                  {selectedBets["even"] && renderChipOnBet("even", selectedBets["even"])}
                 </button>
                 <button
                   onClick={() => addBet("red")}
-                  className="bg-red-600 hover:bg-red-700 text-white p-2 rounded text-sm font-bold"
+                  className="bg-red-600 hover:bg-red-700 text-white p-2 rounded text-sm font-bold relative"
                 >
                   Red
+                  {selectedBets["red"] && renderChipOnBet("red", selectedBets["red"])}
                 </button>
                 <button
                   onClick={() => addBet("black")}
-                  className="bg-gray-900 hover:bg-gray-800 text-white p-2 rounded text-sm font-bold"
+                  className="bg-gray-900 hover:bg-gray-800 text-white p-2 rounded text-sm font-bold relative"
                 >
                   Black
+                  {selectedBets["black"] && renderChipOnBet("black", selectedBets["black"])}
                 </button>
                 <button
                   onClick={() => addBet("odd")}
-                  className="bg-gray-700 hover:bg-gray-600 text-white p-2 rounded text-sm font-bold"
+                  className="bg-gray-700 hover:bg-gray-600 text-white p-2 rounded text-sm font-bold relative"
                 >
                   Odd
+                  {selectedBets["odd"] && renderChipOnBet("odd", selectedBets["odd"])}
                 </button>
                 <button
                   onClick={() => addBet("high")}
-                  className="bg-gray-700 hover:bg-gray-600 text-white p-2 rounded text-sm font-bold"
+                  className="bg-gray-700 hover:bg-gray-600 text-white p-2 rounded text-sm font-bold relative"
                 >
                   19-36
+                  {selectedBets["high"] && renderChipOnBet("high", selectedBets["high"])}
                 </button>
               </div>
             </div>
@@ -349,21 +388,24 @@ export default function RouletteGame() {
             <div className="flex flex-col gap-1">
               <button
                 onClick={() => addBet("2to1-1")}
-                className="bg-gray-700 hover:bg-gray-600 text-white p-2 rounded text-xs font-bold h-12 w-12"
+                className="bg-gray-700 hover:bg-gray-600 text-white p-2 rounded text-xs font-bold h-12 w-12 relative"
               >
                 2:1
+                {selectedBets["2to1-1"] && renderChipOnBet("2to1-1", selectedBets["2to1-1"])}
               </button>
               <button
                 onClick={() => addBet("2to1-2")}
-                className="bg-gray-700 hover:bg-gray-600 text-white p-2 rounded text-xs font-bold h-12 w-12"
+                className="bg-gray-700 hover:bg-gray-600 text-white p-2 rounded text-xs font-bold h-12 w-12 relative"
               >
                 2:1
+                {selectedBets["2to1-2"] && renderChipOnBet("2to1-2", selectedBets["2to1-2"])}
               </button>
               <button
                 onClick={() => addBet("2to1-3")}
-                className="bg-gray-700 hover:bg-gray-600 text-white p-2 rounded text-xs font-bold h-12 w-12"
+                className="bg-gray-700 hover:bg-gray-600 text-white p-2 rounded text-xs font-bold h-12 w-12 relative"
               >
                 2:1
+                {selectedBets["2to1-3"] && renderChipOnBet("2to1-3", selectedBets["2to1-3"])}
               </button>
             </div>
           </div>
@@ -373,17 +415,22 @@ export default function RouletteGame() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="space-y-3">
             <div>
-              <Label htmlFor="betAmount" className="text-white text-sm">Bet Amount</Label>
-              <Input
-                id="betAmount"
-                type="number"
-                step="0.01"
-                min="0.01"
-                value={betAmount}
-                onChange={(e) => setBetAmount(e.target.value)}
-                className="bg-gray-700 border-gray-600 text-white h-10"
-                placeholder="Enter bet amount"
-              />
+              <Label className="text-white text-sm">Select Chip Value</Label>
+              <div className="flex gap-2 flex-wrap">
+                {chipValues.map((value) => (
+                  <button
+                    key={value}
+                    onClick={() => setSelectedChip(value)}
+                    className={`w-12 h-12 rounded-full border-2 font-bold text-xs flex items-center justify-center transition-all ${
+                      selectedChip === value 
+                        ? `${getChipColor(value)} ring-2 ring-white` 
+                        : `${getChipColor(value)} opacity-70 hover:opacity-100`
+                    }`}
+                  >
+                    ${value}
+                  </button>
+                ))}
+              </div>
             </div>
             
             <div className="text-white text-sm">
@@ -422,8 +469,9 @@ export default function RouletteGame() {
               onClick={clearBets}
               variant="outline"
               className="w-full border-gray-600 text-white hover:bg-gray-700 h-10"
+              disabled={isSpinning}
             >
-              Clear Bets
+              Clear All Bets
             </Button>
           </div>
         </div>
