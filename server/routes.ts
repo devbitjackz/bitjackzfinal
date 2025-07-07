@@ -318,10 +318,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ error: "Insufficient balance" });
       }
       
-      // Generate random multiplier using the formula: 1/(0-1) * 90/100 with max 10.56x
+      // Generate random multiplier using the formula: 1/(0-1) * 90/100 with min 1x and max 10.56x
       const randomValue = Math.random();
       const rawMultiplier = 1 / randomValue * 0.9;
-      const randomMultiplier = Math.min(rawMultiplier, 10.56);
+      const randomMultiplier = Math.max(1.00, Math.min(rawMultiplier, 10.56));
       
       const won = randomMultiplier >= gameData.target;
       const payout = won ? gameData.betAmount * gameData.target : 0;

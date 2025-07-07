@@ -111,6 +111,7 @@ Six casino games are fully implemented:
 - July 05, 2025. Rebuilt complete Crash Game module with real-time multiplier tracking, 5-second countdown, live status polling, exponential decay crash points, and instant cash-out mechanics - now matches Stake/Rubet style gameplay
 - July 06, 2025. Made Crash Game public and always running - anyone can watch without betting, improved rocket size and animations, added rising graph line that follows multiplier, optimized to 30-40 FPS for smooth movement
 - July 07, 2025. Enhanced Crash Game with curved rocket trajectory - replaced straight line path with smooth parabolic curve, rocket now follows realistic arc trajectory with dynamic rotation and scaling
+- July 07, 2025. Enhanced Limbo Game with custom multiplier formula (1/(0-1) * 90/100, min 1x, max 10.56x), animated number counting up from 1x, green/red color coding for wins/losses, and 2-second smooth animation with pulsing effects
 
 ## User Preferences
 
