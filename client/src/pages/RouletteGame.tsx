@@ -46,7 +46,7 @@ export default function RouletteGame() {
   });
 
   const playGameMutation = useMutation({
-    mutationFn: async (gameData: { betAmount: number; betType: string; betValue?: number }) => {
+    mutationFn: async (gameData: { betAmount: number; betType: string; betValue?: number | string }) => {
       const response = await apiRequest("POST", "/api/games/roulette", gameData);
       return response.json() as Promise<RouletteResult>;
     },
@@ -54,21 +54,36 @@ export default function RouletteGame() {
       queryClient.invalidateQueries({ queryKey: ["/api/balance"] });
       queryClient.invalidateQueries({ queryKey: ["/api/games/recent"] });
       
-      setLastResult(data.winningNumber);
-      setIsSpinning(false);
-      
-      if (data.result === "win") {
-        toast({
-          title: "Winner!",
-          description: `Number ${data.winningNumber} - You won $${data.payout.toFixed(2)}!`,
-        });
-      } else {
-        toast({
-          title: "Better luck next time!",
-          description: `Number ${data.winningNumber} - Your bet didn't win this time`,
-          variant: "destructive",
-        });
+      // Find the winning number's position in the slider
+      const winningIndex = rouletteNumbers.findIndex(num => num.number === data.winningNumber);
+      if (winningIndex !== -1) {
+        // Calculate position to center the winning number
+        const centerOffset = 64 * 19; // Center of visible area (assuming 38 total numbers)
+        const targetPosition = (winningIndex * 64) - centerOffset + wheelRotation;
+        setWheelRotation(targetPosition);
       }
+      
+      // Show result after animation
+      setTimeout(() => {
+        setLastResult(data.winningNumber);
+        setIsSpinning(false);
+        
+        if (data.result === "win") {
+          toast({
+            title: "Winner!",
+            description: `Number ${data.winningNumber} - You won $${data.payout.toFixed(2)}!`,
+          });
+        } else {
+          toast({
+            title: "Better luck next time!",
+            description: `Number ${data.winningNumber} - Your bet didn't win this time`,
+            variant: "destructive",
+          });
+        }
+        
+        // Clear all bets after result is shown
+        setSelectedBets({});
+      }, 3000);
     },
     onError: () => {
       setIsSpinning(false);
@@ -104,24 +119,16 @@ export default function RouletteGame() {
 
     setIsSpinning(true);
     
-    // Animate slider movement
-    const slideDistance = 800 + Math.random() * 1200; // Random slide distance
-    const finalPosition = wheelRotation + slideDistance;
-    setWheelRotation(finalPosition);
-
     // Pick the first bet for now (simplified)
     const firstBetKey = Object.keys(selectedBets)[0];
     const [betType, betValue] = firstBetKey.split('-');
     
-    setTimeout(() => {
-      playGameMutation.mutate({
-        betAmount: selectedBets[firstBetKey],
-        betType,
-        betValue: betValue ? parseInt(betValue) : undefined
-      });
-      // Clear all bets after spin
-      setSelectedBets({});
-    }, 3000);
+    // Make the API call first to get the winning number
+    playGameMutation.mutate({
+      betAmount: selectedBets[firstBetKey],
+      betType,
+      betValue: betValue ? (betValue === "00" ? "00" : parseInt(betValue)) : undefined
+    });
   };
 
   const getTotalBets = () => {
