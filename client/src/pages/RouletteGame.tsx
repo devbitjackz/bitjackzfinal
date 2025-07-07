@@ -16,17 +16,18 @@ interface RouletteResult {
   newBalance: number;
 }
 
+// American roulette sequence: 00, 0, 1-36 in order
 const rouletteNumbers = [
-  { number: 0, color: 'green' }, { number: '00', color: 'green' },
-  { number: 32, color: 'red' }, { number: 15, color: 'black' }, { number: 19, color: 'red' }, { number: 4, color: 'black' },
-  { number: 21, color: 'red' }, { number: 2, color: 'black' }, { number: 25, color: 'red' }, { number: 17, color: 'black' },
-  { number: 34, color: 'red' }, { number: 6, color: 'black' }, { number: 27, color: 'red' }, { number: 13, color: 'black' },
-  { number: 36, color: 'red' }, { number: 11, color: 'black' }, { number: 30, color: 'red' }, { number: 8, color: 'black' },
-  { number: 23, color: 'red' }, { number: 10, color: 'black' }, { number: 5, color: 'red' }, { number: 24, color: 'black' },
-  { number: 16, color: 'red' }, { number: 33, color: 'black' }, { number: 1, color: 'red' }, { number: 20, color: 'black' },
-  { number: 14, color: 'red' }, { number: 31, color: 'black' }, { number: 9, color: 'red' }, { number: 22, color: 'black' },
-  { number: 18, color: 'red' }, { number: 29, color: 'black' }, { number: 7, color: 'red' }, { number: 28, color: 'black' },
-  { number: 12, color: 'red' }, { number: 35, color: 'black' }, { number: 3, color: 'red' }, { number: 26, color: 'black' }
+  { number: '00', color: 'green' }, { number: 0, color: 'green' },
+  { number: 1, color: 'red' }, { number: 2, color: 'black' }, { number: 3, color: 'red' }, { number: 4, color: 'black' },
+  { number: 5, color: 'red' }, { number: 6, color: 'black' }, { number: 7, color: 'red' }, { number: 8, color: 'black' },
+  { number: 9, color: 'red' }, { number: 10, color: 'black' }, { number: 11, color: 'black' }, { number: 12, color: 'red' },
+  { number: 13, color: 'black' }, { number: 14, color: 'red' }, { number: 15, color: 'black' }, { number: 16, color: 'red' },
+  { number: 17, color: 'black' }, { number: 18, color: 'red' }, { number: 19, color: 'red' }, { number: 20, color: 'black' },
+  { number: 21, color: 'red' }, { number: 22, color: 'black' }, { number: 23, color: 'red' }, { number: 24, color: 'black' },
+  { number: 25, color: 'red' }, { number: 26, color: 'black' }, { number: 27, color: 'red' }, { number: 28, color: 'black' },
+  { number: 29, color: 'black' }, { number: 30, color: 'red' }, { number: 31, color: 'black' }, { number: 32, color: 'red' },
+  { number: 33, color: 'black' }, { number: 34, color: 'red' }, { number: 35, color: 'black' }, { number: 36, color: 'red' }
 ];
 
 export default function RouletteGame() {
@@ -103,10 +104,10 @@ export default function RouletteGame() {
 
     setIsSpinning(true);
     
-    // Animate wheel spin
-    const spins = 5 + Math.random() * 5; // 5-10 full rotations
-    const finalRotation = wheelRotation + (spins * 360);
-    setWheelRotation(finalRotation);
+    // Animate slider movement
+    const slideDistance = 800 + Math.random() * 1200; // Random slide distance
+    const finalPosition = wheelRotation + slideDistance;
+    setWheelRotation(finalPosition);
 
     // Pick the first bet for now (simplified)
     const firstBetKey = Object.keys(selectedBets)[0];
@@ -180,53 +181,43 @@ export default function RouletteGame() {
           <p className="text-gray-400">Place your bets and spin the wheel!</p>
         </div>
 
-        {/* Roulette Wheel */}
-        <div className="flex justify-center mb-6">
-          <div className="relative">
+        {/* Roulette Number Slider */}
+        <div className="mb-6">
+          <div className="relative overflow-hidden bg-gray-900 rounded-lg p-4">
             <div 
-              className="w-64 h-64 rounded-full border-6 border-yellow-500 relative overflow-hidden transition-transform duration-3000 ease-out"
-              style={{ transform: `rotate(${wheelRotation}deg)` }}
+              className="flex transition-transform duration-3000 ease-out"
+              style={{ transform: `translateX(-${wheelRotation}px)` }}
             >
-              {/* Wheel segments */}
-              {rouletteNumbers.map((item, index) => {
-                const angle = (360 / rouletteNumbers.length) * index;
-                const nextAngle = (360 / rouletteNumbers.length) * (index + 1);
-                
-                return (
-                  <div
-                    key={index}
-                    className={`absolute inset-0 ${
-                      item.color === 'red' ? 'bg-red-600' : 
-                      item.color === 'black' ? 'bg-gray-900' : 'bg-green-600'
-                    }`}
-                    style={{
-                      clipPath: `polygon(50% 50%, ${50 + 40 * Math.cos((angle - 90) * Math.PI / 180)}% ${50 + 40 * Math.sin((angle - 90) * Math.PI / 180)}%, ${50 + 40 * Math.cos((nextAngle - 90) * Math.PI / 180)}% ${50 + 40 * Math.sin((nextAngle - 90) * Math.PI / 180)}%)`
-                    }}
-                  >
-                    <div 
-                      className="absolute text-white font-bold text-sm"
-                      style={{
-                        top: `${50 + 25 * Math.sin((angle + 5) * Math.PI / 180)}%`,
-                        left: `${50 + 25 * Math.cos((angle + 5) * Math.PI / 180)}%`,
-                        transform: `translate(-50%, -50%) rotate(${angle + 5}deg)`
-                      }}
-                    >
-                      {item.number}
-                    </div>
-                  </div>
-                );
-              })}
-              
-              {/* Center circle */}
-              <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-12 h-12 bg-yellow-500 rounded-full flex items-center justify-center">
-                <div className="w-6 h-6 bg-gray-900 rounded-full"></div>
+              {/* Create extended sequence for smooth animation */}
+              {[...rouletteNumbers, ...rouletteNumbers, ...rouletteNumbers].map((item, index) => (
+                <div
+                  key={index}
+                  className={`flex-shrink-0 w-16 h-16 flex items-center justify-center text-white font-bold text-lg border-2 ${
+                    item.color === 'red' ? 'bg-red-600 border-red-500' : 
+                    item.color === 'black' ? 'bg-gray-800 border-gray-700' : 'bg-green-600 border-green-500'
+                  } ${index % rouletteNumbers.length === 0 ? 'ring-2 ring-yellow-400' : ''}`}
+                >
+                  {item.number}
+                </div>
+              ))}
+            </div>
+            
+            {/* Winning indicator */}
+            <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 pointer-events-none">
+              <div className="w-1 h-20 bg-yellow-400 rounded-full shadow-lg"></div>
+              <div className="absolute top-0 left-1/2 transform -translate-x-1/2 -translate-y-2">
+                <div className="w-0 h-0 border-l-4 border-r-4 border-b-8 border-l-transparent border-r-transparent border-b-yellow-400"></div>
               </div>
             </div>
             
-            {/* Pointer */}
-            <div className="absolute top-0 left-1/2 transform -translate-x-1/2 -translate-y-2">
-              <div className="w-0 h-0 border-l-4 border-r-4 border-b-8 border-l-transparent border-r-transparent border-b-yellow-500"></div>
-            </div>
+            {/* Result display */}
+            {lastResult !== null && (
+              <div className="absolute top-2 left-2 bg-black bg-opacity-75 rounded px-3 py-1">
+                <span className="text-white text-sm font-bold">
+                  Last: <span className={`${getNumberColor(lastResult) === 'red' ? 'text-red-400' : getNumberColor(lastResult) === 'green' ? 'text-green-400' : 'text-white'}`}>{lastResult}</span>
+                </span>
+              </div>
+            )}
           </div>
         </div>
 
