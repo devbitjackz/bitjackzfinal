@@ -365,7 +365,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const roll = Math.floor(Math.random() * 100) + 1;
       const won = gameData.isOver ? roll > gameData.target : roll < gameData.target;
       const winChance = gameData.isOver ? (100 - gameData.target) : gameData.target;
-      const multiplier = won ? (100 / winChance) : 0;
+      // Apply 90% RTP to the multiplier calculation
+      const multiplier = won ? (100 / winChance) * 0.9 : 0;
       const payout = won ? gameData.betAmount * multiplier : 0;
       
       const newBalance = user.balance - gameData.betAmount + payout;
