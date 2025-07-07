@@ -493,29 +493,31 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ error: "Insufficient balance" });
       }
       
-      const winningNumber = Math.floor(Math.random() * 37); // 0-36
+      // American roulette: 0, 00, 1-36 (38 total numbers)
+      const rouletteOutcomes = [0, "00", ...Array.from({ length: 36 }, (_, i) => i + 1)];
+      const winningNumber = rouletteOutcomes[Math.floor(Math.random() * 38)];
       let won = false;
       let multiplier = 0;
       
       if (gameData.betType === "number" && gameData.betValue === winningNumber) {
         won = true;
         multiplier = 36 * 0.93; // Apply 93% RTP
-      } else if (gameData.betType === "red" && isRed(winningNumber)) {
+      } else if (gameData.betType === "red" && typeof winningNumber === 'number' && isRed(winningNumber)) {
         won = true;
         multiplier = 2 * 0.93; // Apply 93% RTP
-      } else if (gameData.betType === "black" && isBlack(winningNumber)) {
+      } else if (gameData.betType === "black" && typeof winningNumber === 'number' && isBlack(winningNumber)) {
         won = true;
         multiplier = 2 * 0.93; // Apply 93% RTP
-      } else if (gameData.betType === "odd" && winningNumber % 2 === 1 && winningNumber !== 0) {
+      } else if (gameData.betType === "odd" && typeof winningNumber === 'number' && winningNumber % 2 === 1 && winningNumber !== 0) {
         won = true;
         multiplier = 2 * 0.93; // Apply 93% RTP
-      } else if (gameData.betType === "even" && winningNumber % 2 === 0 && winningNumber !== 0) {
+      } else if (gameData.betType === "even" && typeof winningNumber === 'number' && winningNumber % 2 === 0 && winningNumber !== 0) {
         won = true;
         multiplier = 2 * 0.93; // Apply 93% RTP
-      } else if (gameData.betType === "high" && winningNumber >= 19 && winningNumber <= 36) {
+      } else if (gameData.betType === "high" && typeof winningNumber === 'number' && winningNumber >= 19 && winningNumber <= 36) {
         won = true;
         multiplier = 2 * 0.93; // Apply 93% RTP
-      } else if (gameData.betType === "low" && winningNumber >= 1 && winningNumber <= 18) {
+      } else if (gameData.betType === "low" && typeof winningNumber === 'number' && winningNumber >= 1 && winningNumber <= 18) {
         won = true;
         multiplier = 2 * 0.93; // Apply 93% RTP
       }

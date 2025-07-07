@@ -72,8 +72,8 @@ export const minesGameSchema = z.object({
 
 export const rouletteGameSchema = z.object({
   betAmount: z.number().positive(),
-  betType: z.enum(["number", "red", "black", "odd", "even", "high", "low"]),
-  betValue: z.number().optional(),
+  betType: z.enum(["number", "red", "black", "odd", "even", "high", "low", "column", "2to1-1", "2to1-2", "2to1-3", "2to1-top"]),
+  betValue: z.union([z.number(), z.string()]).optional(),
 });
 
 export type CrashGame = z.infer<typeof crashGameSchema>;

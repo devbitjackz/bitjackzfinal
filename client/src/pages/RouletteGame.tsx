@@ -10,14 +10,14 @@ import { useToast } from "@/hooks/use-toast";
 
 interface RouletteResult {
   result: string;
-  winningNumber: number;
+  winningNumber: number | string;
   multiplier: number;
   payout: number;
   newBalance: number;
 }
 
 const rouletteNumbers = [
-  { number: 0, color: 'green' },
+  { number: 0, color: 'green' }, { number: '00', color: 'green' },
   { number: 32, color: 'red' }, { number: 15, color: 'black' }, { number: 19, color: 'red' }, { number: 4, color: 'black' },
   { number: 21, color: 'red' }, { number: 2, color: 'black' }, { number: 25, color: 'red' }, { number: 17, color: 'black' },
   { number: 34, color: 'red' }, { number: 6, color: 'black' }, { number: 27, color: 'red' }, { number: 13, color: 'black' },
@@ -35,7 +35,7 @@ export default function RouletteGame() {
   const [selectedChip, setSelectedChip] = useState(10);
   const [selectedBets, setSelectedBets] = useState<{[key: string]: number}>({});
   const [isSpinning, setIsSpinning] = useState(false);
-  const [lastResult, setLastResult] = useState<number | null>(null);
+  const [lastResult, setLastResult] = useState<number | string | null>(null);
   const [wheelRotation, setWheelRotation] = useState(0);
 
   const chipValues = [1, 2, 5, 10, 20, 50, 100];
@@ -127,8 +127,9 @@ export default function RouletteGame() {
     return Object.values(selectedBets).reduce((sum, bet) => sum + bet, 0);
   };
 
-  const getNumberColor = (num: number) => {
-    if (num === 0) return 'green';
+  const getNumberColor = (num: number | string) => {
+    if (num === 0 || num === '00') return 'green';
+    if (typeof num === 'string') return 'green';
     const redNumbers = [1, 3, 5, 7, 9, 12, 14, 16, 18, 19, 21, 23, 25, 27, 30, 32, 34, 36];
     return redNumbers.includes(num) ? 'red' : 'black';
   };
@@ -233,13 +234,20 @@ export default function RouletteGame() {
         <div className="bg-gray-800 rounded-lg p-4 mb-4">
           <div className="flex gap-2">
             {/* Zero Column */}
-            <div className="flex flex-col">
+            <div className="flex flex-col gap-1">
               <button
                 onClick={() => addBet("number", 0)}
-                className="bg-green-600 hover:bg-green-700 text-white p-3 rounded text-sm font-bold h-16 w-12 mb-2 relative"
+                className="bg-green-600 hover:bg-green-700 text-white p-2 rounded text-sm font-bold h-8 w-12 relative"
               >
                 0
                 {selectedBets["number-0"] && renderChipOnBet("number-0", selectedBets["number-0"])}
+              </button>
+              <button
+                onClick={() => addBet("number", "00")}
+                className="bg-green-600 hover:bg-green-700 text-white p-2 rounded text-sm font-bold h-8 w-12 relative"
+              >
+                00
+                {selectedBets["number-00"] && renderChipOnBet("number-00", selectedBets["number-00"])}
               </button>
             </div>
 
