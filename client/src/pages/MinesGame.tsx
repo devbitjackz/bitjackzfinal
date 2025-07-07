@@ -100,7 +100,6 @@ export default function MinesGame() {
       tile.classList.add('animate-ping');
       setTimeout(() => {
         tile.classList.remove('animate-ping');
-        tile.classList.add('scale-110');
       }, 200);
     }
   };
@@ -194,10 +193,10 @@ export default function MinesGame() {
                   className={`aspect-square rounded-lg border-2 transition-all duration-500 flex items-center justify-center text-4xl font-bold transform hover:scale-105 shadow-lg min-h-16 sm:min-h-20 md:min-h-24 ${
                     selectedTiles.includes(i)
                       ? revealedMines.includes(i)
-                        ? "bg-red-900 border-red-600 scale-110 shadow-red-500/50"
-                        : "bg-blue-900 border-blue-600 scale-110 shadow-blue-500/50"
+                        ? "bg-red-900 border-red-600 shadow-red-500/50"
+                        : "bg-blue-900 border-blue-600 shadow-blue-500/50"
                       : revealedMines.includes(i)
-                      ? "bg-red-900 border-red-600 scale-110 shadow-red-500/50"
+                      ? "bg-red-900 border-red-600 shadow-red-500/50"
                       : gameActive 
                       ? "bg-gray-700 border-casino-gold/30 hover:border-casino-gold hover:bg-gray-600 cursor-pointer"
                       : "bg-gray-800 border-gray-600 cursor-not-allowed"
