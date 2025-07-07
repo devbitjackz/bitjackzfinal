@@ -90,6 +90,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
           } else {
             this.currentGame.currentMultiplier = Math.round(newMultiplier * 100) / 100;
           }
+        } else if (this.currentGame?.status === 'countdown') {
+          // Keep multiplier at 1.00 during countdown
+          this.currentGame.currentMultiplier = 1.00;
         }
       }, 16); // 60 FPS for ultra-smooth animation
     }
