@@ -54,36 +54,42 @@ export default function RouletteGame() {
       queryClient.invalidateQueries({ queryKey: ["/api/balance"] });
       queryClient.invalidateQueries({ queryKey: ["/api/games/recent"] });
       
-      // Find the winning number's position in the slider
-      const winningIndex = rouletteNumbers.findIndex(num => num.number === data.winningNumber);
-      if (winningIndex !== -1) {
-        // Calculate position to center the winning number
-        const centerOffset = 64 * 19; // Center of visible area (assuming 38 total numbers)
-        const targetPosition = (winningIndex * 64) - centerOffset + wheelRotation;
-        setWheelRotation(targetPosition);
-      }
-      
-      // Show result after animation
+      // Wait for initial spin animation, then stop at winning number
       setTimeout(() => {
-        setLastResult(data.winningNumber);
-        setIsSpinning(false);
-        
-        if (data.result === "win") {
-          toast({
-            title: "Winner!",
-            description: `Number ${data.winningNumber} - You won $${data.payout.toFixed(2)}!`,
-          });
-        } else {
-          toast({
-            title: "Better luck next time!",
-            description: `Number ${data.winningNumber} - Your bet didn't win this time`,
-            variant: "destructive",
-          });
+        // Find the winning number's position in the slider
+        const winningIndex = rouletteNumbers.findIndex(num => num.number === data.winningNumber);
+        if (winningIndex !== -1) {
+          // Calculate exact position to center the winning number under the indicator
+          const tileWidth = 64; // Width of each number tile
+          const containerCenter = 400; // Approximate center of visible area
+          const targetPosition = (winningIndex * tileWidth) - containerCenter;
+          
+          // Set the final position to stop at winning number
+          setWheelRotation(targetPosition);
         }
         
-        // Clear all bets after result is shown
-        setSelectedBets({});
-      }, 3000);
+        // Show result after stopping animation
+        setTimeout(() => {
+          setLastResult(data.winningNumber);
+          setIsSpinning(false);
+          
+          if (data.result === "win") {
+            toast({
+              title: "Winner!",
+              description: `Number ${data.winningNumber} - You won $${data.payout.toFixed(2)}!`,
+            });
+          } else {
+            toast({
+              title: "Better luck next time!",
+              description: `Number ${data.winningNumber} - Your bet didn't win this time`,
+              variant: "destructive",
+            });
+          }
+          
+          // Clear all bets after result is shown
+          setSelectedBets({});
+        }, 2000); // Wait for stop animation
+      }, 1500); // Wait for initial spin
     },
     onError: () => {
       setIsSpinning(false);
@@ -119,11 +125,15 @@ export default function RouletteGame() {
 
     setIsSpinning(true);
     
+    // Start spinning animation - rapid movement
+    const spinAmount = 2000 + Math.random() * 1000; // Spin distance
+    setWheelRotation(prev => prev + spinAmount);
+    
     // Pick the first bet for now (simplified)
     const firstBetKey = Object.keys(selectedBets)[0];
     const [betType, betValue] = firstBetKey.split('-');
     
-    // Make the API call first to get the winning number
+    // Make the API call to get the winning number
     playGameMutation.mutate({
       betAmount: selectedBets[firstBetKey],
       betType,
@@ -190,19 +200,19 @@ export default function RouletteGame() {
 
         {/* Roulette Number Slider */}
         <div className="mb-6">
-          <div className="relative overflow-hidden bg-gray-900 rounded-lg p-4">
+          <div className="relative overflow-hidden bg-gray-900 rounded-lg p-4 h-20">
             <div 
-              className="flex transition-transform duration-3000 ease-out"
+              className={`flex ${isSpinning ? 'transition-transform duration-2000 ease-out' : 'transition-transform duration-1000 ease-out'}`}
               style={{ transform: `translateX(-${wheelRotation}px)` }}
             >
               {/* Create extended sequence for smooth animation */}
-              {[...rouletteNumbers, ...rouletteNumbers, ...rouletteNumbers].map((item, index) => (
+              {[...rouletteNumbers, ...rouletteNumbers, ...rouletteNumbers, ...rouletteNumbers, ...rouletteNumbers].map((item, index) => (
                 <div
                   key={index}
                   className={`flex-shrink-0 w-16 h-16 flex items-center justify-center text-white font-bold text-lg border-2 ${
                     item.color === 'red' ? 'bg-red-600 border-red-500' : 
                     item.color === 'black' ? 'bg-gray-800 border-gray-700' : 'bg-green-600 border-green-500'
-                  } ${index % rouletteNumbers.length === 0 ? 'ring-2 ring-yellow-400' : ''}`}
+                  }`}
                 >
                   {item.number}
                 </div>
