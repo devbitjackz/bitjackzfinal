@@ -38,6 +38,7 @@ export default function RouletteGame() {
   const [isSpinning, setIsSpinning] = useState(false);
   const [lastResult, setLastResult] = useState<number | string | null>(null);
   const [wheelRotation, setWheelRotation] = useState(0);
+  const [animationFrame, setAnimationFrame] = useState<number | null>(null);
 
   const chipValues = [1, 2, 5, 10, 20, 50, 100];
 
@@ -54,26 +55,26 @@ export default function RouletteGame() {
       queryClient.invalidateQueries({ queryKey: ["/api/balance"] });
       queryClient.invalidateQueries({ queryKey: ["/api/games/recent"] });
       
-      // Wait for initial spin animation, then stop at winning number
+      // Wait for spinning, then calculate stopping position
       setTimeout(() => {
         // Find the winning number's position in the slider
         const winningIndex = rouletteNumbers.findIndex(num => num.number === data.winningNumber);
         if (winningIndex !== -1) {
           // Calculate exact position to center the winning number under the indicator
-          const tileWidth = 64; // Width of each number tile
-          const containerWidth = 800; // Approximate container width
-          const containerCenter = containerWidth / 2; // Center of visible area
+          const tileWidth = 64;
+          const containerCenter = 400; // Center of visible area
           
-          // We need to account for the repeating pattern
-          // Use the middle repetition (index + 38) for better centering
-          const adjustedIndex = winningIndex + rouletteNumbers.length;
+          // Ensure we have enough repetitions and stop at a visible position
+          const currentCycle = Math.floor(wheelRotation / (rouletteNumbers.length * tileWidth));
+          const targetCycle = currentCycle + 2; // Add at least 2 more full cycles
+          const adjustedIndex = winningIndex + (targetCycle * rouletteNumbers.length);
           const targetPosition = (adjustedIndex * tileWidth) - containerCenter + (tileWidth / 2);
           
-          // Set the final position to stop at winning number
-          setWheelRotation(targetPosition);
+          // Stop the spinning animation and move to target
+          stopSpinningAnimation(targetPosition);
         }
         
-        // Show result after stopping animation
+        // Show result after stopping
         setTimeout(() => {
           setLastResult(data.winningNumber);
           setIsSpinning(false);
@@ -93,8 +94,8 @@ export default function RouletteGame() {
           
           // Clear all bets after result is shown
           setSelectedBets({});
-        }, 2000); // Wait for stop animation
-      }, 1500); // Wait for initial spin
+        }, 1500); // Wait for deceleration
+      }, 2000); // Spin for 2 seconds
     },
     onError: () => {
       setIsSpinning(false);
@@ -118,6 +119,40 @@ export default function RouletteGame() {
     setSelectedBets({});
   };
 
+  const startSpinningAnimation = () => {
+    let spinSpeed = 8; // pixels per frame
+    const spin = () => {
+      setWheelRotation(prev => prev + spinSpeed);
+      const frame = requestAnimationFrame(spin);
+      setAnimationFrame(frame);
+    };
+    spin();
+  };
+
+  const stopSpinningAnimation = (targetPosition: number) => {
+    if (animationFrame) {
+      cancelAnimationFrame(animationFrame);
+      setAnimationFrame(null);
+    }
+    
+    // Smooth deceleration to target position
+    let currentPos = wheelRotation;
+    const decelerate = () => {
+      const distance = targetPosition - currentPos;
+      const speed = Math.max(Math.abs(distance) * 0.08, 0.5);
+      
+      if (Math.abs(distance) < 1) {
+        setWheelRotation(targetPosition);
+        return;
+      }
+      
+      currentPos += distance > 0 ? speed : -speed;
+      setWheelRotation(currentPos);
+      requestAnimationFrame(decelerate);
+    };
+    decelerate();
+  };
+
   const handleSpin = () => {
     if (Object.keys(selectedBets).length === 0) {
       toast({
@@ -129,10 +164,7 @@ export default function RouletteGame() {
     }
 
     setIsSpinning(true);
-    
-    // Start spinning animation - rapid movement
-    const spinAmount = 2000 + Math.random() * 1000; // Spin distance
-    setWheelRotation(prev => prev + spinAmount);
+    startSpinningAnimation();
     
     // Pick the first bet for now (simplified)
     const firstBetKey = Object.keys(selectedBets)[0];
@@ -207,21 +239,26 @@ export default function RouletteGame() {
         <div className="mb-6">
           <div className="relative overflow-hidden bg-gray-900 rounded-lg p-4 h-20">
             <div 
-              className={`flex ${isSpinning ? 'transition-transform duration-2000 ease-out' : 'transition-transform duration-1000 ease-out'}`}
-              style={{ transform: `translateX(-${wheelRotation}px)` }}
+              className="flex"
+              style={{ 
+                transform: `translateX(-${wheelRotation}px)`,
+                willChange: 'transform'
+              }}
             >
-              {/* Create extended sequence for smooth animation */}
-              {[...rouletteNumbers, ...rouletteNumbers, ...rouletteNumbers, ...rouletteNumbers, ...rouletteNumbers].map((item, index) => (
-                <div
-                  key={index}
-                  className={`flex-shrink-0 w-16 h-16 flex items-center justify-center text-white font-bold text-lg border-2 ${
-                    item.color === 'red' ? 'bg-red-600 border-red-500' : 
-                    item.color === 'black' ? 'bg-gray-800 border-gray-700' : 'bg-green-600 border-green-500'
-                  }`}
-                >
-                  {item.number}
-                </div>
-              ))}
+              {/* Create extended sequence for smooth infinite scrolling */}
+              {Array.from({ length: 20 }, (_, repetition) => 
+                rouletteNumbers.map((item, index) => (
+                  <div
+                    key={`${repetition}-${index}`}
+                    className={`flex-shrink-0 w-16 h-16 flex items-center justify-center text-white font-bold text-lg border-2 ${
+                      item.color === 'red' ? 'bg-red-600 border-red-500' : 
+                      item.color === 'black' ? 'bg-gray-800 border-gray-700' : 'bg-green-600 border-green-500'
+                    }`}
+                  >
+                    {item.number}
+                  </div>
+                ))
+              ).flat()}
             </div>
             
             {/* Winning indicator */}
