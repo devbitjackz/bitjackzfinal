@@ -116,7 +116,6 @@ Six casino games are fully implemented:
 - July 07, 2025. Enhanced Mines Game with improved visuals, animations, live statistics display, better mine distribution algorithm, and consistent 93% RTP across all casino games
 - July 07, 2025. Fixed Mines Game notifications and balance issues - mines now show immediately when clicked, removed unwanted win notifications on mine hits, fixed balance deduction logic, and implemented user's exact gem and bomb images with proper 12x12 sizing
 - July 07, 2025. Made Roulette Game mobile-friendly with responsive betting board layout - added horizontal scrolling for number grid on mobile, increased touch targets to 48px minimum, reorganized betting controls into mobile-optimized grid layouts, improved chip selection with better mobile spacing, and enhanced overall mobile experience with touch-friendly interactions
-- July 07, 2025. Rebuilt home page with scrollable banner carousel system - replaced static banners with dynamic 3-set carousel featuring navigation dots and arrows, maintained original game card layout in unified "All Games" section, added promotional banners for bonuses and cashback offers
 
 ## User Preferences
 
