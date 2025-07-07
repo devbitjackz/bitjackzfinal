@@ -40,9 +40,7 @@ export default function RouletteGame() {
   const [wheelRotation, setWheelRotation] = useState(0);
   const [animationFrame, setAnimationFrame] = useState<number | null>(null);
   const [isAnimationStopped, setIsAnimationStopped] = useState(false);
-  const [showWinAnimation, setShowWinAnimation] = useState(false);
-  const [showLossAnimation, setShowLossAnimation] = useState(false);
-  const [gameResult, setGameResult] = useState<RouletteResult | null>(null);
+
 
   const chipValues = [1, 2, 5, 10, 20, 50, 100];
 
@@ -92,7 +90,6 @@ export default function RouletteGame() {
           setIsAnimationStopped(true);
           setIsSpinning(false);
           setLastResult(data.winningNumber);
-          setGameResult(data);
           
           // Cancel any remaining animation frames
           if (animationFrame) {
@@ -100,15 +97,12 @@ export default function RouletteGame() {
             setAnimationFrame(null);
           }
           
-          // Trigger win/loss animations
           if (data.result === "win") {
-            setShowWinAnimation(true);
             toast({
               title: "Winner!",
               description: `Number ${data.winningNumber} - You won $${data.payout.toFixed(2)}!`,
             });
           } else {
-            setShowLossAnimation(true);
             toast({
               title: "Better luck next time!",
               description: `Number ${data.winningNumber} - Your bet didn't win this time`,
@@ -116,11 +110,8 @@ export default function RouletteGame() {
             });
           }
           
-          // Clear animations after 3 seconds
+          // Clear all bets after result is shown
           setTimeout(() => {
-            setShowWinAnimation(false);
-            setShowLossAnimation(false);
-            setGameResult(null);
             setSelectedBets({});
           }, 3000);
         }, 1500); // Wait for deceleration
