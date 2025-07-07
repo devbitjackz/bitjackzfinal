@@ -155,10 +155,10 @@ export default function RouletteGame() {
         </div>
 
         {/* Roulette Wheel */}
-        <div className="flex justify-center mb-8">
+        <div className="flex justify-center mb-6">
           <div className="relative">
             <div 
-              className="w-80 h-80 rounded-full border-8 border-yellow-500 relative overflow-hidden transition-transform duration-3000 ease-out"
+              className="w-64 h-64 rounded-full border-6 border-yellow-500 relative overflow-hidden transition-transform duration-3000 ease-out"
               style={{ transform: `rotate(${wheelRotation}deg)` }}
             >
               {/* Wheel segments */}
@@ -192,8 +192,8 @@ export default function RouletteGame() {
               })}
               
               {/* Center circle */}
-              <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-16 h-16 bg-yellow-500 rounded-full flex items-center justify-center">
-                <div className="w-8 h-8 bg-gray-900 rounded-full"></div>
+              <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-12 h-12 bg-yellow-500 rounded-full flex items-center justify-center">
+                <div className="w-6 h-6 bg-gray-900 rounded-full"></div>
               </div>
             </div>
             
@@ -205,13 +205,13 @@ export default function RouletteGame() {
         </div>
 
         {/* Betting Layout */}
-        <div className="bg-gray-800 rounded-lg p-6 mb-6">
+        <div className="bg-gray-800 rounded-lg p-4 mb-4">
           {/* Numbers Grid */}
-          <div className="grid grid-cols-13 gap-1 mb-4">
+          <div className="grid grid-cols-13 gap-1 mb-3">
             {/* Zero */}
             <button
               onClick={() => addBet("number", 0)}
-              className="col-span-1 bg-green-600 hover:bg-green-700 text-white p-3 rounded font-bold"
+              className="col-span-1 bg-green-600 hover:bg-green-700 text-white p-2 rounded text-sm font-bold"
             >
               0
             </button>
@@ -225,7 +225,7 @@ export default function RouletteGame() {
                   onClick={() => addBet("number", num)}
                   className={`${
                     color === 'red' ? 'bg-red-600 hover:bg-red-700' : 'bg-gray-900 hover:bg-gray-800'
-                  } text-white p-3 rounded font-bold`}
+                  } text-white p-2 rounded text-sm font-bold`}
                 >
                   {num}
                 </button>
@@ -234,51 +234,51 @@ export default function RouletteGame() {
           </div>
 
           {/* Outside Bets */}
-          <div className="grid grid-cols-6 gap-2">
+          <div className="grid grid-cols-6 gap-1">
             <button
               onClick={() => addBet("low")}
-              className="bg-gray-700 hover:bg-gray-600 text-white p-3 rounded font-bold"
+              className="bg-gray-700 hover:bg-gray-600 text-white p-2 rounded text-sm font-bold"
             >
-              1 to 18
+              1-18
             </button>
             <button
               onClick={() => addBet("even")}
-              className="bg-gray-700 hover:bg-gray-600 text-white p-3 rounded font-bold"
+              className="bg-gray-700 hover:bg-gray-600 text-white p-2 rounded text-sm font-bold"
             >
               Even
             </button>
             <button
               onClick={() => addBet("red")}
-              className="bg-red-600 hover:bg-red-700 text-white p-3 rounded font-bold"
+              className="bg-red-600 hover:bg-red-700 text-white p-2 rounded text-sm font-bold"
             >
               Red
             </button>
             <button
               onClick={() => addBet("black")}
-              className="bg-gray-900 hover:bg-gray-800 text-white p-3 rounded font-bold"
+              className="bg-gray-900 hover:bg-gray-800 text-white p-2 rounded text-sm font-bold"
             >
               Black
             </button>
             <button
               onClick={() => addBet("odd")}
-              className="bg-gray-700 hover:bg-gray-600 text-white p-3 rounded font-bold"
+              className="bg-gray-700 hover:bg-gray-600 text-white p-2 rounded text-sm font-bold"
             >
               Odd
             </button>
             <button
               onClick={() => addBet("high")}
-              className="bg-gray-700 hover:bg-gray-600 text-white p-3 rounded font-bold"
+              className="bg-gray-700 hover:bg-gray-600 text-white p-2 rounded text-sm font-bold"
             >
-              19 to 36
+              19-36
             </button>
           </div>
         </div>
 
         {/* Betting Controls */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div className="space-y-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="space-y-3">
             <div>
-              <Label htmlFor="betAmount" className="text-white">Bet Amount</Label>
+              <Label htmlFor="betAmount" className="text-white text-sm">Bet Amount</Label>
               <Input
                 id="betAmount"
                 type="number"
@@ -286,24 +286,39 @@ export default function RouletteGame() {
                 min="0.01"
                 value={betAmount}
                 onChange={(e) => setBetAmount(e.target.value)}
-                className="bg-gray-700 border-gray-600 text-white"
+                className="bg-gray-700 border-gray-600 text-white h-10"
                 placeholder="Enter bet amount"
               />
             </div>
             
-            <div className="text-white">
+            <div className="text-white text-sm">
               <p>Total Bets: ${getTotalBets().toFixed(2)}</p>
               {lastResult !== null && (
-                <p className="mt-2">Last Result: <span className={`font-bold ${getNumberColor(lastResult) === 'red' ? 'text-red-500' : getNumberColor(lastResult) === 'green' ? 'text-green-500' : 'text-white'}`}>{lastResult}</span></p>
+                <p className="mt-1">Last Result: <span className={`font-bold ${getNumberColor(lastResult) === 'red' ? 'text-red-500' : getNumberColor(lastResult) === 'green' ? 'text-green-500' : 'text-white'}`}>{lastResult}</span></p>
               )}
             </div>
+
+            {Object.keys(selectedBets).length > 0 && (
+              <div className="text-white text-xs">
+                <h3 className="font-bold mb-1">Current Bets:</h3>
+                {Object.entries(selectedBets).slice(0, 3).map(([key, amount]) => (
+                  <div key={key} className="flex justify-between">
+                    <span>{key.replace('-', ' ')}</span>
+                    <span>${amount.toFixed(2)}</span>
+                  </div>
+                ))}
+                {Object.keys(selectedBets).length > 3 && (
+                  <p className="text-gray-400">+{Object.keys(selectedBets).length - 3} more...</p>
+                )}
+              </div>
+            )}
           </div>
 
-          <div className="space-y-4">
+          <div className="space-y-3">
             <Button
               onClick={handleSpin}
               disabled={isSpinning || playGameMutation.isPending}
-              className="w-full bg-casino-gold hover:bg-yellow-500 text-black font-bold py-3"
+              className="w-full bg-casino-gold hover:bg-yellow-500 text-black font-bold h-12"
             >
               {isSpinning ? "Spinning..." : "SPIN"}
             </Button>
@@ -311,20 +326,10 @@ export default function RouletteGame() {
             <Button
               onClick={clearBets}
               variant="outline"
-              className="w-full border-gray-600 text-white hover:bg-gray-700"
+              className="w-full border-gray-600 text-white hover:bg-gray-700 h-10"
             >
               Clear Bets
             </Button>
-          </div>
-
-          <div className="space-y-2 text-white text-sm">
-            <h3 className="font-bold">Current Bets:</h3>
-            {Object.entries(selectedBets).map(([key, amount]) => (
-              <div key={key} className="flex justify-between">
-                <span>{key.replace('-', ' ')}</span>
-                <span>${amount.toFixed(2)}</span>
-              </div>
-            ))}
           </div>
         </div>
       </div>
