@@ -114,6 +114,7 @@ Six casino games are fully implemented:
 - July 07, 2025. Enhanced Limbo Game with custom multiplier formula (1/(0-1) * 93/100, min 1x, max 10.56x), animated number counting up from 1x, green/red color coding for wins/losses, and 2-second smooth animation with pulsing effects
 - July 07, 2025. Set Dice Game RTP to 93% by applying 0.93 multiplier to payout calculations, ensuring consistent house edge across all games - RTP is built into multiplier calculations rather than displayed separately
 - July 07, 2025. Enhanced Mines Game with improved visuals, animations, live statistics display, better mine distribution algorithm, and consistent 93% RTP across all casino games
+- July 07, 2025. Fixed Mines Game notifications and balance issues - mines now show immediately when clicked, removed unwanted win notifications on mine hits, fixed balance deduction logic, and implemented user's exact gem and bomb images with proper 12x12 sizing
 
 ## User Preferences
 
