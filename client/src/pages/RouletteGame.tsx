@@ -206,71 +206,166 @@ export default function RouletteGame() {
 
         {/* Betting Layout */}
         <div className="bg-gray-800 rounded-lg p-4 mb-4">
-          {/* Numbers Grid */}
-          <div className="grid grid-cols-13 gap-1 mb-3">
-            {/* Zero */}
-            <button
-              onClick={() => addBet("number", 0)}
-              className="col-span-1 bg-green-600 hover:bg-green-700 text-white p-2 rounded text-sm font-bold"
-            >
-              0
-            </button>
-            
-            {/* Numbers 1-36 */}
-            {Array.from({ length: 36 }, (_, i) => i + 1).map((num) => {
-              const color = getNumberColor(num);
-              return (
-                <button
-                  key={num}
-                  onClick={() => addBet("number", num)}
-                  className={`${
-                    color === 'red' ? 'bg-red-600 hover:bg-red-700' : 'bg-gray-900 hover:bg-gray-800'
-                  } text-white p-2 rounded text-sm font-bold`}
-                >
-                  {num}
-                </button>
-              );
-            })}
-          </div>
+          <div className="flex gap-2">
+            {/* Zero Column */}
+            <div className="flex flex-col">
+              <button
+                onClick={() => addBet("number", 0)}
+                className="bg-green-600 hover:bg-green-700 text-white p-3 rounded text-sm font-bold h-16 w-12 mb-2"
+              >
+                0
+              </button>
+            </div>
 
-          {/* Outside Bets */}
-          <div className="grid grid-cols-6 gap-1">
-            <button
-              onClick={() => addBet("low")}
-              className="bg-gray-700 hover:bg-gray-600 text-white p-2 rounded text-sm font-bold"
-            >
-              1-18
-            </button>
-            <button
-              onClick={() => addBet("even")}
-              className="bg-gray-700 hover:bg-gray-600 text-white p-2 rounded text-sm font-bold"
-            >
-              Even
-            </button>
-            <button
-              onClick={() => addBet("red")}
-              className="bg-red-600 hover:bg-red-700 text-white p-2 rounded text-sm font-bold"
-            >
-              Red
-            </button>
-            <button
-              onClick={() => addBet("black")}
-              className="bg-gray-900 hover:bg-gray-800 text-white p-2 rounded text-sm font-bold"
-            >
-              Black
-            </button>
-            <button
-              onClick={() => addBet("odd")}
-              className="bg-gray-700 hover:bg-gray-600 text-white p-2 rounded text-sm font-bold"
-            >
-              Odd
-            </button>
-            <button
-              onClick={() => addBet("high")}
-              className="bg-gray-700 hover:bg-gray-600 text-white p-2 rounded text-sm font-bold"
-            >
-              19-36
-            </button>
+            {/* Main Numbers Grid (3 rows x 12 columns) */}
+            <div className="flex-1">
+              {/* Numbers 1-36 in proper roulette layout */}
+              <div className="grid grid-cols-12 gap-1 mb-2">
+                {/* Row 1: 3, 6, 9, 12, 15, 18, 21, 24, 27, 30, 33, 36 */}
+                {[3, 6, 9, 12, 15, 18, 21, 24, 27, 30, 33, 36].map((num) => {
+                  const color = getNumberColor(num);
+                  return (
+                    <button
+                      key={num}
+                      onClick={() => addBet("number", num)}
+                      className={`${
+                        color === 'red' ? 'bg-red-600 hover:bg-red-700' : 'bg-gray-900 hover:bg-gray-800'
+                      } text-white p-2 rounded text-sm font-bold h-12`}
+                    >
+                      {num}
+                    </button>
+                  );
+                })}
+              </div>
+              
+              <div className="grid grid-cols-12 gap-1 mb-2">
+                {/* Row 2: 2, 5, 8, 11, 14, 17, 20, 23, 26, 29, 32, 35 */}
+                {[2, 5, 8, 11, 14, 17, 20, 23, 26, 29, 32, 35].map((num) => {
+                  const color = getNumberColor(num);
+                  return (
+                    <button
+                      key={num}
+                      onClick={() => addBet("number", num)}
+                      className={`${
+                        color === 'red' ? 'bg-red-600 hover:bg-red-700' : 'bg-gray-900 hover:bg-gray-800'
+                      } text-white p-2 rounded text-sm font-bold h-12`}
+                    >
+                      {num}
+                    </button>
+                  );
+                })}
+              </div>
+              
+              <div className="grid grid-cols-12 gap-1 mb-3">
+                {/* Row 3: 1, 4, 7, 10, 13, 16, 19, 22, 25, 28, 31, 34 */}
+                {[1, 4, 7, 10, 13, 16, 19, 22, 25, 28, 31, 34].map((num) => {
+                  const color = getNumberColor(num);
+                  return (
+                    <button
+                      key={num}
+                      onClick={() => addBet("number", num)}
+                      className={`${
+                        color === 'red' ? 'bg-red-600 hover:bg-red-700' : 'bg-gray-900 hover:bg-gray-800'
+                      } text-white p-2 rounded text-sm font-bold h-12`}
+                    >
+                      {num}
+                    </button>
+                  );
+                })}
+              </div>
+
+              {/* Column Bets */}
+              <div className="grid grid-cols-4 gap-1 mb-3">
+                <button
+                  onClick={() => addBet("column", 1)}
+                  className="bg-gray-700 hover:bg-gray-600 text-white p-2 rounded text-xs font-bold col-span-1"
+                >
+                  1 to 12
+                </button>
+                <button
+                  onClick={() => addBet("column", 2)}
+                  className="bg-gray-700 hover:bg-gray-600 text-white p-2 rounded text-xs font-bold col-span-1"
+                >
+                  13 to 24
+                </button>
+                <button
+                  onClick={() => addBet("column", 3)}
+                  className="bg-gray-700 hover:bg-gray-600 text-white p-2 rounded text-xs font-bold col-span-1"
+                >
+                  25 to 36
+                </button>
+                <div className="col-span-1">
+                  <button
+                    onClick={() => addBet("2to1-top")}
+                    className="bg-gray-700 hover:bg-gray-600 text-white p-1 rounded text-xs font-bold w-full h-8"
+                  >
+                    2:1
+                  </button>
+                </div>
+              </div>
+
+              {/* Outside Bets */}
+              <div className="grid grid-cols-6 gap-1">
+                <button
+                  onClick={() => addBet("low")}
+                  className="bg-gray-700 hover:bg-gray-600 text-white p-2 rounded text-sm font-bold"
+                >
+                  1-18
+                </button>
+                <button
+                  onClick={() => addBet("even")}
+                  className="bg-gray-700 hover:bg-gray-600 text-white p-2 rounded text-sm font-bold"
+                >
+                  Even
+                </button>
+                <button
+                  onClick={() => addBet("red")}
+                  className="bg-red-600 hover:bg-red-700 text-white p-2 rounded text-sm font-bold"
+                >
+                  Red
+                </button>
+                <button
+                  onClick={() => addBet("black")}
+                  className="bg-gray-900 hover:bg-gray-800 text-white p-2 rounded text-sm font-bold"
+                >
+                  Black
+                </button>
+                <button
+                  onClick={() => addBet("odd")}
+                  className="bg-gray-700 hover:bg-gray-600 text-white p-2 rounded text-sm font-bold"
+                >
+                  Odd
+                </button>
+                <button
+                  onClick={() => addBet("high")}
+                  className="bg-gray-700 hover:bg-gray-600 text-white p-2 rounded text-sm font-bold"
+                >
+                  19-36
+                </button>
+              </div>
+            </div>
+
+            {/* Right side 2:1 bets */}
+            <div className="flex flex-col gap-1">
+              <button
+                onClick={() => addBet("2to1-1")}
+                className="bg-gray-700 hover:bg-gray-600 text-white p-2 rounded text-xs font-bold h-12 w-12"
+              >
+                2:1
+              </button>
+              <button
+                onClick={() => addBet("2to1-2")}
+                className="bg-gray-700 hover:bg-gray-600 text-white p-2 rounded text-xs font-bold h-12 w-12"
+              >
+                2:1
+              </button>
+              <button
+                onClick={() => addBet("2to1-3")}
+                className="bg-gray-700 hover:bg-gray-600 text-white p-2 rounded text-xs font-bold h-12 w-12"
+              >
+                2:1
+              </button>
+            </div>
           </div>
         </div>
 
