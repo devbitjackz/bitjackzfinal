@@ -433,10 +433,24 @@ export default function RouletteGame() {
               </div>
             </div>
             
-            <div className="text-white text-sm">
-              <p>Total Bets: ${getTotalBets().toFixed(2)}</p>
+            <div className="text-white text-sm space-y-2">
+              <div className="flex justify-between">
+                <span>Selected Chip:</span>
+                <span className="font-bold text-casino-gold">${selectedChip}</span>
+              </div>
+              <div className="flex justify-between">
+                <span>Total Bets:</span>
+                <span className="font-bold text-green-400">${getTotalBets().toFixed(2)}</span>
+              </div>
+              <div className="flex justify-between">
+                <span>Active Bets:</span>
+                <span className="font-bold text-blue-400">{Object.keys(selectedBets).length}</span>
+              </div>
               {lastResult !== null && (
-                <p className="mt-1">Last Result: <span className={`font-bold ${getNumberColor(lastResult) === 'red' ? 'text-red-500' : getNumberColor(lastResult) === 'green' ? 'text-green-500' : 'text-white'}`}>{lastResult}</span></p>
+                <div className="flex justify-between">
+                  <span>Last Result:</span>
+                  <span className={`font-bold ${getNumberColor(lastResult) === 'red' ? 'text-red-500' : getNumberColor(lastResult) === 'green' ? 'text-green-500' : 'text-white'}`}>{lastResult}</span>
+                </div>
               )}
             </div>
 
@@ -467,11 +481,10 @@ export default function RouletteGame() {
             
             <Button
               onClick={clearBets}
-              variant="outline"
-              className="w-full border-gray-600 text-white hover:bg-gray-700 h-10"
+              className="w-full bg-red-600 hover:bg-red-700 text-white font-bold h-10"
               disabled={isSpinning}
             >
-              Clear All Bets
+              Clear All Bets ({Object.keys(selectedBets).length})
             </Button>
           </div>
         </div>
