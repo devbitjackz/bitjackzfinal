@@ -61,8 +61,13 @@ export default function RouletteGame() {
         if (winningIndex !== -1) {
           // Calculate exact position to center the winning number under the indicator
           const tileWidth = 64; // Width of each number tile
-          const containerCenter = 400; // Approximate center of visible area
-          const targetPosition = (winningIndex * tileWidth) - containerCenter;
+          const containerWidth = 800; // Approximate container width
+          const containerCenter = containerWidth / 2; // Center of visible area
+          
+          // We need to account for the repeating pattern
+          // Use the middle repetition (index + 38) for better centering
+          const adjustedIndex = winningIndex + rouletteNumbers.length;
+          const targetPosition = (adjustedIndex * tileWidth) - containerCenter + (tileWidth / 2);
           
           // Set the final position to stop at winning number
           setWheelRotation(targetPosition);
@@ -220,19 +225,29 @@ export default function RouletteGame() {
             </div>
             
             {/* Winning indicator */}
-            <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 pointer-events-none">
-              <div className="w-1 h-20 bg-yellow-400 rounded-full shadow-lg"></div>
+            <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 pointer-events-none z-20">
+              <div className="w-1 h-16 bg-yellow-400 rounded-full shadow-lg"></div>
               <div className="absolute top-0 left-1/2 transform -translate-x-1/2 -translate-y-2">
                 <div className="w-0 h-0 border-l-4 border-r-4 border-b-8 border-l-transparent border-r-transparent border-b-yellow-400"></div>
+              </div>
+              <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 translate-y-2">
+                <div className="w-0 h-0 border-l-4 border-r-4 border-t-8 border-l-transparent border-r-transparent border-t-yellow-400"></div>
               </div>
             </div>
             
             {/* Result display */}
             {lastResult !== null && (
-              <div className="absolute top-2 left-2 bg-black bg-opacity-75 rounded px-3 py-1">
+              <div className="absolute top-2 left-2 bg-black bg-opacity-75 rounded px-3 py-1 z-10">
                 <span className="text-white text-sm font-bold">
-                  Last: <span className={`${getNumberColor(lastResult) === 'red' ? 'text-red-400' : getNumberColor(lastResult) === 'green' ? 'text-green-400' : 'text-white'}`}>{lastResult}</span>
+                  Winner: <span className={`${getNumberColor(lastResult) === 'red' ? 'text-red-400' : getNumberColor(lastResult) === 'green' ? 'text-green-400' : 'text-white'}`}>{lastResult}</span>
                 </span>
+              </div>
+            )}
+            
+            {/* Spinning indicator */}
+            {isSpinning && (
+              <div className="absolute top-2 right-2 bg-black bg-opacity-75 rounded px-3 py-1 z-10">
+                <span className="text-white text-sm font-bold animate-pulse">Spinning...</span>
               </div>
             )}
           </div>
