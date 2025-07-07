@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { useLocation } from "wouter";
 import { ArrowLeft, TrendingUp } from "lucide-react";
@@ -22,10 +22,42 @@ export default function LimboGame() {
   const { toast } = useToast();
   const [betAmount, setBetAmount] = useState("10.00");
   const [targetMultiplier, setTargetMultiplier] = useState("2.00");
+  const [lastResult, setLastResult] = useState<LimboResult | null>(null);
+  const [animatingMultiplier, setAnimatingMultiplier] = useState<number>(1.00);
+  const [isAnimating, setIsAnimating] = useState(false);
 
   const { data: balance } = useQuery<{ balance: number }>({
     queryKey: ["/api/balance"],
   });
+
+  // Animation effect for multiplier counting up
+  useEffect(() => {
+    if (isAnimating && lastResult) {
+      let startTime = Date.now();
+      const duration = 2000; // 2 seconds animation
+      const startValue = 1.00;
+      const endValue = lastResult.randomMultiplier;
+      
+      const animate = () => {
+        const elapsed = Date.now() - startTime;
+        const progress = Math.min(elapsed / duration, 1);
+        
+        // Ease-out animation
+        const easeOut = 1 - Math.pow(1 - progress, 3);
+        const currentValue = startValue + (endValue - startValue) * easeOut;
+        
+        setAnimatingMultiplier(currentValue);
+        
+        if (progress < 1) {
+          requestAnimationFrame(animate);
+        } else {
+          setIsAnimating(false);
+        }
+      };
+      
+      animate();
+    }
+  }, [isAnimating, lastResult]);
 
   const playGameMutation = useMutation({
     mutationFn: async (gameData: { betAmount: number; target: number }) => {
@@ -33,21 +65,27 @@ export default function LimboGame() {
       return response.json() as Promise<LimboResult>;
     },
     onSuccess: (data) => {
+      setLastResult(data);
+      setAnimatingMultiplier(1.00);
+      setIsAnimating(true);
+      
       queryClient.invalidateQueries({ queryKey: ["/api/balance"] });
       queryClient.invalidateQueries({ queryKey: ["/api/games/recent"] });
       
-      if (data.result === "win") {
-        toast({
-          title: "Winner!",
-          description: `Random multiplier: ${data.randomMultiplier.toFixed(2)}x - You won $${data.payout.toFixed(2)}`,
-        });
-      } else {
-        toast({
-          title: "Too low!",
-          description: `Random multiplier: ${data.randomMultiplier.toFixed(2)}x was below your target`,
-          variant: "destructive",
-        });
-      }
+      setTimeout(() => {
+        if (data.result === "win") {
+          toast({
+            title: "Winner!",
+            description: `Random multiplier: ${data.randomMultiplier.toFixed(2)}x - You won $${data.payout.toFixed(2)}`,
+          });
+        } else {
+          toast({
+            title: "Too low!",
+            description: `Random multiplier: ${data.randomMultiplier.toFixed(2)}x was below your target`,
+            variant: "destructive",
+          });
+        }
+      }, 2000); // Show toast after animation completes
     },
     onError: () => {
       toast({
@@ -103,6 +141,27 @@ export default function LimboGame() {
               <div className="text-2xl font-bold casino-gold mb-2">How Low Can You Go?</div>
               <div className="text-gray-300">Beat the random multiplier</div>
             </div>
+
+            {/* Animated Multiplier Display */}
+            {(isAnimating || lastResult) && (
+              <div className="text-center mb-8 p-6 rounded-lg bg-gray-900/50 border border-casino-gold/20">
+                <div className="text-sm text-gray-400 mb-2">Random Multiplier</div>
+                <div 
+                  className={`text-6xl font-bold transition-all duration-300 ${
+                    lastResult ? 
+                      (lastResult.result === 'win' ? 'text-green-400' : 'text-red-400')
+                      : 'casino-gold'
+                  } ${isAnimating ? 'animate-pulse' : ''}`}
+                >
+                  {animatingMultiplier.toFixed(2)}x
+                </div>
+                {lastResult && !isAnimating && (
+                  <div className={`text-lg mt-2 ${lastResult.result === 'win' ? 'text-green-400' : 'text-red-400'}`}>
+                    {lastResult.result === 'win' ? 'WIN!' : 'LOSE!'}
+                  </div>
+                )}
+              </div>
+            )}
             
             <div className="grid grid-cols-3 gap-4 text-center">
               <div>
