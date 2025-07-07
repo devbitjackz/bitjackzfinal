@@ -113,6 +113,7 @@ Six casino games are fully implemented:
 - July 07, 2025. Enhanced Crash Game with curved rocket trajectory - replaced straight line path with smooth parabolic curve, rocket now follows realistic arc trajectory with dynamic rotation and scaling
 - July 07, 2025. Enhanced Limbo Game with custom multiplier formula (1/(0-1) * 93/100, min 1x, max 10.56x), animated number counting up from 1x, green/red color coding for wins/losses, and 2-second smooth animation with pulsing effects
 - July 07, 2025. Set Dice Game RTP to 93% by applying 0.93 multiplier to payout calculations, ensuring consistent house edge across all games - RTP is built into multiplier calculations rather than displayed separately
+- July 07, 2025. Enhanced Mines Game with improved visuals, animations, live statistics display, better mine distribution algorithm, and consistent 93% RTP across all casino games
 
 ## User Preferences
 

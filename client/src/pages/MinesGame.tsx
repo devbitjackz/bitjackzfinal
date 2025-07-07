@@ -71,6 +71,13 @@ export default function MinesGame() {
     
     const newSelectedTiles = [...selectedTiles, tileIndex];
     setSelectedTiles(newSelectedTiles);
+    
+    // Add click sound effect (visual feedback)
+    const tile = document.querySelector(`[data-tile="${tileIndex}"]`);
+    if (tile) {
+      tile.classList.add('animate-pulse');
+      setTimeout(() => tile.classList.remove('animate-pulse'), 300);
+    }
   };
 
   const handleStartGame = () => {
@@ -108,7 +115,7 @@ export default function MinesGame() {
   };
 
   const currentMultiplier = selectedTiles.length > 0 ? 
-    Math.pow((25 - parseInt(minesCount)) / (25 - parseInt(minesCount) - selectedTiles.length + 1), selectedTiles.length) : 1;
+    Math.pow((25 - parseInt(minesCount)) / (25 - parseInt(minesCount) - selectedTiles.length + 1), selectedTiles.length) * 0.93 : 1;
 
   return (
     <div className="pt-24 pb-8 px-4 sm:px-6 lg:px-8 min-h-screen">
@@ -130,29 +137,37 @@ export default function MinesGame() {
         <Card className="casino-bg-blue border-casino-gold/20 mb-6">
           <CardContent className="p-8">
             <div className="text-center mb-8">
-              <div className="text-2xl font-bold casino-gold mb-2">
-                {gameActive ? `${currentMultiplier.toFixed(2)}x` : "Start Game"}
+              <div className="text-4xl font-bold casino-gold mb-2">
+                {gameActive ? `${currentMultiplier.toFixed(2)}x` : "MINES"}
               </div>
-              <div className="text-gray-300">
-                {gameActive ? "Click tiles to reveal gems - avoid mines!" : "Select tiles carefully"}
+              <div className="text-xl text-gray-300">
+                {gameActive ? `${selectedTiles.length} tiles revealed - ${parseInt(minesCount)} mines hidden` : "Reveal tiles to find gems and avoid mines"}
               </div>
+              {gameActive && (
+                <div className="text-green-400 text-lg mt-2">
+                  Potential win: ${(parseFloat(betAmount) * currentMultiplier).toFixed(2)}
+                </div>
+              )}
             </div>
             
             {/* Mines Grid */}
-            <div className="grid grid-cols-5 gap-2 mb-6">
+            <div className="grid grid-cols-5 gap-3 mb-6 mx-auto max-w-lg">
               {Array.from({ length: 25 }, (_, i) => (
                 <button
                   key={i}
+                  data-tile={i}
                   onClick={() => handleTileClick(i)}
                   disabled={!gameActive || selectedTiles.includes(i)}
-                  className={`aspect-square rounded-lg border-2 transition-all duration-200 flex items-center justify-center text-2xl ${
+                  className={`aspect-square rounded-xl border-2 transition-all duration-300 flex items-center justify-center text-3xl font-bold transform hover:scale-105 shadow-lg ${
                     selectedTiles.includes(i)
                       ? revealedMines.includes(i)
-                        ? "bg-red-500 border-red-400"
-                        : "bg-green-500 border-green-400"
+                        ? "bg-red-500 border-red-400 animate-pulse"
+                        : "bg-green-500 border-green-400 animate-bounce"
                       : revealedMines.includes(i)
-                      ? "bg-red-500 border-red-400"
-                      : "bg-casino-navy border-casino-gold/20 hover:border-casino-gold/50"
+                      ? "bg-red-500 border-red-400 animate-pulse"
+                      : gameActive 
+                      ? "bg-gray-700 border-casino-gold/30 hover:border-casino-gold hover:bg-gray-600 cursor-pointer"
+                      : "bg-gray-800 border-gray-600 cursor-not-allowed"
                   }`}
                 >
                   {selectedTiles.includes(i) ? (
@@ -236,21 +251,43 @@ export default function MinesGame() {
           </CardContent>
         </Card>
 
+        {/* Game Statistics */}
+        {gameActive && (
+          <Card className="casino-bg-blue/30 border-casino-gold/20 mb-6">
+            <CardContent className="p-4">
+              <div className="grid grid-cols-3 gap-4 text-center">
+                <div>
+                  <div className="text-2xl font-bold casino-gold">{selectedTiles.length}</div>
+                  <div className="text-sm text-gray-400">Tiles Revealed</div>
+                </div>
+                <div>
+                  <div className="text-2xl font-bold text-red-400">{parseInt(minesCount)}</div>
+                  <div className="text-sm text-gray-400">Mines Remaining</div>
+                </div>
+                <div>
+                  <div className="text-2xl font-bold text-green-400">{25 - parseInt(minesCount) - selectedTiles.length}</div>
+                  <div className="text-sm text-gray-400">Safe Tiles Left</div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
         {/* Action Buttons */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <Button
             onClick={handleStartGame}
             disabled={gameActive || playGameMutation.isPending}
-            className="bg-casino-gold hover:bg-casino-gold/90 text-casino-navy py-6 text-lg font-bold"
+            className="bg-casino-gold hover:bg-casino-gold/90 text-casino-navy py-6 text-lg font-bold transition-all duration-200 transform hover:scale-105"
           >
             {gameActive ? "Game Active" : "Start Game"}
           </Button>
           <Button
             onClick={handleCashOut}
-            disabled={!gameActive || playGameMutation.isPending}
-            className="bg-red-500 hover:bg-red-600 text-white py-6 text-lg font-bold"
+            disabled={!gameActive || playGameMutation.isPending || selectedTiles.length === 0}
+            className="bg-green-500 hover:bg-green-600 text-white py-6 text-lg font-bold transition-all duration-200 transform hover:scale-105"
           >
-            {playGameMutation.isPending ? "Processing..." : `Cash Out ${currentMultiplier.toFixed(2)}x`}
+            {playGameMutation.isPending ? "Processing..." : selectedTiles.length === 0 ? "Select Tiles First" : `Cash Out $${(parseFloat(betAmount) * currentMultiplier).toFixed(2)}`}
           </Button>
         </div>
       </div>

@@ -408,10 +408,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ error: "Insufficient balance" });
       }
       
-      // Generate mine positions
+      // Generate mine positions with better distribution
       const minePositions = new Set<number>();
-      while (minePositions.size < gameData.minesCount) {
-        minePositions.add(Math.floor(Math.random() * 25));
+      const shuffledPositions = Array.from({ length: 25 }, (_, i) => i).sort(() => Math.random() - 0.5);
+      for (let i = 0; i < gameData.minesCount; i++) {
+        minePositions.add(shuffledPositions[i]);
       }
       
       let won = true;
