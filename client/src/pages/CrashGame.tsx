@@ -317,21 +317,35 @@ export default function CrashGame() {
                         </linearGradient>
                       </defs>
                       
-                      {/* Rocket trajectory line - follows exact rocket position */}
-                      <path
-                        d={`M 30 190 L ${Math.min(480, 30 + (gameStatus.currentMultiplier - 1) * 120)} ${Math.max(10, 190 - (gameStatus.currentMultiplier - 1) * 180)}`}
-                        stroke="url(#graphGradient)"
-                        strokeWidth="4"
-                        fill="none"
-                        className="transition-all duration-50 ease-out"
-                      />
-                      
-                      {/* Fill area under trajectory */}
-                      <path
-                        d={`M 30 190 L ${Math.min(480, 30 + (gameStatus.currentMultiplier - 1) * 120)} ${Math.max(10, 190 - (gameStatus.currentMultiplier - 1) * 180)} L ${Math.min(480, 30 + (gameStatus.currentMultiplier - 1) * 120)} 190 L 30 190 Z`}
-                        fill="url(#graphFill)"
-                        className="transition-all duration-50 ease-out"
-                      />
+                      {(() => {
+                        // Calculate rocket position in SVG coordinates (600x200 viewBox)
+                        const rocketLeftPercent = Math.min(80, 5 + (gameStatus.currentMultiplier - 1) * 20);
+                        const rocketBottomPercent = Math.min(95, 5 + (gameStatus.currentMultiplier - 1) * 30);
+                        
+                        // Convert to SVG coordinates
+                        const rocketX = (rocketLeftPercent / 100) * 600;
+                        const rocketY = 200 - ((rocketBottomPercent / 100) * 200);
+                        
+                        return (
+                          <>
+                            {/* Rocket trajectory line - follows exact rocket position */}
+                            <path
+                              d={`M 30 190 L ${rocketX} ${rocketY}`}
+                              stroke="url(#graphGradient)"
+                              strokeWidth="4"
+                              fill="none"
+                              className="transition-all duration-50 ease-out"
+                            />
+                            
+                            {/* Fill area under trajectory */}
+                            <path
+                              d={`M 30 190 L ${rocketX} ${rocketY} L ${rocketX} 190 L 30 190 Z`}
+                              fill="url(#graphFill)"
+                              className="transition-all duration-50 ease-out"
+                            />
+                          </>
+                        );
+                      })()}
 
                     </svg>
                     
