@@ -194,7 +194,7 @@ export default function DiceGame() {
           </div>
 
           {/* Game Stats */}
-          <div className="grid grid-cols-3 gap-8 text-center">
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-8 text-center">
             <div className="bg-gray-800 rounded-lg p-4">
               <div className="text-white text-2xl font-bold">{multiplier.toFixed(4)}</div>
               <div className="text-gray-400 text-sm flex items-center justify-center">
@@ -212,6 +212,10 @@ export default function DiceGame() {
                 <span className="mr-1">Win Chance</span>
                 <span className="text-xs">%</span>
               </div>
+            </div>
+            <div className="bg-gray-800 rounded-lg p-4">
+              <div className="text-green-400 text-2xl font-bold">90.0%</div>
+              <div className="text-gray-400 text-sm">RTP</div>
             </div>
           </div>
         </div>
@@ -277,7 +281,7 @@ export default function DiceGame() {
           </div>
           
           {/* Game Stats - Mobile friendly */}
-          <div className="grid grid-cols-3 gap-4 text-center mt-6">
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 text-center mt-6">
             <div className="bg-gray-700 rounded-lg p-3">
               <div className="text-white text-xl font-bold">{multiplier.toFixed(2)}</div>
               <div className="text-gray-400 text-xs">Multiplier</div>
@@ -289,6 +293,10 @@ export default function DiceGame() {
             <div className="bg-gray-700 rounded-lg p-3">
               <div className="text-white text-xl font-bold">{winChance.toFixed(1)}%</div>
               <div className="text-gray-400 text-xs">Win Chance</div>
+            </div>
+            <div className="bg-gray-700 rounded-lg p-3">
+              <div className="text-green-400 text-xl font-bold">90.0%</div>
+              <div className="text-gray-400 text-xs">RTP</div>
             </div>
           </div>
         </div>
