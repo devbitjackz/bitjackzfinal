@@ -63,7 +63,10 @@ export default function RouletteGame() {
         if (winningIndex !== -1) {
           // Calculate exact position to center the winning number under the indicator
           const tileWidth = 64;
-          const containerCenter = 400; // Center of visible area (half of 800px)
+          // The indicator is at the center of the container (left-1/2)
+          // Container width is approximately 800px after padding, so center is at ~400px
+          const containerWidth = 800;
+          const containerCenter = containerWidth / 2;
           
           // Calculate how many complete cycles we've spun
           const cycleLength = rouletteNumbers.length * tileWidth;
@@ -72,9 +75,9 @@ export default function RouletteGame() {
           // Add 3 more full cycles for dramatic effect, then stop at winning number
           const targetCycle = currentCycle + 3;
           const basePosition = targetCycle * cycleLength;
-          const winningPosition = winningIndex * tileWidth;
-          // Center the winning number perfectly under the indicator
-          const targetPosition = basePosition + winningPosition - containerCenter + (tileWidth / 2);
+          const winningTilePosition = winningIndex * tileWidth;
+          // Position so the CENTER of the winning tile aligns with the center indicator
+          const targetPosition = basePosition + winningTilePosition - containerCenter + (tileWidth / 2);
           
           // Stop the spinning animation and move to target
           stopSpinningAnimation(targetPosition);
