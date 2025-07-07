@@ -41,10 +41,6 @@ export default function MinesGame() {
       queryClient.invalidateQueries({ queryKey: ["/api/balance"] });
       queryClient.invalidateQueries({ queryKey: ["/api/games/recent"] });
       
-      // Only reveal all mines if the game ended (hit a mine or cashed out)
-      if (data.result === "loss") {
-        setRevealedMines(data.minePositions);
-      }
       setGameActive(false);
       
       if (data.result === "win") {
@@ -52,13 +48,8 @@ export default function MinesGame() {
           title: "Winner!",
           description: `You avoided all mines! Won $${data.payout.toFixed(2)} with ${data.multiplier.toFixed(2)}x!`,
         });
-      } else {
-        toast({
-          title: "BOOM!",
-          description: "You hit a mine! Better luck next time.",
-          variant: "destructive",
-        });
       }
+      // Don't show notifications for losses - handled by immediate mine hit
     },
     onError: () => {
       setGameActive(false);
@@ -81,16 +72,15 @@ export default function MinesGame() {
       // Hit a mine - end game immediately
       setRevealedMines(minePositions);
       setGameActive(false);
-      toast({
-        title: "BOOM!",
-        description: "You hit a mine! Better luck next time.",
-        variant: "destructive",
-      });
       
-      // Update balance on backend
+      // Call backend to handle mine hit loss
       const bet = parseFloat(betAmount);
-      const mines = parseInt(minesCount);
-      playGameMutation.mutate({ betAmount: bet, minesCount: mines, selectedTiles: newSelectedTiles });
+      apiRequest("POST", "/api/games/mines/loss", { betAmount: bet })
+        .then(() => {
+          queryClient.invalidateQueries({ queryKey: ["/api/balance"] });
+          queryClient.invalidateQueries({ queryKey: ["/api/games/recent"] });
+        });
+      
       return;
     }
     
@@ -143,7 +133,11 @@ export default function MinesGame() {
     const bet = parseFloat(betAmount);
     const mines = parseInt(minesCount);
     
-    playGameMutation.mutate({ betAmount: bet, minesCount: mines, selectedTiles });
+    // Only cash out if no mines were hit
+    const hitMine = selectedTiles.some(tile => minePositions.includes(tile));
+    if (!hitMine) {
+      playGameMutation.mutate({ betAmount: bet, minesCount: mines, selectedTiles });
+    }
   };
 
   const currentMultiplier = selectedTiles.length > 0 ? 
@@ -204,56 +198,30 @@ export default function MinesGame() {
                 >
                   {selectedTiles.includes(i) ? (
                     minePositions.includes(i) ? (
-                      <svg className="w-8 h-8" viewBox="0 0 100 100" fill="none">
-                        {/* Bomb body */}
-                        <circle cx="50" cy="55" r="25" fill="#2d2d2d" stroke="#1a1a1a" strokeWidth="2"/>
-                        <circle cx="50" cy="55" r="20" fill="#1a1a1a"/>
-                        {/* Highlight */}
-                        <ellipse cx="45" cy="48" rx="8" ry="6" fill="#404040" opacity="0.8"/>
-                        {/* Fuse */}
-                        <rect x="48" y="25" width="4" height="15" fill="#8B4513" rx="2"/>
-                        {/* Spark */}
-                        <circle cx="50" cy="22" r="3" fill="#FFA500"/>
-                        <path d="M47 19 L50 16 L53 19" stroke="#FF4500" strokeWidth="2" strokeLinecap="round"/>
-                        <path d="M45 21 L48 18 L51 21" stroke="#FF6347" strokeWidth="1.5" strokeLinecap="round"/>
-                      </svg>
+                      <div className="w-12 h-12 flex items-center justify-center">
+                        <div className="w-10 h-10 bg-gray-900 rounded-full border-2 border-red-600 flex items-center justify-center relative">
+                          <div className="w-6 h-6 bg-black rounded-full"></div>
+                          <div className="absolute -top-2 left-1/2 transform -translate-x-1/2 w-1 h-3 bg-orange-400 rounded-full"></div>
+                          <div className="absolute -top-3 left-1/2 transform -translate-x-1/2 w-2 h-2 bg-orange-500 rounded-full animate-pulse"></div>
+                        </div>
+                      </div>
                     ) : (
-                      <svg className="w-8 h-8" viewBox="0 0 100 100" fill="none">
-                        {/* Diamond gem */}
-                        <path d="M50 15 L25 40 L50 85 L75 40 Z" fill="url(#gemGradient)" stroke="#1e40af" strokeWidth="2"/>
-                        <path d="M50 15 L35 35 L50 45 L65 35 Z" fill="url(#gemTopGradient)"/>
-                        <path d="M25 40 L50 45 L75 40 L50 85 Z" fill="url(#gemBottomGradient)"/>
-                        <defs>
-                          <linearGradient id="gemGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                            <stop offset="0%" stopColor="#60a5fa"/>
-                            <stop offset="50%" stopColor="#3b82f6"/>
-                            <stop offset="100%" stopColor="#1d4ed8"/>
-                          </linearGradient>
-                          <linearGradient id="gemTopGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                            <stop offset="0%" stopColor="#bfdbfe"/>
-                            <stop offset="100%" stopColor="#60a5fa"/>
-                          </linearGradient>
-                          <linearGradient id="gemBottomGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                            <stop offset="0%" stopColor="#3b82f6"/>
-                            <stop offset="100%" stopColor="#1e40af"/>
-                          </linearGradient>
-                        </defs>
-                      </svg>
+                      <div className="w-12 h-12 flex items-center justify-center">
+                        <div className="w-8 h-8 bg-gradient-to-br from-blue-400 via-blue-500 to-blue-700 transform rotate-45 relative">
+                          <div className="absolute inset-1 bg-gradient-to-br from-cyan-200 via-blue-300 to-blue-500 transform -rotate-45 rounded-sm"></div>
+                          <div className="absolute inset-2 bg-gradient-to-br from-white via-cyan-100 to-blue-300 transform -rotate-45 rounded-sm"></div>
+                          <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-2 h-2 bg-white rounded-full opacity-80"></div>
+                        </div>
+                      </div>
                     )
                   ) : revealedMines.includes(i) ? (
-                    <svg className="w-8 h-8" viewBox="0 0 100 100" fill="none">
-                      {/* Bomb body */}
-                      <circle cx="50" cy="55" r="25" fill="#2d2d2d" stroke="#1a1a1a" strokeWidth="2"/>
-                      <circle cx="50" cy="55" r="20" fill="#1a1a1a"/>
-                      {/* Highlight */}
-                      <ellipse cx="45" cy="48" rx="8" ry="6" fill="#404040" opacity="0.8"/>
-                      {/* Fuse */}
-                      <rect x="48" y="25" width="4" height="15" fill="#8B4513" rx="2"/>
-                      {/* Spark */}
-                      <circle cx="50" cy="22" r="3" fill="#FFA500"/>
-                      <path d="M47 19 L50 16 L53 19" stroke="#FF4500" strokeWidth="2" strokeLinecap="round"/>
-                      <path d="M45 21 L48 18 L51 21" stroke="#FF6347" strokeWidth="1.5" strokeLinecap="round"/>
-                    </svg>
+                    <div className="w-12 h-12 flex items-center justify-center">
+                      <div className="w-10 h-10 bg-gray-900 rounded-full border-2 border-red-600 flex items-center justify-center relative">
+                        <div className="w-6 h-6 bg-black rounded-full"></div>
+                        <div className="absolute -top-2 left-1/2 transform -translate-x-1/2 w-1 h-3 bg-orange-400 rounded-full"></div>
+                        <div className="absolute -top-3 left-1/2 transform -translate-x-1/2 w-2 h-2 bg-orange-500 rounded-full animate-pulse"></div>
+                      </div>
+                    </div>
                   ) : null}
                 </button>
               ))}

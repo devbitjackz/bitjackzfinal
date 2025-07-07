@@ -408,53 +408,74 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ error: "Insufficient balance" });
       }
       
-      // Generate mine positions with better distribution
-      const minePositions = new Set<number>();
-      const shuffledPositions = Array.from({ length: 25 }, (_, i) => i).sort(() => Math.random() - 0.5);
-      for (let i = 0; i < gameData.minesCount; i++) {
-        minePositions.add(shuffledPositions[i]);
-      }
-      
-      let won = true;
-      let multiplier = 1;
-      
-      if (gameData.selectedTiles) {
-        // Check if any selected tile is a mine
-        for (const tile of gameData.selectedTiles) {
-          if (minePositions.has(tile)) {
-            won = false;
-            break;
-          }
-        }
+      // Only process cashouts, not mine hits (frontend handles mine detection)
+      if (gameData.selectedTiles && gameData.selectedTiles.length > 0) {
+        // Calculate multiplier based on tiles revealed and mines (for cashouts only)
+        const tilesRevealed = gameData.selectedTiles.length;
+        const safeTiles = 25 - gameData.minesCount;
+        const multiplier = Math.pow(safeTiles / (safeTiles - tilesRevealed + 1), tilesRevealed) * 0.93; // Apply 93% RTP
         
-        if (won) {
-          // Calculate multiplier based on tiles revealed and mines
-          const tilesRevealed = gameData.selectedTiles.length;
-          const safeTiles = 25 - gameData.minesCount;
-          multiplier = Math.pow(safeTiles / (safeTiles - tilesRevealed + 1), tilesRevealed) * 0.93; // Apply 93% RTP
-        }
+        const payout = gameData.betAmount * multiplier;
+        const newBalance = user.balance - gameData.betAmount + payout;
+        await storage.updateUserBalance(userId, newBalance);
+        
+        await storage.createGameResult({
+          userId,
+          gameType: "mines",
+          betAmount: gameData.betAmount,
+          multiplier,
+          payout,
+          result: "win",
+        });
+        
+        res.json({
+          result: "win",
+          minePositions: [], // Don't send mine positions for cashouts
+          multiplier,
+          payout,
+          newBalance,
+        });
+      } else {
+        // No tiles selected - just return current balance
+        res.json({
+          result: "loss",
+          minePositions: [],
+          multiplier: 0,
+          payout: 0,
+          newBalance: user.balance,
+        });
+      }
+    } catch (error) {
+      res.status(500).json({ error: "Game processing failed" });
+    }
+  });
+
+  // Mines game - handle mine hits
+  app.post("/api/games/mines/loss", async (req, res) => {
+    try {
+      const sessionId = req.headers['x-session-id'] as string || 'demo';
+      const userId = userSessions.get(sessionId) || 1;
+      const { betAmount } = req.body;
+      
+      const user = await storage.getUser(userId);
+      if (!user) {
+        return res.status(400).json({ error: "User not found" });
       }
       
-      const payout = won ? gameData.betAmount * multiplier : 0;
-      const newBalance = user.balance - gameData.betAmount + payout;
+      // Deduct bet amount for mine hit
+      const newBalance = user.balance - betAmount;
       await storage.updateUserBalance(userId, newBalance);
       
       await storage.createGameResult({
         userId,
         gameType: "mines",
-        betAmount: gameData.betAmount,
-        multiplier: won ? multiplier : 0,
-        payout,
-        result: won ? "win" : "loss",
+        betAmount,
+        multiplier: 0,
+        payout: 0,
+        result: "loss",
       });
       
-      res.json({
-        result: won ? "win" : "loss",
-        minePositions: Array.from(minePositions),
-        multiplier,
-        payout,
-        newBalance,
-      });
+      res.json({ newBalance });
     } catch (error) {
       res.status(500).json({ error: "Game processing failed" });
     }
