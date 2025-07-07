@@ -72,11 +72,14 @@ export default function MinesGame() {
     const newSelectedTiles = [...selectedTiles, tileIndex];
     setSelectedTiles(newSelectedTiles);
     
-    // Add click sound effect (visual feedback)
+    // Add tile opening animation
     const tile = document.querySelector(`[data-tile="${tileIndex}"]`);
     if (tile) {
-      tile.classList.add('animate-pulse');
-      setTimeout(() => tile.classList.remove('animate-pulse'), 300);
+      tile.classList.add('animate-ping');
+      setTimeout(() => {
+        tile.classList.remove('animate-ping');
+        tile.classList.add('scale-110');
+      }, 200);
     }
   };
 
@@ -158,13 +161,13 @@ export default function MinesGame() {
                   data-tile={i}
                   onClick={() => handleTileClick(i)}
                   disabled={!gameActive || selectedTiles.includes(i)}
-                  className={`aspect-square rounded-lg border-2 transition-all duration-300 flex items-center justify-center text-4xl font-bold transform hover:scale-105 shadow-lg min-h-16 sm:min-h-20 md:min-h-24 ${
+                  className={`aspect-square rounded-lg border-2 transition-all duration-500 flex items-center justify-center text-4xl font-bold transform hover:scale-105 shadow-lg min-h-16 sm:min-h-20 md:min-h-24 ${
                     selectedTiles.includes(i)
                       ? revealedMines.includes(i)
-                        ? "bg-red-500 border-red-400 animate-pulse"
-                        : "bg-green-500 border-green-400 animate-bounce"
+                        ? "bg-red-900 border-red-600 scale-110 shadow-red-500/50"
+                        : "bg-blue-900 border-blue-600 scale-110 shadow-blue-500/50"
                       : revealedMines.includes(i)
-                      ? "bg-red-500 border-red-400 animate-pulse"
+                      ? "bg-red-900 border-red-600 scale-110 shadow-red-500/50"
                       : gameActive 
                       ? "bg-gray-700 border-casino-gold/30 hover:border-casino-gold hover:bg-gray-600 cursor-pointer"
                       : "bg-gray-800 border-gray-600 cursor-not-allowed"
@@ -172,12 +175,31 @@ export default function MinesGame() {
                 >
                   {selectedTiles.includes(i) ? (
                     revealedMines.includes(i) ? (
-                      <Bomb className="text-white" size={32} />
+                      <div className="relative w-full h-full flex items-center justify-center bg-black rounded-lg">
+                        <div className="w-8 h-8 bg-black rounded-full relative">
+                          <div className="absolute top-1 left-1 w-6 h-6 bg-gray-800 rounded-full"></div>
+                          <div className="absolute top-0 right-0 w-3 h-1 bg-orange-500 rounded-full transform rotate-45"></div>
+                          <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-1 h-2 bg-yellow-400"></div>
+                        </div>
+                      </div>
                     ) : (
-                      <Gem className="text-white" size={32} />
+                      <div className="relative w-full h-full flex items-center justify-center">
+                        <div className="w-8 h-8 relative">
+                          {/* Diamond shape */}
+                          <div className="absolute inset-0 bg-gradient-to-br from-cyan-300 via-blue-400 to-blue-600 transform rotate-45 rounded-sm shadow-lg"></div>
+                          <div className="absolute top-1 left-1 w-6 h-6 bg-gradient-to-br from-cyan-100 via-cyan-200 to-blue-300 transform rotate-45 rounded-sm"></div>
+                          <div className="absolute top-2 left-2 w-4 h-4 bg-gradient-to-br from-white via-cyan-100 to-cyan-200 transform rotate-45 rounded-sm"></div>
+                        </div>
+                      </div>
                     )
                   ) : revealedMines.includes(i) ? (
-                    <Bomb className="text-white" size={32} />
+                    <div className="relative w-full h-full flex items-center justify-center bg-black rounded-lg">
+                      <div className="w-8 h-8 bg-black rounded-full relative">
+                        <div className="absolute top-1 left-1 w-6 h-6 bg-gray-800 rounded-full"></div>
+                        <div className="absolute top-0 right-0 w-3 h-1 bg-orange-500 rounded-full transform rotate-45"></div>
+                        <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-1 h-2 bg-yellow-400"></div>
+                      </div>
+                    </div>
                   ) : null}
                 </button>
               ))}
