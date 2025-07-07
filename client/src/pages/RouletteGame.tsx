@@ -85,9 +85,16 @@ export default function RouletteGame() {
         
         // Show result after stopping
         setTimeout(() => {
-          setLastResult(data.winningNumber);
+          // Stop all animations immediately
+          setIsAnimationStopped(true);
           setIsSpinning(false);
-          setIsAnimationStopped(true); // Stop all animations
+          setLastResult(data.winningNumber);
+          
+          // Cancel any remaining animation frames
+          if (animationFrame) {
+            cancelAnimationFrame(animationFrame);
+            setAnimationFrame(null);
+          }
           
           if (data.result === "win") {
             toast({
@@ -106,7 +113,7 @@ export default function RouletteGame() {
           setTimeout(() => {
             setSelectedBets({});
           }, 3000); // Wait 3 seconds before clearing bets
-        }, 2000); // Wait for deceleration
+        }, 1500); // Wait for deceleration
       }, 2000); // Spin for 2 seconds
     },
     onError: () => {
@@ -134,7 +141,14 @@ export default function RouletteGame() {
   const startSpinningAnimation = () => {
     let spinSpeed = 12; // pixels per frame for faster spinning
     const spin = () => {
-      if (isAnimationStopped) return; // Stop if animation is disabled
+      // Stop if game has ended
+      if (isAnimationStopped) {
+        if (animationFrame) {
+          cancelAnimationFrame(animationFrame);
+          setAnimationFrame(null);
+        }
+        return;
+      }
       
       setWheelRotation(prev => {
         const newPos = prev + spinSpeed;
@@ -150,31 +164,34 @@ export default function RouletteGame() {
   };
 
   const stopSpinningAnimation = (targetPosition: number) => {
+    // First stop the spinning animation
     if (animationFrame) {
       cancelAnimationFrame(animationFrame);
       setAnimationFrame(null);
     }
     
-    // Smooth deceleration to target position
+    // Get current position and smoothly decelerate to target
     let currentPos = wheelRotation;
-    let isDecelerating = true;
+    let animationId: number;
     
     const decelerate = () => {
-      if (!isDecelerating || isAnimationStopped) return;
-      
       const distance = targetPosition - currentPos;
-      const speed = Math.max(Math.abs(distance) * 0.08, 0.5);
+      const speed = Math.max(Math.abs(distance) * 0.1, 1);
       
-      if (Math.abs(distance) < 1) {
+      // If we're close enough, snap to target and stop
+      if (Math.abs(distance) < 2) {
         setWheelRotation(targetPosition);
-        isDecelerating = false;
         return;
       }
       
+      // Move towards target
       currentPos += distance > 0 ? speed : -speed;
       setWheelRotation(currentPos);
-      requestAnimationFrame(decelerate);
+      
+      // Continue deceleration
+      animationId = requestAnimationFrame(decelerate);
     };
+    
     decelerate();
   };
 
