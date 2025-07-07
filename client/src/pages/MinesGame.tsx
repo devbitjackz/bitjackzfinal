@@ -199,22 +199,22 @@ export default function MinesGame() {
                   {selectedTiles.includes(i) ? (
                     minePositions.includes(i) ? (
                       <img 
-                        src="/attached_assets/image_1751887905678.png" 
+                        src="/bomb.png" 
                         alt="Bomb" 
-                        className="w-12 h-12 object-contain"
+                        className="w-16 h-16 object-contain"
                       />
                     ) : (
                       <img 
-                        src="/attached_assets/image_1751887916323.png" 
+                        src="/gem.png" 
                         alt="Gem" 
-                        className="w-12 h-12 object-contain"
+                        className="w-16 h-16 object-contain"
                       />
                     )
                   ) : revealedMines.includes(i) ? (
                     <img 
-                      src="/attached_assets/image_1751887905678.png" 
+                      src="/bomb.png" 
                       alt="Bomb" 
-                      className="w-12 h-12 object-contain"
+                      className="w-16 h-16 object-contain"
                     />
                   ) : null}
                 </button>
