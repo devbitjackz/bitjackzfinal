@@ -11,7 +11,7 @@ export default defineConfig({
     process.env.REPL_ID !== undefined
       ? [
           await import("@replit/vite-plugin-cartographer").then((m) =>
-            m.cartographer(),
+            m.cartographer()
           ),
         ]
       : []),
@@ -33,5 +33,9 @@ export default defineConfig({
       strict: true,
       deny: ["**/.*"],
     },
+    // ✅ ADD THIS SECTION BELOW
+    allowedHosts: [
+      "dc2872e2-a025-43c8-a274-6c257031ddae-00-1uxn3f03gpusc.janeway.replit.dev",
+    ],
   },
 });
